@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "se20"
+version = "0.1.0"
+description = ""
+authors = ["ms <alstjq1012@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pygame = "^2.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
