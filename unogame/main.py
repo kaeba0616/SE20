@@ -4,13 +4,16 @@ from pygame.locals import *
 
 
 class Menu:
-    def __init__(self, items, font, screen):
+    def __init__(self, items, keys, font, screen, visible):
         self.items = items
         self.font = font
         self.screen = screen
         self.selected = 0
         self.title_font = pygame.font.SysFont(None, 72)
         self.title_text = self.title_font.render("Uno Game", True, (255, 255, 255))
+        self.keys = keys
+        self.key_font = pygame.font.SysFont(None, 20)
+        self.visible = visible
 
     def draw(self):
         # Clear the screen
@@ -47,6 +50,34 @@ class Menu:
                         self.selected = (self.selected + 1) % len(self.items)
                     elif event.key == K_RETURN:
                         return self.selected
+                    else:
+                        print(event)
+                        self.visible = not self.visible
+                        if self.visible:
+                            for i, (name, key) in enumerate(self.keys):
+                                text = self.key_font.render(
+                                    f"{name}: {key}",
+                                    True,
+                                    (255, 255, 255),
+                                )
+                                screen.blit(text, (50, 50 + i * 30))
+
+                elif event.type == MOUSEMOTION:
+                    pos = pygame.mouse.get_pos()
+                    for i, item in enumerate(self.items):
+                        text = self.font.render(
+                            item,
+                            True,
+                            (255, 255, 255) if i != self.selected else (255, 0, 0),
+                        )
+                        rect = text.get_rect()
+                        rect.topleft = (
+                            self.screen.get_width() // 2 - text.get_width() // 2,
+                            300 + i * 50,
+                        )
+                        if rect.collidepoint(pos):
+                            self.selected = i
+
                 elif event.type == MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     for i, item in enumerate(self.items):
@@ -57,10 +88,12 @@ class Menu:
                             300 + i * 50,
                         )
                         if rect.collidepoint(pos):
+                            # print(self.items[i])
                             return i
 
             # Draw the menu
-            self.draw()
+            if not self.visible:
+                self.draw()
 
             # Update the screen
             pygame.display.update()
@@ -72,13 +105,26 @@ class Menu:
 # Define the menu items
 menu_items = ["Single Player Game", "Settings", "Exit"]
 
+# Define the key_list
+key_list = [
+    ("LEFT", "Left"),
+    ("RIGHT", "Right"),
+    ("UP", "Up"),
+    ("DOWN", "Down"),
+    ("RETURN", "Enter"),
+    ("ESCAPE", "Esc"),
+]
+
+# Define the opacity percentage and visibiliy flag
+opacity = 120  # 0-255 && have to add to code for setting opacity
+visible = False
 # Initialize pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 font = pygame.font.SysFont(None, 48)
 
 # Create the menu
-menu = Menu(menu_items, font, screen)
+menu = Menu(menu_items, key_list, font, screen, visible)
 
 # Run the menu
 selected = menu.run()
