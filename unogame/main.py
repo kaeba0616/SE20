@@ -1,10 +1,9 @@
-import pygame, time
+import pygame
 import sys
 from pygame.locals import *
-from single_play import start_single_play
+
 
 class Menu:
-    
     def __init__(self, items, keys, font, screen, visible):
         self.items = items
         self.font = font
@@ -15,12 +14,10 @@ class Menu:
         self.keys = keys
         self.key_font = pygame.font.SysFont(None, 20)
         self.visible = visible
-        
-        # Clear the screen
-        self.screen.fill((0, 0, 0))
-
 
     def draw(self):
+        # Clear the screen
+        self.screen.fill((0, 0, 0))
 
         # Draw the title
         self.screen.blit(
@@ -54,7 +51,7 @@ class Menu:
                     elif event.key == K_RETURN:
                         return self.selected
                     else:
-                        # print(event)
+                        print(event)
                         self.visible = not self.visible
                         if self.visible:
                             for i, (name, key) in enumerate(self.keys):
@@ -64,8 +61,6 @@ class Menu:
                                     (255, 255, 255),
                                 )
                                 screen.blit(text, (50, 50 + i * 30))
-                        self.visible = not self.visible
-
 
                 elif event.type == MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
@@ -97,7 +92,8 @@ class Menu:
                             return i
 
             # Draw the menu
-            self.draw()
+            if not self.visible:
+                self.draw()
 
             # Update the screen
             pygame.display.update()
@@ -116,7 +112,6 @@ key_list = [
     ("UP", "Up"),
     ("DOWN", "Down"),
     ("RETURN", "Enter"),
-    ("ESCAPE", "Esc"),
 ]
 
 # Define the opacity percentage and visibiliy flag
@@ -131,19 +126,19 @@ font = pygame.font.SysFont(None, 48)
 menu = Menu(menu_items, key_list, font, screen, visible)
 
 # Run the menu
-while True:
-    selected = menu.run()
+selected = menu.run()
 
-    # Handle the selected menu item
-    if selected == 0:
-        # Start single player game
-        start_single_play(screen)
-        # pass  # Replace with your game code
-    # elif selected == 1:
-    #     # Open settings menu
-    #     pass  # Replace with your settings code
-    # elif selected == 2:
-    else:
-        # Exit the program
-        pygame.quit()
-        sys.exit()
+# Handle the selected menu item
+if selected == 0:
+    # Start single player game
+    print("0")
+    pass  # Replace with your game code
+elif selected == 1:
+    # Open settings menu
+    print("1")
+    pass  # Replace with your settings code
+elif selected == 2:
+    # Exit the program
+    print("2")
+    pygame.quit()
+    sys.exit()
