@@ -1,9 +1,10 @@
-import pygame
+import pygame, time
 import sys
 from pygame.locals import *
 
 
 class Menu:
+    
     def __init__(self, items, keys, font, screen, visible):
         self.items = items
         self.font = font
@@ -14,10 +15,12 @@ class Menu:
         self.keys = keys
         self.key_font = pygame.font.SysFont(None, 20)
         self.visible = visible
-
-    def draw(self):
+        
         # Clear the screen
         self.screen.fill((0, 0, 0))
+
+
+    def draw(self):
 
         # Draw the title
         self.screen.blit(
@@ -51,7 +54,7 @@ class Menu:
                     elif event.key == K_RETURN:
                         return self.selected
                     else:
-                        print(event)
+                        # print(event)
                         self.visible = not self.visible
                         if self.visible:
                             for i, (name, key) in enumerate(self.keys):
@@ -61,6 +64,8 @@ class Menu:
                                     (255, 255, 255),
                                 )
                                 screen.blit(text, (50, 50 + i * 30))
+                        self.visible = not self.visible
+
 
                 elif event.type == MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
@@ -92,8 +97,7 @@ class Menu:
                             return i
 
             # Draw the menu
-            if not self.visible:
-                self.draw()
+            self.draw()
 
             # Update the screen
             pygame.display.update()
