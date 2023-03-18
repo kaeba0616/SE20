@@ -4,7 +4,6 @@ from pygame.locals import *
 
 
 class Menu:
-    
     def __init__(self, items, keys, font, screen, visible):
         self.items = items
         self.font = font
@@ -15,13 +14,11 @@ class Menu:
         self.keys = keys
         self.key_font = pygame.font.SysFont(None, 20)
         self.visible = visible
-        
+
         # Clear the screen
         self.screen.fill((0, 0, 0))
 
-
     def draw(self):
-
         # Draw the title
         self.screen.blit(
             self.title_text,
@@ -65,7 +62,6 @@ class Menu:
                                 )
                                 screen.blit(text, (50, 50 + i * 30))
                         self.visible = not self.visible
-
 
                 elif event.type == MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
@@ -144,5 +140,6 @@ elif selected == 1:
 elif selected == 2:
     # Exit the program
     print("2")
+
     pygame.quit()
     sys.exit()
