@@ -15,7 +15,7 @@ class Setting:
         self.screen = screen
         self.selected = 0
         self.title_font = pygame.font.SysFont(None, 72)
-        self.titles = ["Settings", "Window Size", "Configure Keys", "Color Blindness Mode"]
+        self.titles = ["Settings", "Window Size", "Key Configuration", "Color Blindness Mode"]
         self.keys = keys
         self.key_font = pygame.font.SysFont(None, 20)
         self.option = 0 
@@ -26,7 +26,7 @@ class Setting:
 
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        if self.visible: self.screen.fill((0, 0, 0))
         self.title_text = self.title_font.render(self.titles[self.option], True, (255, 255, 255))
 
         # Draw the title
@@ -66,15 +66,18 @@ class Setting:
                     sys.exit()
                 elif event.type == KEYDOWN:
                     if event.key == K_UP:
-                        self.selected = (self.selected - 1) % len(self.items)
+                        self.selected = (self.selected - 1) % len(self.items[self.option])
                     elif event.key == K_DOWN:
-                        self.selected = (self.selected + 1) % len(self.items)
+                        self.selected = (self.selected + 1) % len(self.items[self.option])
                     elif event.key == K_RETURN:
                         if self.option == 0 and self.selected == 3 :
                             self.reset()
                         elif self.option == 0 and self.selected == 4 :
-                            return
-                        else: self.option = i+1
+                            self.screen.fill((0, 0, 0))
+                            return 0
+                        elif self.option == 0:
+                            self.option = self.selected+1
+                            self.screen.fill((0, 0, 0))
                     elif event.key == K_ESCAPE:
                         pygame.quit()
                         sys.exit()
@@ -144,9 +147,11 @@ class Setting:
                             if self.option == 0 and self.selected == 3 :
                                 self.reset()
                             elif self.option == 0 and self.selected == 4 :
+                                self.screen.fill((0, 0, 0))
                                 return 0
                             elif self.option == 0:
                                 self.option = i+1
+                                self.screen.fill((0, 0, 0))
 
             # Draw the menu
             self.draw()
