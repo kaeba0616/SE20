@@ -1,6 +1,7 @@
 import pygame, time
 import sys
 from pygame.locals import *
+import utils.settings
 
 
 class Menu:
@@ -53,6 +54,9 @@ class Menu:
                         self.selected = (self.selected + 1) % len(self.items)
                     elif event.key == K_RETURN:
                         return self.selected
+                    elif event.key == K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
                     else:
                         # print(event)
                         self.visible = not self.visible
@@ -63,7 +67,7 @@ class Menu:
                                     True,
                                     (255, 255, 255),
                                 )
-                                screen.blit(text, (50, 50 + i * 30))
+                                self.screen.blit(text, (50, 50 + i * 30))
                         self.visible = not self.visible
 
 
@@ -130,16 +134,19 @@ font = pygame.font.SysFont(None, 48)
 # Create the menu
 menu = Menu(menu_items, key_list, font, screen, visible)
 
+
 # Run the menu
 selected = menu.run()
+
+setting = utils.settings.Setting(key_list, font, screen, visible)
 
 # Handle the selected menu item
 if selected == 0:
     # Start single player game
     pass  # Replace with your game code
 elif selected == 1:
+    selected = setting.run()
     # Open settings menu
-    pass  # Replace with your settings code
 elif selected == 2:
     # Exit the program
     pygame.quit()
