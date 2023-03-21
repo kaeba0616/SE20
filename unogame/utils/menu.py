@@ -57,7 +57,7 @@ class Menu:
                     )
                 text.set_alpha(self.visible[1])
                 self.screen.blit(text, (
-                    screenW // 16 * 8,
+                    screenW // 16,
                     screenH // 12 + i * 30
                     ))
             
