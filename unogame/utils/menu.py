@@ -57,14 +57,14 @@ class Menu:
                     )
                 text.set_alpha(self.visible[1])
                 self.screen.blit(text, (
-                    screenW // 10 * 8,
+                    screenW // 16,
                     screenH // 12 + i * 30
                     ))
             
             if self.visible[1] < 10:
                 self.visible[0] = False
                 self.visible[1] = 0
-            else: self.visible[1] -= 5
+            else: self.visible[1] -= 2
 
     def run(self):
         clock = pygame.time.Clock()

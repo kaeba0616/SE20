@@ -23,8 +23,7 @@ screen = pygame.display.set_mode((800, 600))
 font = pygame.font.SysFont(None, 48)
 
 # Create the menu, setting
-menu = menu.Menu(key_list, font, screen, visible)
-setting = settings.Setting(key_list, font, screen)
+menu = menu.Menu(key_list, font, screen)
 
 
 while True:
@@ -35,8 +34,7 @@ while True:
      pass  # Replace with your game code
     elif selected == 1:  
         # Open settings menu
-        screen.fill((0,0,0))
-        selected = setting.run()
+        pass
     elif selected == 2:
         # Exit the program
         pygame.quit()
