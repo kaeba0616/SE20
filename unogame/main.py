@@ -23,7 +23,7 @@ screen = pygame.display.set_mode((800, 600))
 font = pygame.font.SysFont(None, 48)
 
 # Create the menu, setting
-menu = menu.Menu(key_list, font, screen, visible)
+menu = menu.Menu(key_list, font, screen)
 setting = settings.Setting(key_list, font, screen)
 
 
@@ -31,8 +31,8 @@ while True:
     selected = menu.run()
     # Handle the selected menu item
     if selected == 0:
-      # Start single player game
-     pass  # Replace with your game code
+        # Start single player game
+        print("Start Game")  # Replace with your game code
     elif selected == 1:  
         # Open settings menu
         screen.fill((0,0,0))
