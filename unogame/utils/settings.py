@@ -6,10 +6,10 @@ class Setting:
     
     def __init__(self, keys, font, screen, visible):
         self.items = [
-                      ["Window Size", "Key Configuration", "Color Blindness Mode", "Reset Settings", "Save"],
-                      ["size 1", "size 2", "size 3"],
+                      ["Window Size", "Key Configuration", "Color Blindness Mode", "Reset Settings"],
+                      ["size 1", "size 2", "Fullscreen"],
                       keys,
-                      ["Deuteranopia(Red-Green)", "Tritanopia(Blue-Yellow)"],
+                      ["Deuteranopia(Red-Green)", "Tritanopia(Blue-Yellow)", "None"],
                       ]
         self.font = font
         self.screen = screen
@@ -44,7 +44,7 @@ class Setting:
                 True,
                 (255, 255, 255) if i != self.selected else (255, 0, 0)
                 )
-                gap = 60
+                gap = 50
             else:   
                 text = self.font.render(
                     item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
@@ -52,8 +52,17 @@ class Setting:
                 
             self.screen.blit(
                 text,
-                (self.screen.get_width() // 5, self.screen.get_height() // 4 + i * gap),
+                (self.screen.get_width() // 5, self.screen.get_height() // 4 + i * gap)
             )
+        
+        text = self.font.render("Save", True,
+                                (255, 255, 255) if len(self.items[self.option]) != self.selected else (255, 255, 0)
+                                )
+        self.screen.blit(
+            text,
+            (self.screen.get_width() // 5, self.screen.get_height() * 10 // 12)
+            )
+
 
 
     def run(self):
@@ -66,9 +75,9 @@ class Setting:
                     sys.exit()
                 elif event.type == KEYDOWN:
                     if event.key == K_UP:
-                        self.selected = (self.selected - 1) % len(self.items[self.option])
+                        self.selected = (self.selected - 1) % (len(self.items[self.option])+1)
                     elif event.key == K_DOWN:
-                        self.selected = (self.selected + 1) % len(self.items[self.option])
+                        self.selected = (self.selected + 1) % (len(self.items[self.option])+1)
                     elif event.key == K_RETURN:
                         if self.option == 0 and self.selected == 3 :
                             self.reset()
@@ -78,6 +87,13 @@ class Setting:
                         elif self.option == 0:
                             self.option = self.selected+1
                             self.screen.fill((0, 0, 0))
+                        elif self.selected == len(self.items[self.option]):
+                            self.screen.fill((0, 0, 0))
+                            self.option = 0
+                        elif self.option == 1:
+                            self.screenSize(self.selected+1)
+                        
+
                     elif event.key == K_ESCAPE:
                         pygame.quit()
                         sys.exit()
@@ -108,7 +124,7 @@ class Setting:
                                 True,
                                 (255, 255, 255) if i != self.selected else (255, 0, 0)
                             )
-                            gap = 60
+                            gap = 50
                         else:
                             text = self.font.render(
                             item,
@@ -124,6 +140,15 @@ class Setting:
                         if rect.collidepoint(pos):
                             self.selected = i
 
+                    save = self.font.render("Save", True, (255, 255, 255))
+                    rectSave = save.get_rect()
+                    rectSave.topleft = (
+                        self.screen.get_width() // 5,
+                        self.screen.get_height() * 10 // 12
+                    )
+                    if rectSave.collidepoint(pos):
+                        self.selected = len(self.items[self.option])
+
                 elif event.type == MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     gap = 80
@@ -134,24 +159,38 @@ class Setting:
                                 True,
                                 (255, 255, 255)
                             )
-                            gap = 60
-                        else:
-                            text = self.font.render(item,True,(255, 255, 255))
+                            gap = 50
+                        elif type(item) == type(str):
+                            print(type)
+                            #text = self.font.render(item,True,(255, 255, 255)) 
 
                         rect = text.get_rect()
+                        rectSave = save.get_rect()
                         rect.topleft = (
                             self.screen.get_width() // 5,
                             self.screen.get_height() // 4 + i * gap
                         )
+                        rectSave.topleft = (
+                            self.screen.get_width() // 5,
+                            self.screen.get_height() * 10 // 12
+                        )
+
                         if rect.collidepoint(pos):
-                            if self.option == 0 and self.selected == 3 :
+                            if self.option == 0 and self.selected == 3:
                                 self.reset()
-                            elif self.option == 0 and self.selected == 4 :
-                                self.screen.fill((0, 0, 0))
-                                return 0
                             elif self.option == 0:
                                 self.option = i+1
                                 self.screen.fill((0, 0, 0))
+                            elif self.option == 1:
+                                self.screenSize(self.selected+1)
+
+                        if rectSave.collidepoint(pos):
+                            if self.option == 0 and self.selected == 4:
+                                self.screen.fill((0, 0, 0))
+                                return 0
+                            else:
+                                self.screen.fill((0, 0, 0))
+                                self.option = 0
 
             # Draw the menu
             self.draw()
@@ -162,6 +201,14 @@ class Setting:
             # Limit the frame rate
             clock.tick(60)
     
+    def screenSize(self, option):
+        if option == 1:
+            self.screen = pygame.display.set_mode((800, 600))
+        elif option == 2:
+            self.screen = pygame.display.set_mode((1000, 750))
+        elif option ==3:
+            self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
     def reset(self):
         print('reset!')
         pass
