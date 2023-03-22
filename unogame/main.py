@@ -6,25 +6,23 @@ from utils import *
 
 
 # Define the key_list
-key_list = [
-    ("LEFT", "Left"),
-    ("RIGHT", "Right"),
-    ("UP", "Up"),
-    ("DOWN", "Down"),
-    ("RETURN", "Enter"),
-    ("ESCAPE", "Esc"),
-]
+key_list = {
+    "LEFT": pygame.K_UP,
+    "RIGHT": pygame.K_RIGHT,
+    "UP": pygame.K_UP,
+    "DOWN": pygame.K_DOWN,
+    "RETURN": pygame.K_RETURN,
+    "ESCAPE": pygame.K_ESCAPE    
+}
 
 
-visible = False
 # Initialize pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 font = pygame.font.SysFont(None, 48)
 
-# Create the menu, setting
+# Create the menu
 menu = menu.Menu(key_list, font, screen)
-
 
 while True:
     selected = menu.run()
