@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient gradientTransform="matrix(0.914341, -0.404945, 0.441628, 0.997169, -90.167055, 97.72924)" gradientUnits="userSpaceOnUse" id="gradient-0" x1="240.809" x2="240.809" y1="75.871" y2="421.453">
+<stop offset="0" style="stop-color: rgb(159, 255, 147)"/>
+<stop offset="1" style="stop-color: rgb(39,253,43)"/>
+</linearGradient>
+</defs>
+<rect height="345.582" rx="30" ry="30" style="stroke: rgb(0, 0, 0); fill: url(#gradient-0)" width="210.818" x="135.4" y="75.871"/>
+<text style="       fill: rgb(51, 51, 51);       font-family: 'Bernard MT';       font-size: 114px;       white-space: pre;     " transform="matrix(1.468064, 0, 0, 1.617647, -117.067095, -112.785959)">
+<tspan x="216.687" y="270.454">3</tspan>
+<tspan dy="1em" x="224.687">​</tspan>
+</text>
+<text style="       fill: rgb(51, 51, 51);       font-family: 'Bernard MT';       font-size: 114px;       white-space: pre;     " transform="matrix(0.621362, 0, 0, 0.404524, 17.033646, 33.221047)">
+<tspan x="216.687" y="270.454">3</tspan>
+<tspan dy="1em" x="224.687">​</tspan>
+</text>
+<text style="       fill: rgb(51, 51, 51);       font-family: 'Bernard MT';       font-size: 114px;       white-space: pre;     " transform="matrix(0.621362, 0, 0, 0.404524, 159.775622, 288.932377)">
+<tspan x="216.687" y="270.454">3</tspan>
+<tspan dy="1em" x="224.687">​</tspan>
+</text>
+</svg>
