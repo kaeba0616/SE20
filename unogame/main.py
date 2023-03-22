@@ -1,4 +1,4 @@
-import pygame, time
+import pygame, configparser
 import sys
 from pygame.locals import *
 from utils import *
@@ -14,10 +14,22 @@ key_list = {
     "ESCAPE": pygame.K_ESCAPE    
 }
 
+config = configparser.ConfigParser()
+config.read('./setting_data.ini')
+
+
 
 # Initialize pygame
 pygame.init()
-screen = pygame.display.set_mode((800, 600))
+
+if config['WINDOW']['default'] == '1':
+    screen = pygame.display.set_mode((800, 600))
+elif config['WINDOW']['default'] == '2':
+    screen = pygame.display.set_mode((1000, 750))
+elif config['WINDOW']['default'] == '3':
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+
 font = pygame.font.SysFont(None, 48)
 
 # Create the menu

@@ -1,4 +1,4 @@
-import pygame, time
+import pygame, configparser
 import sys
 from pygame.locals import *
 
@@ -20,7 +20,11 @@ class Setting:
         self.key_font = pygame.font.SysFont(None, 20)
         self.option = 0 
         self.visible = [False, 255]
-        
+
+        # load data
+        self.config = configparser.ConfigParser()
+        self.config.read('./setting_data.ini')
+
         # Clear the screen
         self.screen.fill((0, 0, 0))
 
@@ -196,8 +200,11 @@ class Setting:
             self.screen = pygame.display.set_mode((800, 600))
         elif option == 2:
             self.screen = pygame.display.set_mode((1000, 750))
-        elif option ==3:
+        elif option == 3:
             self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        self.config['WINDOW']['DEFAULT'] = str(option)
+        with open('setting_data.ini', 'w') as f:
+            self.config.write(f)
     
     def configKeys(self, option):
         selKey = self.items[2][option]
