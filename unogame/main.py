@@ -112,18 +112,16 @@ key_list = [
     ("UP", "Up"),
     ("DOWN", "Down"),
     ("RETURN", "Enter"),
+    ("ESCAPE", "Esc"),
 ]
 
-# Define the opacity percentage and visibiliy flag
-opacity = 120  # 0-255 && have to add to code for setting opacity
-visible = False
 # Initialize pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 font = pygame.font.SysFont(None, 48)
 
 # Create the menu
-menu = Menu(menu_items, key_list, font, screen, visible)
+menu = menu.Menu(key_list, font, screen)
 
 # Run the menu
 selected = menu.run()
@@ -131,15 +129,11 @@ selected = menu.run()
 # Handle the selected menu item
 if selected == 0:
     # Start single player game
-    print("0")
     pass  # Replace with your game code
 elif selected == 1:
     # Open settings menu
-    print("1")
     pass  # Replace with your settings code
 elif selected == 2:
     # Exit the program
-    print("2")
-
     pygame.quit()
     sys.exit()
