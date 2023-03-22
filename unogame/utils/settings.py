@@ -24,7 +24,7 @@ class Setting:
         # load data
         self.config = configparser.ConfigParser()
         self.config.read('./setting_data.ini')
-
+        
         # Clear the screen
         self.screen.fill((0, 0, 0))
 
@@ -125,6 +125,7 @@ class Setting:
                             screenH = self.screen.get_height()
                         elif self.option == 2:
                             self.configKeys(self.selected)
+                            self.screen.fill((0,0,0))
                     elif event.key == self.keys["ESCAPE"]:
                         pygame.quit()
                         sys.exit()
@@ -226,7 +227,6 @@ class Setting:
                     for i, (name, key) in enumerate(self.keys.items()):
                         if key == event.key and i != option: return
                     self.keys[selKey[0]] = event.key
-                    print(event.key)
                     self.items[2][option] = (selKey[0], event.key)
                     getKey = False
 
