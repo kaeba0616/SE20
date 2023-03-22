@@ -1,7 +1,7 @@
 import pygame, time
 import sys
 from pygame.locals import *
-
+from single_play import start_single_play
 
 class Menu:
     
@@ -131,16 +131,19 @@ font = pygame.font.SysFont(None, 48)
 menu = Menu(menu_items, key_list, font, screen, visible)
 
 # Run the menu
-selected = menu.run()
+while True:
+    selected = menu.run()
 
-# Handle the selected menu item
-if selected == 0:
-    # Start single player game
-    pass  # Replace with your game code
-elif selected == 1:
-    # Open settings menu
-    pass  # Replace with your settings code
-elif selected == 2:
-    # Exit the program
-    pygame.quit()
-    sys.exit()
+    # Handle the selected menu item
+    if selected == 0:
+        # Start single player game
+        start_single_play(screen)
+        # pass  # Replace with your game code
+    # elif selected == 1:
+    #     # Open settings menu
+    #     pass  # Replace with your settings code
+    # elif selected == 2:
+    else:
+        # Exit the program
+        pygame.quit()
+        sys.exit()
