@@ -26,10 +26,8 @@ class Menu:
 
         # Draw the title
         self.screen.blit(
-            self.title_text,
-            (
+            self.title_text,(
             screenW // 2 - self.title_text.get_width() // 2,
-             #100
             screenH // 6
             )
         )
@@ -49,9 +47,9 @@ class Menu:
         
         #Show Keys Event
         if self.visible[0]: 
-            for i, (name, key) in enumerate(self.keys):
+            for i, (name, key) in enumerate(self.keys.items()):
                 text = self.key_font.render(
-                        f"{name}: {key}",
+                        f"{name}: {pygame.key.name(key).capitalize()}",
                         True,
                         (255, 255, 255)
                     )
@@ -77,13 +75,13 @@ class Menu:
                     pygame.quit()
                     sys.exit()
                 elif event.type == KEYDOWN:
-                    if event.key == K_UP:
+                    if event.key == self.keys["UP"]:
                         self.selected = (self.selected - 1) % len(self.items)
-                    elif event.key == K_DOWN:
+                    elif event.key == self.keys["DOWN"]:
                         self.selected = (self.selected + 1) % len(self.items)
-                    elif event.key == K_RETURN:
+                    elif event.key == self.keys["RETURN"]:
                         return self.selected
-                    elif event.key == K_ESCAPE:
+                    elif event.key == self.keys["ESCAPE"]:
                         pygame.quit()
                         sys.exit()
                     else:
@@ -93,11 +91,7 @@ class Menu:
                 elif event.type == MOUSEMOTION:
                     pos = pygame.mouse.get_pos()
                     for i, item in enumerate(self.items):
-                        text = self.font.render(
-                            item,
-                            True,
-                            (255, 255, 255)
-                        )
+                        text = self.font.render(item,True,(255, 255, 255))
                         rect = text.get_rect()
                         rect.topleft = (
                             screenW // 2 - text.get_width() // 2,
