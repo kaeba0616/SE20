@@ -1,3 +1,4 @@
+import itertools
 import random
 
 import pygame
@@ -65,6 +66,7 @@ def start_single_play(screen):
                 sys.exit()
         if game_active:
             screen.blit(test_txt, test_rect)
+
             pass
         else:
             pass
@@ -81,10 +83,52 @@ turn_list = []  # 차례의 순서를 나타내는 list
 turn_index = 0  # 누구의 차례인지 알려주는 변수
 player_card_list = []  # Player 카드 목록
 computer_card_list = []  # Computer 카드 목록
-center_card_list = []
+
+# 시작 시 카드 세팅
+center_card_list = []  # 카드를 담을 리스트
+colors = ['Red', 'Blue', 'Green', 'Yellow']
+numbers = list(range(0, 10))
+skills = ['Reverse', 'Skip', 'Draw Two']
+wilds = ['Wild', 'Wild Draw Four']
+
+# 카드 생성과 분배
+# 카드 덱을 만들고, 플레이어들에게 무작위로 카드를 분배합니다.
+
+# 0~9 숫자 카드를 색깔별로 담는 반복문 / product() : color와 nubmber로 조합할 수 있는 모든 경우의 수를 표현
+for color, number in itertools.product(colors, numbers):
+    center_card_list.append(card(color, number, "None"))
+    if number != 0:
+        center_card_list.append(card(color, number, "None"))
+
+# 색깔별로 기술 카드를 담음
+for color, skill in itertools.product(colors, skills):
+    for _ in range(2):
+        center_card_list.append(card(color, None, skill))
+
+# Wild, Wild Draw Four 카드를 담음
+for wild in wilds:
+    for _ in range(4):
+        center_card_list.append(card(None, None, wild))
+
 now_color = "none"  # 현재 내야하는 색깔
 game_active = True
 
 font = pygame.font.Font("../assets/font/Pixeltype.ttf", 36)
-test_txt = font.render("Hello World", False, (0,0,0))
-test_rect= test_txt.get_rect(center = (400,300))
+test_txt = font.render(center_card_list[3].skill, False, (0, 0, 0))
+test_rect = test_txt.get_rect(center=(400, 300))
+
+
+# 현재 카드 표시
+# 플레이어가 놓은 카드 중 가장 최근에 놓은 카드를 표시합니다.
+
+
+# 카드 놓기
+# 플레이어는 자신의 카드 중 현재 카드와 색상 또는 숫자가 일치하는 카드를 놓을 수 있습니다.
+
+
+# 특수 카드 처리
+# 특수 카드인 Skip, Reverse, Draw Two, Wild, Wild Draw Four 등에 대한 처리를 구현합니다.
+
+
+# 게임 종료 조건 검사
+# 게임이 종료되는 조건인 플레이어의 카드가 모두 소진되거나, 한 명 이상의 플레이어가 이길 때를 검사합니다.
