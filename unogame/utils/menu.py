@@ -38,8 +38,7 @@ class Menu:
                 item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
             )
             self.screen.blit(
-                text,
-                (
+                text,(
                 screenW // 2 - text.get_width() // 2,
                 screenH // 2 + i * 50
                 )
@@ -68,6 +67,7 @@ class Menu:
         clock = pygame.time.Clock()
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
+
         while True:
             # Handle events
             for event in pygame.event.get():
@@ -85,10 +85,8 @@ class Menu:
                         pygame.quit()
                         sys.exit()
                     else:
-                        self.visible = [True, 255]
-
-
-                elif event.type == MOUSEMOTION:
+                        self.visible = [True, 255]                        
+                elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     for i, item in enumerate(self.items):
                         text = self.font.render(item,True,(255, 255, 255))
@@ -98,19 +96,10 @@ class Menu:
                             screenH // 2 + i * 50
                         )
                         if rect.collidepoint(pos):
-                            self.selected = i
-
-                elif event.type == MOUSEBUTTONUP:
-                    pos = pygame.mouse.get_pos()
-                    for i, item in enumerate(self.items):
-                        text = self.font.render(item, True, (255, 255, 255))
-                        rect = text.get_rect()
-                        rect.topleft = (
-                            screenW // 2 - text.get_width() // 2,
-                            screenH // 2 + i * 50,
-                        )
-                        if rect.collidepoint(pos):
-                            return i
+                            if event.type == MOUSEMOTION:
+                                self.selected = i
+                            elif event.type == MOUSEBUTTONUP:
+                                return i
 
             # Draw the menu
             self.draw()
