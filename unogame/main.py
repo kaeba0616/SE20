@@ -11,7 +11,7 @@ key_list = {
     "UP": pygame.K_UP,
     "DOWN": pygame.K_DOWN,
     "RETURN": pygame.K_RETURN,
-    "ESCAPE": pygame.K_ESCAPE    
+    "ESCAPE": pygame.K_ESCAPE,
 }
 
 
@@ -30,7 +30,7 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
-    elif selected == 1:  
+    elif selected == 1:
         # Open settings menu
         print("Settings")
     elif selected == 2:
