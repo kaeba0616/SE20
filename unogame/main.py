@@ -21,11 +21,11 @@ key_list = {
 # Initialize pygame
 pygame.init()
 
-if config['WINDOW']['default'] == '1':
+if config['window']['default'] == '1':
     screen = pygame.display.set_mode((800, 600))
-elif config['WINDOW']['default'] == '2':
+elif config['window']['default'] == '2':
     screen = pygame.display.set_mode((1000, 750))
-elif config['WINDOW']['default'] == '3':
+elif config['window']['default'] == '3':
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 
@@ -33,7 +33,7 @@ font = pygame.font.SysFont(None, 48)
 
 # Create the menu
 menu = menu.Menu(key_list, font, screen)
-setting = settings.Setting(key_list, font, screen)
+setting = settings.Setting(key_list, font, screen,config)
 
 # Main loop
 while True:

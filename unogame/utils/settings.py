@@ -4,7 +4,7 @@ from pygame.locals import *
 
 class Setting:
     
-    def __init__(self, keys, font, screen):
+    def __init__(self, keys, font, screen,config):
         self.items = [
                       ["Window Size", "Key Configuration", "Color Blindness Mode", "Reset Settings"],
                       ["800 x 600", "size 2", "Fullscreen"],
@@ -22,8 +22,8 @@ class Setting:
         self.visible = [False, 255]
 
         # load data
-        self.config = configparser.ConfigParser()
-        self.config.read('./setting_data.ini')
+        self.config = config#configparser.ConfigParser()
+        #self.config.read('./setting_data.ini')
         
         # Clear the screen
         self.screen.fill((0, 0, 0))
@@ -108,28 +108,28 @@ class Setting:
                     elif event.key == self.keys["DOWN"]:
                         self.selected = (self.selected + 1) % (len(self.items[self.option])+1)
                     elif event.key == self.keys["RETURN"]:
-                        if self.option == 0 and self.selected == 3 :
+                        if self.option == 0 and self.selected == 3 : # setting 화면의 reset 버튼
                             self.reset()
-                        elif self.option == 0 and self.selected == 4 : # setting화면의 save 버튼
+                            screenW = self.screen.get_width() # 화면 크기 다시 계산
+                            screenH = self.screen.get_height()
+                        elif self.option == 0 and self.selected == 4 : # setting 화면의 save 버튼
+                            with open('setting_data.ini', 'w') as f:
+                                    self.config.write(f)
                             self.screen.fill((0, 0, 0))
                             return 0
-                        elif self.option == 0: # setting화면에 save 제외 버튼 누를 경우
+                        elif self.option == 0: # setting 화면에 save 제외 버튼 누를 경우
                             self.option = self.selected+1
                             self.screen.fill((0, 0, 0))
-                        elif self.selected == len(self.items[self.option]): # save 버튼
+                        elif self.selected == len(self.items[self.option]): # 다른 화면의 save 버튼
                             print(self.selected)
                             print(self.option)
-                            if self.option == 2:
-                                with open('setting_data.ini', 'w') as f:
-                                    self.config.write(f)
-
                             self.screen.fill((0, 0, 0))
                             self.option = 0
-                        elif self.option == 1:
+                        elif self.option == 1: # 화면 바꾸기 세팅
                             self.screenSize(self.selected+1)
-                            screenW = self.screen.get_width()
+                            screenW = self.screen.get_width() # 화면 크기 다시 계산
                             screenH = self.screen.get_height()
-                        elif self.option == 2:
+                        elif self.option == 2: # 키 설정 세팅
                             print(self.selected)
                             self.configKeys(self.selected) # selected는 left 0 right 1 up 2 ...
                             self.screen.fill((0,0,0))
@@ -165,16 +165,18 @@ class Setting:
                         if rect.collidepoint(pos):
                             if event.type == MOUSEMOTION: self.selected = i
                             elif event.type == MOUSEBUTTONUP:
-                                if self.option == 0 and self.selected == 3:
+                                if self.option == 0 and self.selected == 3: # setting 화면의 reset 버튼
                                     self.reset()
-                                elif self.option == 0:
+                                    screenW = self.screen.get_width() # 화면 크기 다시 계산
+                                    screenH = self.screen.get_height()
+                                elif self.option == 0: # setting 화면의 다른 버튼
                                     self.option = i+1
                                     self.screen.fill((0, 0, 0))
-                                elif self.option == 1:
+                                elif self.option == 1: # 화면 바꾸기 세팅
                                     self.screenSize(self.selected+1)
-                                    screenW = self.screen.get_width()
+                                    screenW = self.screen.get_width() # 화면 크기 다시 계산
                                     screenH = self.screen.get_height()
-                                elif self.option == 2:
+                                elif self.option == 2: # 키 설정 변경
                                     self.configKeys(self.selected)
                                     self.screen.fill((0,0,0))
 
@@ -184,13 +186,15 @@ class Setting:
                         screenW // 5,
                         screenH * 10 // 12
                     )
-                    if rectSave.collidepoint(pos):
+                    if rectSave.collidepoint(pos): # Save 버튼
                         if event.type == MOUSEMOTION: self.selected = len(self.items[self.option])
-                        elif event.type == MOUSEBUTTONUP:
-                            if self.option == 0 and self.selected == 4:
+                        elif event.type == MOUSEBUTTONUP: 
+                            if self.option == 0 and self.selected == 4: # 메인 화면의 Save 버튼을 눌렀을 때
+                                with open('setting_data.ini', 'w') as f: # ini 파일에 저장
+                                    self.config.write(f)
                                 self.screen.fill((0, 0, 0))
                                 return 0
-                            else:
+                            else: # 다른 setting 화면의 Save 버튼을 눌렀을 때
                                 self.screen.fill((0, 0, 0))
                                 self.option = 0
 
@@ -210,13 +214,12 @@ class Setting:
             self.screen = pygame.display.set_mode((1000, 750))
         elif option == 3:
             self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        self.config['WINDOW']['DEFAULT'] = str(option)
-        with open('setting_data.ini', 'w') as f:
-            self.config.write(f)
+        self.config['window']['default'] = str(option)
     
     def configKeys(self, option):
-        selKey = self.items[2][option]
+        selKey = self.items[2][option] #Tuple of selected key
 
+        # 설정 중인 key 옆에 노란 화살표 띄워보려 하는 중
         # text = self.font.render(
         #         "->",
         #         True,
@@ -228,30 +231,26 @@ class Setting:
         #     )
 
         getKey = True
-        while getKey:
+        while getKey: # 무조건 key down 해서 설정키 바꾸게 함
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
-                    for i, (name, key) in enumerate(self.keys.items()):
+                    for i, (name, key) in enumerate(self.keys.items()): # 키 중복 방지
                         if key == event.key and i != option: return
                     self.keys[selKey[0]] = event.key
                     self.items[2][option] = (selKey[0], event.key)
-                    if option == 0:
-                        self.config['key']['left'] = str(event.key)
-                    if option == 1:
-                        self.config['key']['right'] = str(event.key)
-                    if option == 2:
-                        self.config['key']['up'] = str(event.key)
-                    if option == 3:
-                        self.config['key']['down'] = str(event.key)
-                    if option == 4:
-                        self.config['key']['return'] = str(event.key)
-                    if option == 5:
-                        self.config['key']['escape'] = str(event.key)
-                        
+                    self.config['key'][selKey[0].lower()] = str(event.key)                      
                         
                     getKey = False
 
 
-    def reset(self, ):
-        print('reset!')
-        pass
+    def reset(self):
+        # Screen size reset
+        self.screen = pygame.display.set_mode((800, 600))
+        self.config['window']['default'] = "1"
+
+        # Game key reset
+        for i, (name, key) in enumerate(self.keys.items()):
+            self.keys[name] = pygame.key.key_code(name.lower())
+            self.config['key'][name.lower()] = str(pygame.key.key_code(name.lower()))
+        self.items[2] = list(self.keys.items())
+
