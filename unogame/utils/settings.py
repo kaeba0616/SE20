@@ -22,8 +22,7 @@ class Setting:
         self.visible = [False, 255]
 
         # load data
-        self.config = config#configparser.ConfigParser()
-        #self.config.read('./setting_data.ini')
+        self.config = config
         
         # Clear the screen
         self.screen.fill((0, 0, 0))
@@ -219,7 +218,7 @@ class Setting:
     def configKeys(self, option):
         selKey = self.items[2][option] #Tuple of selected key
 
-        # 설정 중인 key 옆에 노란 화살표 띄워보려 하는 중
+        # 설정 중인 key 옆에 노란 화살표 띄워보려 시도
         # text = self.font.render(
         #         "->",
         #         True,
