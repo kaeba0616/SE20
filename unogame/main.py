@@ -3,19 +3,18 @@ import sys
 from pygame.locals import *
 from utils import *
 
+config = configparser.ConfigParser()
+config.read('./setting_data.ini')
 
 # Define the key_list
 key_list = {
-    "LEFT": pygame.K_UP,
-    "RIGHT": pygame.K_RIGHT,
-    "UP": pygame.K_UP,
-    "DOWN": pygame.K_DOWN,
-    "RETURN": pygame.K_RETURN,
-    "ESCAPE": pygame.K_ESCAPE    
+    "LEFT": int(config['key']['left']),
+    "RIGHT": int(config['key']['right']),
+    "UP": int(config['key']['up']),
+    "DOWN": int(config['key']['down']),
+    "RETURN": int(config['key']['return']),
+    "ESCAPE": int(config['key']['escape'])    
 }
-
-config = configparser.ConfigParser()
-config.read('./setting_data.ini')
 
 
 

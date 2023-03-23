@@ -110,13 +110,19 @@ class Setting:
                     elif event.key == self.keys["RETURN"]:
                         if self.option == 0 and self.selected == 3 :
                             self.reset()
-                        elif self.option == 0 and self.selected == 4 :
+                        elif self.option == 0 and self.selected == 4 : # setting화면의 save 버튼
                             self.screen.fill((0, 0, 0))
                             return 0
-                        elif self.option == 0:
+                        elif self.option == 0: # setting화면에 save 제외 버튼 누를 경우
                             self.option = self.selected+1
                             self.screen.fill((0, 0, 0))
-                        elif self.selected == len(self.items[self.option]):
+                        elif self.selected == len(self.items[self.option]): # save 버튼
+                            print(self.selected)
+                            print(self.option)
+                            if self.option == 2:
+                                with open('setting_data.ini', 'w') as f:
+                                    self.config.write(f)
+
                             self.screen.fill((0, 0, 0))
                             self.option = 0
                         elif self.option == 1:
@@ -124,7 +130,8 @@ class Setting:
                             screenW = self.screen.get_width()
                             screenH = self.screen.get_height()
                         elif self.option == 2:
-                            self.configKeys(self.selected)
+                            print(self.selected)
+                            self.configKeys(self.selected) # selected는 left 0 right 1 up 2 ...
                             self.screen.fill((0,0,0))
                     elif event.key == self.keys["ESCAPE"]:
                         pygame.quit()
@@ -228,6 +235,20 @@ class Setting:
                         if key == event.key and i != option: return
                     self.keys[selKey[0]] = event.key
                     self.items[2][option] = (selKey[0], event.key)
+                    if option == 0:
+                        self.config['key']['left'] = str(event.key)
+                    if option == 1:
+                        self.config['key']['right'] = str(event.key)
+                    if option == 2:
+                        self.config['key']['up'] = str(event.key)
+                    if option == 3:
+                        self.config['key']['down'] = str(event.key)
+                    if option == 4:
+                        self.config['key']['return'] = str(event.key)
+                    if option == 5:
+                        self.config['key']['escape'] = str(event.key)
+                        
+                        
                     getKey = False
 
 
