@@ -218,16 +218,16 @@ class Setting:
     def configKeys(self, option):
         selKey = self.items[2][option] #Tuple of selected key
 
-        # 설정 중인 key 옆에 노란 화살표 띄워보려 시도
-        # text = self.font.render(
-        #         "->",
-        #         True,
-        #         (255, 255, 0)
-        #     )
-        # self.screen.blit(
-        #         text,
-        #         (self.screen.get_width() // 7, self.screen.get_height() // 4 + option * 50)
-        #     )
+        text = self.font.render(
+                f"{selKey[0]}: {pygame.key.name(selKey[1]).capitalize()}",
+                True,
+                (255, 255, 0)
+            )
+        self.screen.blit(
+                text,
+                (self.screen.get_width() // 5, self.screen.get_height() // 4 + option * 50)
+            )
+        pygame.display.update()
 
         getKey = True
         while getKey: # 무조건 key down 해서 설정키 바꾸게 함
@@ -242,7 +242,7 @@ class Setting:
                     getKey = False
 
 
-    def reset(self):
+    def reset(self):        
         # Screen size reset
         self.screen = pygame.display.set_mode((800, 600))
         self.config['window']['default'] = "1"
