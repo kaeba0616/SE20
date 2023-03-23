@@ -2,7 +2,7 @@ import pygame, time
 import sys
 from pygame.locals import *
 from utils import *
-
+from single_play import start_single_play
 
 # Define the key_list
 key_list = {
@@ -30,6 +30,7 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
+        start_single_play(screen)
     elif selected == 1:
         # Open settings menu
         print("Settings")
