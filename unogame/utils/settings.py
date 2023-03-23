@@ -113,7 +113,7 @@ class Setting:
                             screenW = self.screen.get_width() # 화면 크기 다시 계산
                             screenH = self.screen.get_height()
                         elif self.option == 0 and self.selected == 4 : # setting 화면의 save 버튼
-                            with open('setting_data.ini', 'w') as f:
+                            with open('./unogame/setting_data.ini', 'w') as f:
                                     self.config.write(f)
                             self.screen.fill((0, 0, 0))
                             return 0
@@ -190,7 +190,7 @@ class Setting:
                         if event.type == MOUSEMOTION: self.selected = len(self.items[self.option])
                         elif event.type == MOUSEBUTTONUP: 
                             if self.option == 0 and self.selected == 4: # 메인 화면의 Save 버튼을 눌렀을 때
-                                with open('setting_data.ini', 'w') as f: # ini 파일에 저장
+                                with open('./unogame/setting_data.ini', 'w') as f: # ini 파일에 저장
                                     self.config.write(f)
                                 self.screen.fill((0, 0, 0))
                                 return 0

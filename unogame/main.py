@@ -4,7 +4,7 @@ from pygame.locals import *
 from utils import *
 
 config = configparser.ConfigParser()
-config.read('./setting_data.ini')
+config.read('./unogame/setting_data.ini')
 
 # Define the key_list
 key_list = {
