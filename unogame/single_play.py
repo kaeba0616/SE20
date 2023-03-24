@@ -4,11 +4,6 @@ import random
 import pygame
 import sys
 
-import io
-
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
-
 
 class Card(pygame.sprite.Sprite):
     def __init__(self, color, number, skill):
@@ -35,7 +30,6 @@ class Card(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
-
 
 def draw_two():  # deck : list / first, second : card
 
@@ -79,7 +73,6 @@ def draw_card(deck):
     deck.append(center_card_list.pop())
 
 
-
 def generate_deck():
     global deck
     print("call")
@@ -99,32 +92,39 @@ def generate_deck():
         deck.add(Card(None, None, "all"))
 
 
-def draw(input_deck, turn_index):
-    global deck
+def draw_from_center(input_deck):
+    global deck, turn_index
     pop_card = deck.sprites().pop()
     deck.remove(pop_card)
     input_deck.add(pop_card)
 
-    if turn_index == 1:
+    if turn_index == 0:
         pop_card.rect.y = 450  # 200 - rect_height // 2
-    else:
+        pop_card.initial_y = 450
+    elif turn_index == 1:
         pop_card.rect.y = 50  # 200 - rect_height // 2
+        pop_card.initial_y = 50
+    else:
+        turn_index = 0
     for i, card in enumerate(input_deck.sprites()):
         card.rect.x = i * (card_width + spacing) + 400 - len(input_deck) * (
                 card_width + spacing) // 2
+    turn_index += 1
 
 
-def player_card_setting(input_deck, turn_index):
+def player_card_setting(input_deck):
     global deck
     if not len(input_deck):  # 초기에 7장 뽑기
         for _ in range(7):
             pop_card = deck.sprites().pop()
             deck.remove(pop_card)
             input_deck.add(pop_card)
-            if turn_index == 1:
+            if turn_index == 0:
                 pop_card.rect.y = 450  # 200 - rect_height // 2
-            else:
+                pop_card.initial_y = 450
+            elif turn_index == 1:
                 pop_card.rect.y = 50  # 200 - rect_height // 2
+                pop_card.initial_y = 50
 
         for i, card in enumerate(input_deck.sprites()):
             card.rect.x = i * (card_width + spacing) + 400 - len(input_deck) * (
@@ -133,50 +133,93 @@ def player_card_setting(input_deck, turn_index):
         pass
 
 
+def check_turn():
+    global turn_index, turn_list, PLAYER_NUMBER
+    print(len(turn_list))
+    if turn_index == 2:
+        print("clear turn_index")
+        turn_index = 0
+    print(f"after check_turn(): {turn_index}")
+
+
 def start_single_play(screen):
     clock = pygame.time.Clock()
     run = True
     game_active = False
+    global turn_list, turn_index
     while run:
         screen.fill('Green')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     print("hi")
                     run = False
+
+            # 게임 전 카드 덱과 손 패를 세팅하는 부분 > 따로빼서 함수로 refactor하기
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if text_rect.collidepoint(event.pos):
                     game_active = True
                     generate_deck()
-                    player_card_setting(player_deck, 1)
-                    player_card_setting(computer_deck, 2)
-                    # buttondown이 계속 인식되어 카드가 바로 가져가짐
+                    for player_deck in turn_list:
+                        player_card_setting(player_deck)
+                        turn_index += 1
+                    turn_index = 0
+
+                    # buttondown이 계속 인식되어 카드가 바로 가져가짐 / text_rect가 남아있어 초기화되고 있음
             else:
                 pass
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            # turn_index를 이용해 게임 flow control
+            if event.type == pygame.MOUSEBUTTONDOWN and game_active:
+                # 카드를 드로우 하는 if문
                 if deck_rect.collidepoint(event.pos):
-                    print("collide")
-                    draw(player_deck, 1)
+                    # 지금 누구의 턴인지 체크하기
+                    # if turn_index == 0:
+                    #
+                    # else:
+                    # 턴에 따라서 카드를 어디로 가져갈 지 정하기
+                    draw_from_center(turn_list[turn_index])
+                    print(f"turn_index : {turn_index}")
+                    check_turn()
 
-            else:
-                pass
+            # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
+            if event.type == pygame.MOUSEMOTION and game_active:
+                for card in turn_list[turn_index].sprites():
+
+                    if card.rect.collidepoint(event.pos):
+                        if card.initial_y == card.rect.y:
+                            card.rect.y -= 10
+                    elif not card.rect.collidepoint(event.pos):
+                        if card.rect.bottom < event.pos[1] <= card.rect.bottom + 10 and card.rect.left < event.pos[0] <= card.rect.left + card.rect.width:
+                            pass
+                        else:
+                            if card.rect.y != card.initial_y:
+                                card.rect.y += 10
 
         if game_active:
             screen.blit(deck_surf, deck_rect)
             screen.blit(now_card_surf, now_card_rect)
-            player_deck.draw(screen)
-            computer_deck.draw(screen)
+            
+            # 누구의 턴인지 보여주는 부분
+            if turn_index == 0:
+                screen.blit(now_turn_surf, now_turn_rect)
+            else:
+                screen.blit(now_turn_surf2, now_turn_rect)
+                
+            # 손패를 그려주는 부분
+            for player_deck in turn_list:
+                player_deck.draw(screen)
 
         else:
             screen.blit(text_surf, text_rect)
 
             # 게임이 종료되었을 때 덱 초기화
-            player_deck.empty()
-            computer_deck.empty()
+            for player_deck in turn_list:
+                player_deck.empty()
             deck.empty()
 
         pygame.display.update()
@@ -188,10 +231,11 @@ def start_single_play(screen):
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 # 싱글 플레이에 필요한 변수 선언
-turn_list = [1, 2]  # 차례의 순서를 나타내는 list
+turn_list = []  # 차례의 순서를 나타내는 list
 turn_index = 0  # 누구의 차례인지 알려주는 변수
-player_deck = pygame.sprite.Group()  # Player 카드 목록
-computer_deck = pygame.sprite.Group()  # Computer 카드 목록
+PLAYER_NUMBER = 2
+for _ in range(PLAYER_NUMBER):
+    turn_list.append(pygame.sprite.Group())
 
 # 시작 시 카드 세팅
 deck = pygame.sprite.Group()
@@ -215,6 +259,9 @@ now_card_surf.fill("pink")
 now_card_surf = pygame.transform.rotozoom(now_card_surf, 0, 0.5)
 now_card_rect = now_card_surf.get_rect(center=(400 + (now_card_surf.get_width() // 2), 300))
 
+now_turn_surf = font.render(f"Player{turn_index + 1}'s turn", False, (64, 64, 64))
+now_turn_surf2 = font.render(f"Player{turn_index + 2}'s turn", False, (64, 64, 64))
+now_turn_rect = now_turn_surf.get_rect(center=(100, 300))
 now_color = "none"  # 현재 내야하는 색깔
 
 # 카드 생성과 분배
