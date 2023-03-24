@@ -42,7 +42,7 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
-    elif selected == 1:  
+    elif selected == 1:
         # Open settings menu
         screen.fill((0,0,0))
         selected = setting.run()
