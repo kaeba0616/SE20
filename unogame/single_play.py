@@ -78,7 +78,7 @@ def draw_card(deck):
 
 
 def generate_deck():
-    global deck
+    global deck, remain, now_card_surf
     print("call")
     for color, number in itertools.product(colors, numbers):
         deck.add(Card(color, number, None))
@@ -95,6 +95,8 @@ def generate_deck():
         deck.add(Card(None, None, "all4"))
         deck.add(Card(None, None, "all"))
 
+    random.shuffle(deck.sprites())
+    remain.add(deck.sprites().pop())
 
 def draw_from_center(input_deck):
     global deck, turn_index
@@ -155,6 +157,11 @@ def check_turn():
     print(f"after check_turn(): {turn_index}")
 
 
+def check_condition():
+    # input 카드가 현재 맨 위에 있는 카드에 낼 수 있는 카드인지 확인하는 함수
+    print()
+
+
 def start_single_play(screen):
     clock = pygame.time.Clock()
     run = True
@@ -162,6 +169,9 @@ def start_single_play(screen):
     global turn_list, turn_index, first
     while run:
         screen.fill('Green')
+
+        # event loop
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -174,7 +184,7 @@ def start_single_play(screen):
 
             # 게임 전 카드 덱과 손 패를 세팅하는 부분 > 따로빼서 함수로 refactor하기
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if text_rect.collidepoint(event.pos):
+                if not game_active:
                     game_active = True
                     generate_deck()
                     for player_deck in turn_list:
@@ -185,19 +195,6 @@ def start_single_play(screen):
                     # buttondown이 계속 인식되어 카드가 바로 가져가짐 / text_rect가 남아있어 초기화되고 있음
             else:
                 pass
-
-            # turn_index를 이용해 게임 flow control
-            if event.type == pygame.MOUSEBUTTONDOWN and game_active:
-                # 카드를 드로우 하는 if문
-                if deck_rect.collidepoint(event.pos):
-                    # 지금 누구의 턴인지 체크하기
-                    # if turn_index == 0:
-                    #
-                    # else:
-                    # 턴에 따라서 카드를 어디로 가져갈 지 정하기
-                    draw_from_center(turn_list[turn_index])
-                    print(f"turn_index : {turn_index}")
-                    check_turn()
 
             # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
             if event.type == pygame.MOUSEMOTION and game_active:
@@ -212,12 +209,12 @@ def start_single_play(screen):
                         if card.initial_y == card.rect.y:
                             card.rect.y -= 10
                     elif not card.rect.collidepoint(event.pos):
-                        if card.rect.bottom < event.pos[1] <= card.rect.bottom + 10 and card.rect.left < event.pos[0] <= card.rect.left + card.rect.width:
+                        if card.rect.bottom < event.pos[1] <= card.rect.bottom + 10 and card.rect.left < event.pos[
+                            0] <= card.rect.left + card.rect.width:
                             pass
                         else:
                             if card.rect.y != card.initial_y:
                                 card.rect.y += 10
-
 
             # 멀티 플레이 시 turn_index를 가져와야함
             if event.type == pygame.MOUSEBUTTONDOWN and game_active and turn_index == 0:
@@ -230,7 +227,18 @@ def start_single_play(screen):
                     print(turn_list[turn_index].get_layer_of_sprite(card))
                 print("button down")
 
-# event loop 종료 *****************************
+            # turn_index를 이용해 게임 flow control
+            # 플레이어 턴에 플레이어가 할 수 있는 행동
+            # if event.type == pygame.MOUSEBUTTONDOWN and game_active:
+        # 1. 낼 수 있는 카드를 낸다
+
+        # 1-1. 낸 카드가 있다면 해당 카드의 능력을 수행해야 한다
+        # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
+        # 3. 컴퓨터의 알고리즘 수행
+        # 4. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
+        # 5. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
+
+        # event loop 종료 *****************************
 
         if game_active:
             screen.blit(deck_surf, deck_rect)
@@ -251,8 +259,7 @@ def start_single_play(screen):
 
 
         else:
-            screen.blit(text_surf, text_rect)
-
+            screen.fill("green")
             # 게임이 종료되었을 때 덱 초기화
             for player_deck in turn_list:
                 player_deck.empty()
@@ -276,6 +283,8 @@ for _ in range(PLAYER_NUMBER):
 first = None
 # 시작 시 카드 세팅
 deck = pygame.sprite.Group()
+remain = pygame.sprite.Group()
+
 colors = ['red', 'blue', 'green', 'yellow']
 numbers = list(range(0, 10))
 skills = ['reverse', 'block', 'plus2', 'change', 'plus4']
