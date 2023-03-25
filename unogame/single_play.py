@@ -3,6 +3,7 @@ import random
 
 import pygame
 import sys
+from operator import attrgetter
 
 
 class Card(pygame.sprite.Sprite):
@@ -11,6 +12,7 @@ class Card(pygame.sprite.Sprite):
         self.color = color
         self.number = number
         self.skill = skill  # block, plus2, reverse, change / change, plus4
+        self.is_moving = False
         file_path = ""
         if number is not None:
             file_path = f"resources/images/card/normalMode/{number}/{self.color}_{number}.svg"
@@ -28,8 +30,10 @@ class Card(pygame.sprite.Sprite):
         image_surface = pygame.transform.rotozoom(image_surface, 0, 0.5)
         self.image = image_surface.convert_alpha()
         self.rect = self.image.get_rect()
+        self.initial_y = self.rect.y
 
         self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
+
 
 def draw_two():  # deck : list / first, second : card
 
@@ -96,7 +100,7 @@ def draw_from_center(input_deck):
     global deck, turn_index
     pop_card = deck.sprites().pop()
     deck.remove(pop_card)
-    input_deck.add(pop_card)
+    input_deck.add(pop_card, layer=0)
 
     if turn_index == 0:
         pop_card.rect.y = 450  # 200 - rect_height // 2
@@ -109,16 +113,23 @@ def draw_from_center(input_deck):
     for i, card in enumerate(input_deck.sprites()):
         card.rect.x = i * (card_width + spacing) + 400 - len(input_deck) * (
                 card_width + spacing) // 2
+        card.rect.y = card.initial_y
+
     turn_index += 1
+
+    # layer를 다시 수정해주는 작업
+    for i, card in enumerate(input_deck.sprites()):
+        # input_deck.change_layer(card, len(input_deck.sprites()) - i - 1)
+        input_deck.change_layer(card, i)
 
 
 def player_card_setting(input_deck):
     global deck
     if not len(input_deck):  # 초기에 7장 뽑기
-        for _ in range(7):
+        for i in range(7):
             pop_card = deck.sprites().pop()
             deck.remove(pop_card)
-            input_deck.add(pop_card)
+            input_deck.add(pop_card, layer=i)
             if turn_index == 0:
                 pop_card.rect.y = 450  # 200 - rect_height // 2
                 pop_card.initial_y = 450
@@ -126,11 +137,13 @@ def player_card_setting(input_deck):
                 pop_card.rect.y = 50  # 200 - rect_height // 2
                 pop_card.initial_y = 50
 
-        for i, card in enumerate(input_deck.sprites()):
-            card.rect.x = i * (card_width + spacing) + 400 - len(input_deck) * (
-                    card_width + spacing) // 2
-    else:
-        pass
+    for i, card in enumerate(input_deck.sprites()):
+        card.rect.x = i * (card_width + spacing) + 400 - len(input_deck) * (card_width + spacing) // 2
+        card.rect.y = card.initial_y
+    # 레이어 재정렬 - add()의 layer가 차례대로 쌓이기 때문에 역순으로 다시 재정렬 해줘야함
+    for i, card in enumerate(input_deck.sprites()):
+        # input_deck.change_layer(card, len(input_deck.sprites()) - i - 1)
+        input_deck.change_layer(card, i)
 
 
 def check_turn():
@@ -146,7 +159,7 @@ def start_single_play(screen):
     clock = pygame.time.Clock()
     run = True
     game_active = False
-    global turn_list, turn_index
+    global turn_list, turn_index, first
     while run:
         screen.fill('Green')
         for event in pygame.event.get():
@@ -189,8 +202,13 @@ def start_single_play(screen):
             # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
             if event.type == pygame.MOUSEMOTION and game_active:
                 for card in turn_list[turn_index].sprites():
-
+                    if turn_list[turn_index].get_sprites_at(event.pos):
+                        print(turn_list[turn_index].get_sprites_at(event.pos)[0])
+                        if card != turn_list[turn_index].get_sprites_at(event.pos)[0]:
+                            card.rect.y = card.initial_y
+                            continue
                     if card.rect.collidepoint(event.pos):
+                        print(turn_list[turn_index].get_sprites_at(event.pos)[0].rect.left)
                         if card.initial_y == card.rect.y:
                             card.rect.y -= 10
                     elif not card.rect.collidepoint(event.pos):
@@ -200,19 +218,37 @@ def start_single_play(screen):
                             if card.rect.y != card.initial_y:
                                 card.rect.y += 10
 
+
+            # 멀티 플레이 시 turn_index를 가져와야함
+            if event.type == pygame.MOUSEBUTTONDOWN and game_active and turn_index == 0:
+                clicked_card = None
+                for card in turn_list[turn_index].sprites():
+                    if card.rect.collidepoint(event.pos):
+                        clicked_card = card
+                        break
+                if clicked_card is not None:
+                    print(turn_list[turn_index].get_layer_of_sprite(card))
+                print("button down")
+
+# event loop 종료 *****************************
+
         if game_active:
             screen.blit(deck_surf, deck_rect)
             screen.blit(now_card_surf, now_card_rect)
-            
+
             # 누구의 턴인지 보여주는 부분
             if turn_index == 0:
                 screen.blit(now_turn_surf, now_turn_rect)
             else:
                 screen.blit(now_turn_surf2, now_turn_rect)
-                
+
             # 손패를 그려주는 부분
             for player_deck in turn_list:
-                player_deck.draw(screen)
+                sorted_sprites = sorted(player_deck.sprites(), key=lambda s: player_deck.get_layer_of_sprite(s),
+                                        reverse=True)
+                for sprite in sorted_sprites:
+                    screen.blit(sprite.image, sprite.rect)
+
 
         else:
             screen.blit(text_surf, text_rect)
@@ -235,8 +271,9 @@ turn_list = []  # 차례의 순서를 나타내는 list
 turn_index = 0  # 누구의 차례인지 알려주는 변수
 PLAYER_NUMBER = 2
 for _ in range(PLAYER_NUMBER):
-    turn_list.append(pygame.sprite.Group())
+    turn_list.append(pygame.sprite.LayeredUpdates())
 
+first = None
 # 시작 시 카드 세팅
 deck = pygame.sprite.Group()
 colors = ['red', 'blue', 'green', 'yellow']
