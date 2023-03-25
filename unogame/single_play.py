@@ -26,7 +26,7 @@ class Card(pygame.sprite.Sprite):
         else:
             print("path error")
 
-        image_surface = pygame.image.load('resources/images/jump.png')
+        image_surface = pygame.image.load(file_path)
         image_surface = pygame.transform.rotozoom(image_surface, 0, 0.5)
         self.image = image_surface.convert_alpha()
         self.rect = self.image.get_rect()
@@ -78,7 +78,7 @@ def draw_card(deck):
 
 
 def generate_deck():
-    global deck, remain, now_card_surf
+    global deck, remain, now_card_surf, now_card_rect
     print("call")
     for color, number in itertools.product(colors, numbers):
         deck.add(Card(color, number, None))
@@ -95,9 +95,11 @@ def generate_deck():
         deck.add(Card(None, None, "all4"))
         deck.add(Card(None, None, "all"))
 
-    random.shuffle(deck.sprites())
-    remain.add(deck.sprites().pop())
-
+    pop_card = deck.sprites().pop(random.randint(0, len(deck.sprites())))
+    deck.remove(pop_card)
+    remain.add(pop_card)
+    now_card_surf = pop_card.image
+    # now_card_rect = now_card_surf.get_rect(center=(100,300))
 def draw_from_center(input_deck):
     global deck, turn_index
     pop_card = deck.sprites().pop()
@@ -127,9 +129,10 @@ def draw_from_center(input_deck):
 
 def player_card_setting(input_deck):
     global deck
+    print(len(deck.sprites()))
     if not len(input_deck):  # 초기에 7장 뽑기
         for i in range(7):
-            pop_card = deck.sprites().pop()
+            pop_card = deck.sprites().pop(random.randint(0, len(deck.sprites())))
             deck.remove(pop_card)
             input_deck.add(pop_card, layer=i)
             if turn_index == 0:
@@ -157,16 +160,24 @@ def check_turn():
     print(f"after check_turn(): {turn_index}")
 
 
-def check_condition():
+def check_condition(input_card):
     # input 카드가 현재 맨 위에 있는 카드에 낼 수 있는 카드인지 확인하는 함수
-    print()
+    global remain
+    now = remain.sprites()[-1]
+    print(f"input.color : {input_card.color} / now.color : {now.color}")
+    print(f"input.skill : {input_card.skill} / now.skill : {now.skill}")
+    print(f"input.number : {input_card.number} / now.number : {now.number}")
+    if input_card.color == now.color or input_card.skill == now.skill or input_card.number == now.number:
+        print("check")
 
+        return True
 
 def start_single_play(screen):
     clock = pygame.time.Clock()
     run = True
     game_active = False
-    global turn_list, turn_index, first
+    global turn_list, turn_index, deck
+
     while run:
         screen.fill('Green')
 
@@ -192,30 +203,30 @@ def start_single_play(screen):
                         turn_index += 1
                     turn_index = 0
 
-                    # buttondown이 계속 인식되어 카드가 바로 가져가짐 / text_rect가 남아있어 초기화되고 있음
             else:
                 pass
 
             # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
             if event.type == pygame.MOUSEMOTION and game_active:
                 for card in turn_list[turn_index].sprites():
-                    if turn_list[turn_index].get_sprites_at(event.pos):
-                        print(turn_list[turn_index].get_sprites_at(event.pos)[0])
-                        if card != turn_list[turn_index].get_sprites_at(event.pos)[0]:
-                            card.rect.y = card.initial_y
-                            continue
+
                     if card.rect.collidepoint(event.pos):
-                        print(turn_list[turn_index].get_sprites_at(event.pos)[0].rect.left)
-                        if card.initial_y == card.rect.y:
+                        # print(turn_list[turn_index].get_sprites_at(event.pos)[0].rect.left)
+                        # print("collide")
+                        if card.initial_y == card.rect.y and not card.is_moving:
                             card.rect.y -= 10
+                            card.is_moving = True
+                            card = turn_list[turn_index].get_sprites_at(event.pos)[0]
+
                     elif not card.rect.collidepoint(event.pos):
                         if card.rect.bottom < event.pos[1] <= card.rect.bottom + 10 and card.rect.left < event.pos[
                             0] <= card.rect.left + card.rect.width:
                             pass
                         else:
-                            if card.rect.y != card.initial_y:
+                            if card.rect.y != card.initial_y and card.is_moving:
                                 card.rect.y += 10
-
+                                card.is_moving = False
+                                # card = temp
             # 멀티 플레이 시 turn_index를 가져와야함
             if event.type == pygame.MOUSEBUTTONDOWN and game_active and turn_index == 0:
                 clicked_card = None
@@ -229,8 +240,14 @@ def start_single_play(screen):
 
             # turn_index를 이용해 게임 flow control
             # 플레이어 턴에 플레이어가 할 수 있는 행동
-            # if event.type == pygame.MOUSEBUTTONDOWN and game_active:
         # 1. 낼 수 있는 카드를 낸다
+            if event.type == pygame.MOUSEBUTTONDOWN and game_active:
+                for card in turn_list[turn_index].sprites():
+                    if card.rect.collidepoint(event.pos):
+                        if check_condition(card):
+                            # 카드 내기
+                            print("카드 냈음")
+
 
         # 1-1. 낸 카드가 있다면 해당 카드의 능력을 수행해야 한다
         # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
@@ -264,6 +281,7 @@ def start_single_play(screen):
             for player_deck in turn_list:
                 player_deck.empty()
             deck.empty()
+            remain.empty()
 
         pygame.display.update()
 
@@ -319,7 +337,7 @@ now_color = "none"  # 현재 내야하는 색깔
 
 # 현재 카드 표시
 # 플레이어가 놓은 카드 중 가장 최근에 놓은 카드를 표시
-spacing = -20
+spacing = 0
 card_width = 82
 card_height = 128
 
