@@ -30,7 +30,7 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
-        start_single_play(screen)
+        start_single_play()
     elif selected == 1:
         # Open settings menu
         print("Settings")
