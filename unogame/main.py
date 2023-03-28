@@ -2,9 +2,12 @@ import pygame, configparser
 import sys
 from pygame.locals import *
 from utils import *
+from single_play import start_single_play
+
 
 config = configparser.ConfigParser()
 config.read('./unogame/setting_data.ini')
+
 
 # Define the key_list
 key_list = {
@@ -42,6 +45,7 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
+        start_single_play()
     elif selected == 1:
         # Open settings menu
         screen.fill((0,0,0))
