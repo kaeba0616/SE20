@@ -437,7 +437,7 @@ font = pygame.font.Font("../assets/font/Pixeltype.ttf", 36)
 text_surf = font.render("click here to play", False, (64, 64, 64))
 text_rect = text_surf.get_rect(center=(400, 300))
 
-deck_surf = pygame.image.load("resources/images/output.png").convert_alpha()
+deck_surf = pygame.image.load("resources/images/card/normalMode/backcart.png").convert_alpha()
 deck_surf = pygame.transform.rotozoom(deck_surf, 0, 0.5)
 deck_rect = deck_surf.get_rect(center=(400 - (deck_surf.get_width() // 2), 300))
 
@@ -445,7 +445,7 @@ deck_rect = deck_surf.get_rect(center=(400 - (deck_surf.get_width() // 2), 300))
 # 1. 낸 카드로 이미지가 바뀌게
 # 2.
 now_card = Card('red', None, 0, False)
-now_card_surf = pygame.image.load("resources/images/output.png").convert_alpha()
+now_card_surf = pygame.image.load("resources/images/card/normalMode/backcart.png").convert_alpha()
 # now_card_surf = pygame.transform.rotozoom(now_card_surf, 0, 0.5)
 now_card_rect = now_card_surf.get_rect(center=(400 + (now_card_surf.get_width() // 2), 300))
 
