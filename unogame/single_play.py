@@ -389,6 +389,7 @@ def start_single_play():
             if is_get:
                 pygame.draw.rect(screen, (200,200,200), skip_rect, 0)
                 screen.blit(skip_surf, skip_rect)
+
             else:
                 pygame.draw.rect(screen, (64, 64, 64), skip_rect, 0)
                 screen.blit(skip_surf, skip_rect)
@@ -493,7 +494,7 @@ retry_rect = retry_surf.get_rect(center=(400,350))
 
 # 현재 카드 표시
 # 플레이어가 놓은 카드 중 가장 최근에 놓은 카드를 표시
-spacing = 0
+spacing = -20
 card_width = 70
 card_height = 100
 
