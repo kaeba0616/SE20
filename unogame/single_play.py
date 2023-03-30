@@ -4,46 +4,8 @@ import random
 import pygame
 import sys
 from operator import attrgetter
-
-
-class Card:
-    def __init__(self, color, number, skill, wild):
-        self.color = color
-        self.number = number
-        self.skill = skill  # block, plus2, reverse, change / change, plus4
-        self.is_moving = False
-        self.is_wild = wild
-        self.file_path = ""
-        if number is not None:
-            file_path = f"resources/images/card/normalMode/{number}/{self.color}_{number}.png"
-        elif color is not None and number is None and skill is not None:
-            file_path = f"resources/images/card/normalMode/{skill}/{self.color}_{skill}.png"
-        elif color is None:
-            if skill == "all":
-                file_path = f"resources/images/card/normalMode/change/all_change.png"
-            elif skill == "all4":
-                file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"
-        else:
-            print("path error")
-
-        image_surface = pygame.image.load(file_path).convert_alpha()
-        # image_surface = pygame.transform.rotozoom(image_surface, 0, 0.5)
-        image_surface = pygame.transform.scale(image_surface, (70, 100))
-        self.image = image_surface
-        self.rect = image_surface.get_rect(center=(0, 0))
-        # print(f"width : {self.rect.width} / height : {self.rect.height}")
-        self.initial_y = self.rect.y
-
-        self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
-
-
-class Player:
-    # number : 플레이어 넘버 / type : 어떤 플레이어 종류인지 / hand : 플레이어의 패 / turn : 플레이어 객체의 턴
-    def __init__(self, number, type, hand, turn):
-        self.number = number
-        self.type = type
-        self.hand = hand
-        self.turn = turn
+from models.card import Card
+from models.player import Player
 
 
 def draw_card(input_deck):
@@ -249,277 +211,244 @@ def pass_turn():
         hand_update(turn_list[i])
 
 
-def start_single_play():
-    global turn_list, turn_index, deck, now_card_surf, now_card_rect, is_color_change, game_active, is_get, now_card, is_win
-    run = True
-    mouse_check = False
-    while run:
-        screen.fill((50, 200, 50))
 
-        # event loop
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    change_color()
-                    print("hi")
-                if event.key == pygame.K_q:
-                    turn_list[turn_index].empty()
-
-            # 게임 전 카드 덱과 손 패를 세팅하는 부분 > 따로빼서 함수로 refactor하기
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if not game_active:
-                    game_active = True
-                    is_win = False
-                    generate_deck()
-                    for player_deck in turn_list:
-                        player_card_setting(player_deck)
-                        turn_index += 1
-                    turn_index = 0
-
-            else:
-                pass
-            # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
-            if event.type == pygame.MOUSEMOTION and game_active and not is_color_change:
-                for card in turn_list[turn_index].sprites():
-                    if card.rect.collidepoint(event.pos):
-                        # print(turn_list[turn_index].get_sprites_at(event.pos)[0].rect.left)
-                        # print("collide")
-                        if card.initial_y == card.rect.y and not card.is_moving:
-                            card.rect.y -= 10
-                            card.is_moving = True
-
-                    elif not card.rect.collidepoint(event.pos):
-                        if card.rect.bottom < event.pos[1] <= card.rect.bottom + 10 and card.rect.left < event.pos[
-                            0] <= card.rect.left + card.rect.width:
-                            pass
-                        else:
-                            if card.rect.y != card.initial_y and card.is_moving:
-                                card.rect.y += 10
-                                card.is_moving = False
-
-            # 멀티 플레이 시 turn_index를 가져와야함
-            if event.type == pygame.MOUSEBUTTONDOWN and game_active:
-                clicked_card = None
-                for card in turn_list[turn_index].sprites():
-                    if card.rect.collidepoint(event.pos):
-                        clicked_card = card
-                        break
-                if clicked_card is not None:
-                    print(turn_list[turn_index].get_layer_of_sprite(card))
-                    print("button down")
-
-
-            # if now_card.rect.collidepoint(event.pos):
-            #     print(f"now.color : {now_card.color}")
-            #     print(f"now.skill : {now_card.skill}")
-            #     print(f"now.number : {now_card.number}")
-            # is_color_change에 따라 색깔을 바꿔주는 옵션
-            if is_color_change and event.type == pygame.MOUSEBUTTONDOWN:
-                for color_list in change_color_list:
-                    if color_list[1].collidepoint(event.pos):
-                        print("color chagne active")
-                        now_card_surf = pygame.image.load(
-                            f"resources/images/card/normalMode/change/{color_list[2]}_change.png").convert_alpha()
-                        now_card_surf = pygame.transform.scale(now_card_surf, (70, 100))
-                        now_card.color = color_list[2]
-                        is_color_change = False
-                        print(f"pass_turn call in is_color_change")
-                        pass_turn()
-
-            # turn_index를 이용해 게임 flow control
-            # 플레이어 턴에 플레이어가 할 수 있는 행동
-            if event.type == pygame.MOUSEBUTTONDOWN and game_active and not is_color_change:
-
-            # 1. 낼 수 있는 카드를 낸다
-                for card in turn_list[turn_index].sprites():
-                    if card.rect.collidepoint(event.pos):
-                        if check_condition(card):
-                            # 카드 내기
-                            print("카드 냈음")
-                            pop_card = card
-                            turn_list[turn_index].remove(card)
-                            remain.add(pop_card)
-                            now_card = pop_card
-                            now_card_surf = pop_card.image
-                            # 1-1. 낸 카드의 능력이 있다면 해당 카드의 능력을 수행해야 한다
-                            if card.skill is not None:
-                                skill_active(card.skill)
-                            if card.skill not in ['change', 'block', 'all']:
-                                print(card.skill)
-                                print(f"pass_turn call in check condition")
-                                pass_turn()
-                                break
-            # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
-                if deck_rect.collidepoint(event.pos) and not is_get:
-                    draw_from_center(turn_list[turn_index])
-            # 3. 낼 수 있는 카드가 없거나, 가운데에서 이미 카드를 가져온 상태면 PASS를 눌러 턴을 넘김
-                if is_get and skip_rect.collidepoint(event.pos):
-                    pass_turn()
-            # 4. 컴퓨터의 알고리즘 수행
-            # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
-            # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
-                for player in turn_list:
-                    if len(player.sprites()) == 0:
-                        game_active = False
-                        is_win = True
-        # event loop 종료 *****************************
-
-        if game_active:
-            for i in range(0, turn_index):
-                hand_update(turn_list[i])
-            screen.blit(deck_surf, deck_rect)
-            screen.blit(now_card_surf, now_card_rect)
-            screen.blit(uno_surf, uno_Rect)
-            # 누구의 턴인지 보여주는 부분
-            # if not is_color_change:
-            if turn_index == 0:
-                screen.blit(now_turn_list[turn_index], now_turn_rect)
-            else:
-                screen.blit(now_turn_list[turn_index], now_turn_rect)
-
-            # 손패를 그려주는 부분
-            for player_deck in turn_list:
-                # sorted_sprites = sorted(player_deck.sprites(), key=lambda s: player_deck.get_layer_of_sprite(s),
-                #                         reverse=True)
-                # for sprite in sorted_sprites:
-                #     screen.blit(sprite.image, sprite.rect)
-                player_deck.draw(screen)
-
-            if is_color_change:
-                screen.blit(alpha_surface, (0, 0))
-                for color_list in change_color_list:
-                    screen.blit(color_list[0], color_list[1])
-            if is_get:
-                pygame.draw.rect(screen, (200,200,200), skip_rect, 0)
-                screen.blit(skip_surf, skip_rect)
-
-            else:
-                pygame.draw.rect(screen, (64, 64, 64), skip_rect, 0)
-                screen.blit(skip_surf, skip_rect)
-        else:
-            screen.fill("green")
-            # 게임이 종료되었을 때 덱 초기화
-            for player_deck in turn_list:
-                player_deck.empty()
-            deck.empty()
-            remain.empty()
-
-            if is_win:
-                if turn_index == 0:
-                    screen.blit(win_surf2, win_rect)
-                else:
-                    screen.blit(win_surf, win_rect)
-                screen.blit(retry_surf, retry_rect)
-        pygame.display.update()
-
-        # Limit the frame rate
-        clock.tick(60)
 
 
 class Game:
-    def __init__(self, size, PLAYER_NUMBER, ):
-        self.size = size
-        self.PLAYER_NUMBER = PLAYER_NUMBER
+    font = pygame.font.Font("../assets/font/Pixeltype.ttf", 36)
 
-pygame.init()
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-clock = pygame.time.Clock()
-game_active = False
-# 싱글 플레이에 필요한 변수 선언
-turn_list = []  # 차례의 순서를 나타내는 list
-turn_index = 0  # 누구의 차례인지 알려주는 변수
-PLAYER_NUMBER = 2
-for _ in range(PLAYER_NUMBER):
-    turn_list.append(pygame.sprite.LayeredUpdates())
-is_win = False
-first = None
-# 시작 시 카드 세팅
-deck = pygame.sprite.Group()
-remain = pygame.sprite.Group()
+    spacing = 5
+    card_width = 70
+    card_height = 100
 
-colors = ['red', 'blue', 'green', 'yellow']
-numbers = list(range(0, 10))
-skills = ['reverse', 'block', 'plus2', 'change', 'plus4']
+    CENTER_X_POS = 625
+    CENTER_Y_POS = 325
+    change_color_list = []
 
-font = pygame.font.Font("../assets/font/Pixeltype.ttf", 36)
-text_surf = font.render("click here to play", False, (64, 64, 64))
-text_rect = text_surf.get_rect(center=(400, 300))
+    for color, pos in zip([(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
+                          [(CENTER_X_POS - 25, CENTER_Y_POS - 25), (CENTER_X_POS + 25, CENTER_Y_POS - 25),
+                           (CENTER_X_POS - 25, CENTER_Y_POS + 25), (CENTER_X_POS + 25, CENTER_Y_POS + 25)]):
+        surf = pygame.Surface((50, 50))
+        surf.fill(color)
+        rect = surf.get_rect(center=pos)
+        change_color_list.append([surf, rect, color])
 
-deck_surf = pygame.image.load("resources/images/card/normalMode/backcart.png").convert_alpha()
-deck_surf = pygame.transform.rotozoom(deck_surf, 0, 0.5)
-deck_rect = deck_surf.get_rect(center=(400 - (deck_surf.get_width() // 2), 300))
+    def __init__(self, screen, player_number):
+        self.screen_width = screen.get_width()
+        self.screen_height = screen.get_height()
+        self.player_number = player_number
 
-# 현재 어떤카드가 뒤집혀져있는지 나타내는 변수 / 추후 수정해야 함
-# 1. 낸 카드로 이미지가 바뀌게
-# 2.
-now_card = Card('red', None, 0, False)
-now_card_surf = pygame.image.load("resources/images/card/normalMode/backcart.png").convert_alpha()
-# now_card_surf = pygame.transform.rotozoom(now_card_surf, 0, 0.5)
-now_card_rect = now_card_surf.get_rect(center=(400 + (now_card_surf.get_width() // 2), 300))
+        self.game_active = False
+        self.is_win = False
+        self.is_get = False
+        self.run = True
+        self.is_color_change = False
 
-now_turn_surf = font.render(f"Player{turn_index + 1}'s turn", False, (64, 64, 64))
-now_turn_surf2 = font.render(f"Player{turn_index + 2}'s turn", False, (64, 64, 64))
-now_turn_rect = now_turn_surf.get_rect(center=(100, 300))
-now_turn_list = [now_turn_surf, now_turn_surf2]
-CENTER_X_POS = 625
-CENTER_Y_POS = 325
-red_surf = pygame.Surface((50, 50))
-red_surf.fill((255, 0, 0))
-red_rect = red_surf.get_rect(center=(CENTER_X_POS - 25, CENTER_Y_POS - 25))
-green_surf = pygame.Surface((50, 50))
-green_surf.fill((0, 255, 0))
-green_rect = green_surf.get_rect(center=(CENTER_X_POS + 25, CENTER_Y_POS - 25))
-blue_surf = pygame.Surface((50, 50))
-blue_surf.fill((0, 0, 255))
-blue_rect = blue_surf.get_rect(center=(CENTER_X_POS - 25, CENTER_Y_POS + 25))
-yellow_surf = pygame.Surface((50, 50))
-yellow_surf.fill((255, 255, 0))
-yellow_rect = yellow_surf.get_rect(center=(CENTER_X_POS + 25, CENTER_Y_POS + 25))
-change_color_list = [[red_surf, red_rect, "red"], [green_surf, green_rect, 'green'], [blue_surf, blue_rect, 'blue'],
-                     [yellow_surf, yellow_rect, 'yellow']]
-is_color_change = False
+        self.turn_list = []  # 차례의 순서를 나타내는 list
+        self.turn_index = 0  # 누구의 차례인지 알려주는 변수
+        for i in range(player_number):
+            player = Player(i, list, i)
+            turn_list.append(player)
+        self.deck = list  # 가운데에서 뽑힐 카드
+        self.remain = list  # 낸 카드들
 
-alpha_surface = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
-alpha_surface.fill((0, 0, 0, 128))
+        self.deck_surf = pygame.image.load("resources/images/card/normalMode/backcart.png").convert_alpha()
+        self.deck_rect = self.deck_surf.get_rect(center=(self.screen_width / 2 - (self.deck_surf.get_width() // 2), self.screen_height / 2))
 
-skip_surf = font.render("PASS", False, (64,64,64))
-skip_rect = skip_surf.get_rect(center=(520,350))
+        self.now_card = Card('red', None, 0, False)
+        self.now_card_surf = pygame.image.load("resources/images/card/normalMode/backcart.png").convert_alpha()
+        self.now_card_rect = self.now_card_surf.get_rect(center=(self.screen_width / 2 + (self.now_card_surf.get_width() // 2), self.screen_height / 2))
 
-uno_surf = font.render("UNO!", False, (64,64,64))
-uno_Rect = uno_surf.get_rect(center=(250,350))
+        self.now_turn_list = list
+        for i in range(player_number):
+            now_turn_surf = Game.font.render(f"Player{i+1}'s turn", False, (64, 64, 64))
+            now_turn_rect = now_turn_surf.get_rect(center=(self.screen_width / 8, self.screen_height / 2))
+            self.now_turn_list.append([now_turn_surf, now_turn_rect])
 
-win_surf = font.render(f"Player{turn_index + 1} win!", False, (64, 64, 64))
-win_surf2 = font.render(f"Player{turn_index + 2}' win!", False, (64, 64, 64))
-win_rect = win_surf.get_rect(center=(400, 300))
-retry_surf = font.render("click to retry", False, (64,64,64))
-retry_rect = retry_surf.get_rect(center=(400,350))
-# 카드 생성과 분배
-# 카드 덱을 만들고, 플레이어들에게 무작위로 카드를 분배
+        self.skip_surf = Game.font.render("PASS", False, (64, 64, 64))
+        self.skip_rect = self.skip_surf.get_rect(center=(self.now_card_rect.x + self.now_card_rect.width / 2 + 10, self.now_card_rect.y + self.now_card_rect.height / 2))
 
-# 0~9 숫자 카드를 색깔별로 담는 반복문 / product() : color와 nubmber로 조합할 수 있는 모든 경우의 수를 표현
-# 현재 게임을 나갈때마다 덱을 다시 generate하는 것이 필요 **********************************
+        self.uno_surf = Game.font.render("UNO!", False, (64, 64, 64))
+        self.uno_Rect = self.uno_surf.get_rect(center=(self.deck_rect.x + self.deck_rect.width / 2 - 10, self.deck_rect.y + self.deck_rect.height / 2))
 
+        self.win_list = list
+        for i in range(player_number):
+            win_surf = Game.font.render(f"Player{i+1} win!", False, (64, 64, 64))
+            win_rect = win_surf.get_rect(center=(self.screen_width / 2, self.screen_height / 2))
+            self.win_list.append([win_surf, win_rect])
 
-# 현재 카드 표시
-# 플레이어가 놓은 카드 중 가장 최근에 놓은 카드를 표시
-spacing = -20
-card_width = 70
-card_height = 100
+        self.retry_surf = Game.font.render("click to retry", False, (64, 64, 64))
+        self.retry_rect = self.retry_surf.get_rect(center=(self.screen_width / 2, self.screen_height / 2 + 50))
 
-# 카드 놓기
-# 플레이어는 자신의 카드 중 현재 카드와 색상 또는 숫자가 일치하는 카드를 놓을 수 있음
-is_get = False
+    def start_single_play(self):
+        global turn_list, turn_index, deck, now_card_surf, now_card_rect, is_color_change, game_active, is_get, now_card, is_win
+        pygame.init()
+        screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        clock = pygame.time.Clock()
 
-# 특수 카드 처리
-# 특수 카드인 Skip, Reverse, Draw Two, Wild, Wild Draw Four 등에 대한 처리를 구현합니다.
+        while self.run:
+            screen.fill((50, 200, 50))
 
+            # event loop
 
-# 게임 종료 조건 검사
-# 게임이 종료되는 조건인 플레이어의 카드가 모두 소진되거나, 한 명 이상의 플레이어가 이길 때를 검사합니다.
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        change_color()
+                        print("hi")
+                    if event.key == pygame.K_q:
+                        turn_list[turn_index].empty()
+
+                # 게임 전 카드 덱과 손 패를 세팅하는 부분 > 따로빼서 함수로 refactor하기
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if not game_active:
+                        game_active = True
+                        is_win = False
+                        generate_deck()
+                        for player_deck in turn_list:
+                            player_card_setting(player_deck)
+                            turn_index += 1
+                        turn_index = 0
+
+                else:
+                    pass
+                # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
+                if event.type == pygame.MOUSEMOTION and game_active and not is_color_change:
+                    for card in turn_list[turn_index].sprites():
+                        if card.rect.collidepoint(event.pos):
+                            # print(turn_list[turn_index].get_sprites_at(event.pos)[0].rect.left)
+                            # print("collide")
+                            if card.initial_y == card.rect.y and not card.is_moving:
+                                card.rect.y -= 10
+                                card.is_moving = True
+
+                        elif not card.rect.collidepoint(event.pos):
+                            if card.rect.bottom < event.pos[1] <= card.rect.bottom + 10 and card.rect.left < event.pos[
+                                0] <= card.rect.left + card.rect.width:
+                                pass
+                            else:
+                                if card.rect.y != card.initial_y and card.is_moving:
+                                    card.rect.y += 10
+                                    card.is_moving = False
+
+                # 멀티 플레이 시 turn_index를 가져와야함
+                if event.type == pygame.MOUSEBUTTONDOWN and game_active:
+                    clicked_card = None
+                    for card in turn_list[turn_index].sprites():
+                        if card.rect.collidepoint(event.pos):
+                            clicked_card = card
+                            break
+                    if clicked_card is not None:
+                        print(turn_list[turn_index].get_layer_of_sprite(card))
+                        print("button down")
+
+                # if now_card.rect.collidepoint(event.pos):
+                #     print(f"now.color : {now_card.color}")
+                #     print(f"now.skill : {now_card.skill}")
+                #     print(f"now.number : {now_card.number}")
+                # is_color_change에 따라 색깔을 바꿔주는 옵션
+                if is_color_change and event.type == pygame.MOUSEBUTTONDOWN:
+                    for color_list in Game.change_color_list:
+                        if color_list[1].collidepoint(event.pos):
+                            alpha_surface = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
+                            alpha_surface.fill((0, 0, 0, 128))
+                            now_card_surf = pygame.image.load(
+                                f"resources/images/card/normalMode/change/{color_list[2]}_change.png").convert_alpha()
+                            now_card_surf = pygame.transform.scale(now_card_surf, (70, 100))
+                            now_card.color = color_list[2]
+                            is_color_change = False
+                            pass_turn()
+
+                # turn_index를 이용해 게임 flow control
+                # 플레이어 턴에 플레이어가 할 수 있는 행동
+                if event.type == pygame.MOUSEBUTTONDOWN and game_active and not is_color_change:
+
+                    # 1. 낼 수 있는 카드를 낸다
+                    for card in turn_list[turn_index].sprites():
+                        if card.rect.collidepoint(event.pos):
+                            if check_condition(card):
+                                # 카드 내기
+                                print("카드 냈음")
+                                pop_card = card
+                                turn_list[turn_index].remove(card)
+                                remain.add(pop_card)
+                                now_card = pop_card
+                                now_card_surf = pop_card.image
+                                # 1-1. 낸 카드의 능력이 있다면 해당 카드의 능력을 수행해야 한다
+                                if card.skill is not None:
+                                    skill_active(card.skill)
+                                if card.skill not in ['change', 'block', 'all']:
+                                    print(card.skill)
+                                    print(f"pass_turn call in check condition")
+                                    pass_turn()
+                                    break
+                    # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
+                    if Game.deck_rect.collidepoint(event.pos) and not is_get:
+                        draw_from_center(turn_list[turn_index])
+                    # 3. 낼 수 있는 카드가 없거나, 가운데에서 이미 카드를 가져온 상태면 PASS를 눌러 턴을 넘김
+                    if is_get and Game.skip_rect.collidepoint(event.pos):
+                        pass_turn()
+                    # 4. 컴퓨터의 알고리즘 수행
+                    # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
+                    # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
+                    for player in turn_list:
+                        if len(player.sprites()) == 0:
+                            game_active = False
+                            is_win = True
+            # event loop 종료 *****************************
+
+            if game_active:
+                for i in range(0, turn_index):
+                    hand_update(turn_list[i])
+                screen.blit(deck_surf, deck_rect)
+                screen.blit(now_card_surf, now_card_rect)
+                screen.blit(uno_surf, uno_Rect)
+                # 누구의 턴인지 보여주는 부분
+                # if not is_color_change:
+                if turn_index == 0:
+                    screen.blit(now_turn_list[turn_index], now_turn_rect)
+                else:
+                    screen.blit(now_turn_list[turn_index], now_turn_rect)
+
+                # 손패를 그려주는 부분
+                for player_deck in turn_list:
+                    # sorted_sprites = sorted(player_deck.sprites(), key=lambda s: player_deck.get_layer_of_sprite(s),
+                    #                         reverse=True)
+                    # for sprite in sorted_sprites:
+                    #     screen.blit(sprite.image, sprite.rect)
+                    player_deck.draw(screen)
+
+                if is_color_change:
+                    screen.blit(alpha_surface, (0, 0))
+                    for color_list in change_color_list:
+                        screen.blit(color_list[0], color_list[1])
+                if is_get:
+                    pygame.draw.rect(screen, (200, 200, 200), skip_rect, 0)
+                    screen.blit(skip_surf, skip_rect)
+
+                else:
+                    pygame.draw.rect(screen, (64, 64, 64), skip_rect, 0)
+                    screen.blit(skip_surf, skip_rect)
+            else:
+                screen.fill("green")
+                # 게임이 종료되었을 때 덱 초기화
+                for player_deck in turn_list:
+                    player_deck.empty()
+                deck.empty()
+                remain.empty()
+
+                if is_win:
+                    if turn_index == 0:
+                        screen.blit(win_surf2, win_rect)
+                    else:
+                        screen.blit(win_surf, win_rect)
+                    screen.blit(retry_surf, retry_rect)
+            pygame.display.update()
+
+            # Limit the frame rate
+            clock.tick(60)
+
