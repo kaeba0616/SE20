@@ -6,9 +6,8 @@ import sys
 from operator import attrgetter
 
 
-class Card(pygame.sprite.Sprite):
+class Card:
     def __init__(self, color, number, skill, wild):
-        super().__init__()
         self.color = color
         self.number = number
         self.skill = skill  # block, plus2, reverse, change / change, plus4
@@ -36,6 +35,15 @@ class Card(pygame.sprite.Sprite):
         self.initial_y = self.rect.y
 
         self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
+
+
+class Player:
+    # number : 플레이어 넘버 / type : 어떤 플레이어 종류인지 / hand : 플레이어의 패 / turn : 플레이어 객체의 턴
+    def __init__(self, number, type, hand, turn):
+        self.number = number
+        self.type = type
+        self.hand = hand
+        self.turn = turn
 
 
 def draw_card(input_deck):
@@ -413,8 +421,15 @@ def start_single_play():
         clock.tick(60)
 
 
+class Game:
+    def __init__(self, size, PLAYER_NUMBER, ):
+        self.size = size
+        self.PLAYER_NUMBER = PLAYER_NUMBER
+
 pygame.init()
-screen = pygame.display.set_mode((800, 600))
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 game_active = False
 # 싱글 플레이에 필요한 변수 선언
