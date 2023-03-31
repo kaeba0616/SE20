@@ -4,18 +4,19 @@ from pygame.locals import *
 
 class Setting:
     
-    def __init__(self, keys, font, screen,config):
+    def __init__(self, keys, font, screen, config):
         self.items = [
-                      ["Window Size", "Key Configuration", "Color Blindness Mode", "Reset Settings"],
+                      ["Window Size", "Key Configuration", "Color Blindness Mode", "Set Volume", "Reset Settings"],
                       ["800 x 600", "size 2", "Fullscreen"],
                       list(keys.items()),
                       ["Deuteranopia(Red-Green)", "Tritanopia(Blue-Yellow)", "None"],
+                      ["Music Volume", " ", "Sound Volume"]
                       ]
         self.font = font
         self.screen = screen
         self.selected = 0
         self.title_font = pygame.font.SysFont(None, 72)
-        self.titles = ["Settings", "Window Size", "Key Configuration", "Color Blindness Mode"]
+        self.titles = ["Settings", "Window Size", "Key Configuration", "Color Blindness Mode", "Set Volume"]
         self.keys = keys
         self.key_font = pygame.font.SysFont(None, 20)
         self.option = 0 
@@ -43,14 +44,17 @@ class Setting:
 
         # Draw the menu items
         gap = 80
+        if self.option == 0 : gap = 70
         for i, item in enumerate(self.items[self.option]):
-            if self.option == 2:
+            if self.option == 2: #key setting의 경우 간격 다르게
                 text = self.font.render(
                 f"{item[0]}: {pygame.key.name(item[1]).capitalize()}",
                 True,
                 (255, 255, 255) if i != self.selected else (255, 0, 0)
                 )
                 gap = 50
+            elif self.option == 4: #volume setting이면 선택해도 색 안 바뀜
+                text = self.font.render(item, True, (255, 255, 255))
             else:   
                 text = self.font.render(
                     item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
@@ -104,14 +108,16 @@ class Setting:
                 elif event.type == KEYDOWN:
                     if event.key == self.keys["UP"]:
                         self.selected = (self.selected - 1) % (len(self.items[self.option])+1)
+                        if self.option == 4: self.selected = len(self.items[self.option]) #볼륨 화면에서는 save만
                     elif event.key == self.keys["DOWN"]:
                         self.selected = (self.selected + 1) % (len(self.items[self.option])+1)
+                        if self.option == 4: self.selected = len(self.items[self.option])
                     elif event.key == self.keys["RETURN"]:
-                        if self.option == 0 and self.selected == 3 : # setting 화면의 reset 버튼
+                        if self.option == 0 and self.selected == 4 : # setting 화면의 reset 버튼
                             self.reset()
                             screenW = self.screen.get_width() # 화면 크기 다시 계산
                             screenH = self.screen.get_height()
-                        elif self.option == 0 and self.selected == 4 : # setting 화면의 save 버튼
+                        elif self.option == 0 and self.selected == len(self.items[self.option]) : # setting 화면의 save 버튼
                             with open('./unogame/setting_data.ini', 'w') as f:
                                     self.config.write(f)
                             self.screen.fill((0, 0, 0))
@@ -141,6 +147,7 @@ class Setting:
                 elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     gap = 80
+                    if self.option == 0 : gap = 70
                     for i, item in enumerate(self.items[self.option]):
                         if self.option == 2 and type(item[1]) == int:
                             text = self.font.render(
@@ -164,7 +171,7 @@ class Setting:
                         if rect.collidepoint(pos):
                             if event.type == MOUSEMOTION: self.selected = i
                             elif event.type == MOUSEBUTTONUP:
-                                if self.option == 0 and self.selected == 3: # setting 화면의 reset 버튼
+                                if self.option == 0 and self.selected == 4: # setting 화면의 reset 버튼
                                     self.reset()
                                     screenW = self.screen.get_width() # 화면 크기 다시 계산
                                     screenH = self.screen.get_height()
@@ -188,7 +195,7 @@ class Setting:
                     if rectSave.collidepoint(pos): # Save 버튼
                         if event.type == MOUSEMOTION: self.selected = len(self.items[self.option])
                         elif event.type == MOUSEBUTTONUP: 
-                            if self.option == 0 and self.selected == 4: # 메인 화면의 Save 버튼을 눌렀을 때
+                            if self.option == 0 and self.selected == len(self.items[self.option]): # 메인 화면의 Save 버튼을 눌렀을 때
                                 with open('./unogame/setting_data.ini', 'w') as f: # ini 파일에 저장
                                     self.config.write(f)
                                 self.screen.fill((0, 0, 0))
@@ -241,6 +248,8 @@ class Setting:
                         
                     getKey = False
 
+    def setVolume(self, option):
+        pass
 
     def reset(self):        
         # Screen size reset
