@@ -9,8 +9,8 @@ def playMusic(num): #배경음악 재생
 
     pygame.mixer.music.stop()
     pygame.mixer.music.load("music"+str(num)+".mp3")
-    pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1) #반복재생
+    os.chdir(path)
 
 def pauseMusic(): #배경음악 일시정지
     pygame.mixer.music.pause()
@@ -18,14 +18,15 @@ def unpauseMusic(): #배경음악 다시 재생
     pygame.mixer.music.unpause()
 
 def musicDown():
-    currentVol = pygame.mixer.music.get_volume()
-    pygame.mixer.music.set_volume(currentVol-0.1)
-    if currentVol <= 0.1: pygame.mixer.music.set_volume(0)
+    currentVol = getMusicVol()
+    pygame.mixer.music.set_volume((currentVol-1)/10)
+    if pygame.mixer.music.get_volume() <= 0.05: pygame.mixer.music.set_volume(0)
 def musicUp():
-    currentVol = pygame.mixer.music.get_volume()
-    pygame.mixer.music.set_volume(currentVol+0.1)
-
-
+    currentVol = getMusicVol()
+    pygame.mixer.music.set_volume((currentVol+1)/10)
+def getMusicVol(): #floating-point error mitigation
+    vol = (pygame.mixer.music.get_volume() + 0.04) * 10 // 1
+    return int(vol)
 
 class Sounds:
     def __init__(self) :
@@ -41,22 +42,31 @@ class Sounds:
         ]
 
         os.chdir(path) # 경로 원위치
+        print(os.getcwd())
 
         for sound in self.soundEffects:
-            sound.set_volume(0.1) #초기값은 0.5
+            sound.set_volume(0.2)
     
     def soundPlay(self, num):
         self.soundEffects[num-1].play()
+    def soundIni(self, config):
+        pygame.mixer.music.set_volume(int(config['sound']['music']) / 10)
+        for sound in self.soundEffects:
+            sound.set_volume(int(config['sound']['sound']) / 10)
     
     def soundDown(self):
-        currentVol = self.soundEffects[0].get_volume()
-        set = currentVol - 0.1
-        if currentVol <= 0.1: set = 0
+        currentVol = self.getSoundVol()
+        set = (currentVol-1)/10
+        if currentVol <= 0.05: set = 0
         for sound in self.soundEffects:
             sound.set_volume(set)
-        print(self.soundEffects[0].get_volume())
+        self.soundPlay(1)
     def soundUp(self):
-        currentVol = self.soundEffects[0].get_volume()
+        currentVol = self.getSoundVol()
+        set = (currentVol+1)/10
         for sound in self.soundEffects:
-            sound.set_volume(currentVol + 0.1)
-        print(self.soundEffects[0].get_volume())
+            sound.set_volume(set)
+        self.soundPlay(1)
+    def getSoundVol(self): #floating-point error mitigation
+        vol = (self.soundEffects[0].get_volume() + 0.04) * 10 // 1
+        return int(vol)

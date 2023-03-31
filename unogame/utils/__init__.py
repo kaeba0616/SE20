@@ -1,1 +1,1 @@
-__all__=['menu', 'settings']
+__all__=['menu', 'settings','sound']
