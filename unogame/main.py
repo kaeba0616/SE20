@@ -37,7 +37,7 @@ font = pygame.font.SysFont(None, 48)
 # Create the menu
 menu = menu.Menu(key_list, font, screen)
 setting = settings.Setting(key_list, font, screen, config)
-storyMode = storyMode.StoryMode(screen, font)
+storyMode = storyMode.StoryMode(screen, font, config)
 
 # Main loop
 while True:
