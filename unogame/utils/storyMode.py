@@ -6,7 +6,7 @@ from pygame.locals import *
 
 class StoryMode:
 
-    def __init__(self, screen, font, config):
+    def __init__(self, screen, font, config, key):
         self.screen = screen
         self.font = font
         self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4", "Go back"]
@@ -18,8 +18,9 @@ class StoryMode:
         self.HEIGHT = self.screen.get_height()
         self.config = config
         self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
+        self.key = key
+
         
-    
         
         self.screen.fill((0, 0, 0))
 
@@ -80,10 +81,10 @@ class StoryMode:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    if event.key == self.key["LEFT"] or event.key == self.key["RIGHT"]:
                         selected += 1
                     selected = selected % 2
-                    if event.key == pygame.K_RETURN and selected == 0:
+                    if event.key == self.key["RETURN"] and selected == 0:
                         print("Play click!")
                         print("임의로 레벨 clear 시킴")
                         self.config['clear'][f'stage{num + 2}'] = str(1)
@@ -95,7 +96,7 @@ class StoryMode:
                         Todo
                         대전하기 만들기
                         '''
-                    elif event.key == pygame.K_RETURN and selected == 1:
+                    elif event.key == self.key["RETURN"] and selected == 1:
                         print("Back click!")
                         return
             # Update the screen
@@ -117,13 +118,13 @@ class StoryMode:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
+                    if event.key == self.key["UP"]:
                         next = (self.current_stage - 1) % len(self.stages)
                         while self.stage_clear[next] == False:
                             next = (next - 1) % len(self.stages)
                         self.current_stage = next
                                 
-                    elif event.key == pygame.K_DOWN:
+                    elif event.key == self.key["DOWN"]:
                         next = (self.current_stage + 1) % len(self.stages)
                         while self.stage_clear[next] == False:
                             next = (next + 1) % len(self.stages)
@@ -131,7 +132,7 @@ class StoryMode:
                     elif event.key == pygame.K_ESCAPE: # and self.stage_clear[self.current_stage]:
                         pygame.quit()
                         sys.exit()
-                    elif event.key == pygame.K_RETURN and self.stage_clear[self.current_stage]:
+                    elif event.key == self.key["RETURN"] and self.stage_clear[self.current_stage]:
                         print(f"{self.stages[self.current_stage]} click!")
                         if self.current_stage == 4:
                             self.screen.fill((0, 0, 0))
