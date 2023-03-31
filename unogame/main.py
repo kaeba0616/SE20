@@ -2,7 +2,7 @@ import pygame, configparser
 import sys
 from pygame.locals import *
 from utils import *
-from single_play import start_single_play
+# from single_play import start_single_play
 
 
 config = configparser.ConfigParser()
@@ -36,7 +36,8 @@ font = pygame.font.SysFont(None, 48)
 
 # Create the menu
 menu = menu.Menu(key_list, font, screen)
-setting = settings.Setting(key_list, font, screen,config)
+setting = settings.Setting(key_list, font, screen, config)
+storyMode = storyMode.StoryMode(screen, font)
 
 # Main loop
 while True:
@@ -45,12 +46,16 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
-        start_single_play()
+        # start_single_play()
     elif selected == 1:
+        screen.fill((0, 0, 0))
+        selected = storyMode.run()
+
+    elif selected == 2:
         # Open settings menu
         screen.fill((0,0,0))
         selected = setting.run()
-    elif selected == 2:
+    elif selected == 3:
         # Exit the program
         pygame.quit()
         sys.exit()
