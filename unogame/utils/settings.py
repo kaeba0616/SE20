@@ -226,7 +226,7 @@ class Setting:
                             screenW // 5,
                             screenH // 4 + i * gap
                         )
-                        if rect.collidepoint(pos):
+                        if rect.collidepoint(pos) and self.option != 4:
                             if event.type == MOUSEMOTION: self.selected = i
                             elif event.type == MOUSEBUTTONUP:
                                 if self.option == 0 and self.selected == 4: # setting 화면의 reset 버튼
@@ -345,4 +345,12 @@ class Setting:
             self.keys[name] = pygame.key.key_code(name.lower())
             self.config['key'][name.lower()] = str(pygame.key.key_code(name.lower()))
         self.items[2] = list(self.keys.items())
+
+        # Color mode reset
+
+        #Volume reset
+        sound.resetMusicVol()
+        self.sounds.resetSoundVol()
+        self.config['sound']['music'] = "6"
+        self.config['sound']['sound'] = "2"
 

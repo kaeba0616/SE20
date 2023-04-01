@@ -10,7 +10,7 @@ def playMusic(num): #배경음악 재생
     pygame.mixer.music.stop()
     pygame.mixer.music.load("music"+str(num)+".mp3")
     pygame.mixer.music.play(-1) #반복재생
-    os.chdir(path)
+    os.chdir(path) # 경로 원위치
 
 def pauseMusic(): #배경음악 일시정지
     pygame.mixer.music.pause()
@@ -27,6 +27,8 @@ def musicUp():
 def getMusicVol(): #floating-point error mitigation
     vol = (pygame.mixer.music.get_volume() + 0.04) * 10 // 1
     return int(vol)
+def resetMusicVol():
+    pygame.mixer.music.set_volume(0.6)
 
 class Sounds:
     def __init__(self) :
@@ -70,3 +72,7 @@ class Sounds:
     def getSoundVol(self): #floating-point error mitigation
         vol = (self.soundEffects[0].get_volume() + 0.04) * 10 // 1
         return int(vol)
+    def resetSoundVol(self):
+        for sound in self.soundEffects:
+            sound.set_volume(0.2)
+        self.soundPlay(1)
