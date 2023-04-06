@@ -1,6 +1,10 @@
 import pygame
 
 class Card:
+
+    colors = ['red', 'blue', 'green', 'yellow']
+    numbers = list(range(0, 10))
+    skills = ['reverse', 'block', 'plus2', 'change', 'plus4']
     def __init__(self, color, number, skill, wild):
         self.color = color
         self.number = number
@@ -29,7 +33,3 @@ class Card:
         self.initial_y = self.rect.y
 
         self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
-
-    colors = ['red', 'blue', 'green', 'yellow']
-    numbers = list(range(0, 10))
-    skills = ['reverse', 'block', 'plus2', 'change', 'plus4']
