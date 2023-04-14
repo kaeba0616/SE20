@@ -3,10 +3,11 @@ import sys
 from pygame.locals import *
 from utils import *
 # from single_play import start_single_play
+from single_play import Game
 
 
 config = configparser.ConfigParser()
-config.read('./unogame/setting_data.ini')
+config.read('setting_data.ini')
 
 
 # Define the key_list
@@ -47,6 +48,8 @@ while True:
         # Start single player game
         print("Start Game")  # Replace with your game code
         # start_single_play()
+        game = Game(screen, 2)
+        selected = game.start_single_play()
     elif selected == 1:
         screen.fill((0, 0, 0))
         selected = storyMode.run()
