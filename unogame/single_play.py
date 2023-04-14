@@ -18,7 +18,6 @@ class Game:
     CENTER_X_POS = 625
     CENTER_Y_POS = 325
     change_color_list = []
-    alpha_surface = None
 
     def __init__(self, screen, player_number):
         self.screen_width = screen.get_width()
@@ -30,6 +29,10 @@ class Game:
         self.is_get = False
         self.run = True
         self.is_color_change = False
+
+        self.alpha_surface = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
+        self.alpha_surface.fill((0, 0, 0,128))
+        self.alpha_surface.set_alpha(128)
 
         self.turn_list = []  # 차례의 순서를 나타내는 list
         self.turn_index = 0  # 누구의 차례인지 알려주는 변수
@@ -138,7 +141,7 @@ class Game:
                 )
             )
 
-    for color, pos in zip(
+    for color, pos, color_string in zip(
         [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
         [
             (CENTER_X_POS - 25, CENTER_Y_POS - 25),
@@ -146,11 +149,12 @@ class Game:
             (CENTER_X_POS - 25, CENTER_Y_POS + 25),
             (CENTER_X_POS + 25, CENTER_Y_POS + 25),
         ],
+        ["red", "green", "blue", "yellow"]
     ):
         surf = pygame.Surface((50, 50))
-        surf.fill(color)
+        surf.fill(color_string)
         rect = surf.get_rect(center=pos)
-        change_color_list.append([surf, rect, color])
+        change_color_list.append([surf, rect, color, color_string])
 
     def start_single_play(self):
         pygame.init()
@@ -234,18 +238,15 @@ class Game:
 
                 # self.is_color_change에 따라 색깔을 바꿔주는 옵션
                 if self.is_color_change and event.type == pygame.MOUSEBUTTONDOWN:
+
                     for color_list in Game.change_color_list:
                         if color_list[1].collidepoint(event.pos):
-                            Game.alpha_surface = pygame.Surface(
-                                (screen.get_width(), screen.get_height()),
-                                pygame.SRCALPHA,
-                            )
-                            Game.alpha_surface.fill((0, 0, 0, 128))
+
                             self.now_card_surf = pygame.image.load(
-                                f"resources/images/card/normalMode/change/{color_list[2]}_change.png"
+                                f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
                             ).convert_alpha()
                             self.now_card_surf = pygame.transform.scale(
-                                self.now_card_surf, (70, 100)
+                                self.now_card_surf, (50, 70)
                             )
                             self.now_card.color = color_list[2]
                             self.is_color_change = False
@@ -260,7 +261,7 @@ class Game:
                 ):
                     # 1. 낼 수 있는 카드를 낸다
                     for card in self.me.hand:
-                        if card.rect.collidepoint(event.pos):
+                        if card.rect.collidepoint(event.pos) and self.me.turn == self.turn_index:
                             if self.check_condition(card):
                                 # 카드 내기
                                 print("카드 냈음")
@@ -308,7 +309,7 @@ class Game:
                 if self.now_select:
                     pygame.draw.rect(screen, (0, 0, 0), self.now_select, 5)
                 if self.is_color_change:
-                    screen.blit(Game.alpha_surface, (0, 0))
+                    screen.blit(self.alpha_surface, (0, 0))
                     for color_list in Game.change_color_list:
                         screen.blit(color_list[0], color_list[1])
 

@@ -88,7 +88,7 @@ class StoryMode:
                         print("Play click!")
                         print("임의로 레벨 clear 시킴")
                         self.config['clear'][f'stage{num + 2}'] = str(1)
-                        with open('./unogame/setting_data.ini', 'w') as f:
+                        with open('setting_data.ini', 'w') as f:
                             self.config.write(f)
                         self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
                         return
