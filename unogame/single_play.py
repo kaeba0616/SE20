@@ -51,9 +51,7 @@ class Game:
 
         self.skip_button = Button(self.screen_width / 3 + 150, self.screen_height / 3, 50, 30,
                                  (255, 255, 255), "SKIP", (64, 64, 64), 30)
-        self.uno_surf = Game.font.render("UNO!", False, (64, 64, 64))
-        self.uno_Rect = self.uno_surf.get_rect(
-            center=(self.deck_rect.x + self.deck_rect.width / 2 - 10, self.deck_rect.y + self.deck_rect.height / 2))
+
         self.uno_button = Button(self.screen_width / 3 + 240, self.screen_height / 3, 50, 30,
                                   (255, 255, 255), "UNO", (64, 64, 64), 30)
         self.uno_button.alpha = 0
@@ -218,10 +216,10 @@ class Game:
 
                 self.uno_button.draw(screen)
                 if self.is_get:
-                    self.skip_button.color = (255, 255, 255)
+                    self.skip_button.surface.fill((255, 255, 255))
                     self.skip_button.draw(screen)
                 else:
-                    self.skip_button.color = (30, 30, 30)
+                    self.skip_button.surface.fill((30, 30, 30))
                     self.skip_button.draw(screen)
 
                 pygame.draw.rect(screen, (20, 20, 20), self.lobby_background)
