@@ -1,24 +1,27 @@
 import pygame, configparser
 import sys
 from pygame.locals import *
+from utils import sound
 
 class Setting:
     
-    def __init__(self, keys, font, screen,config):
+    def __init__(self, keys, font, screen, sounds, config):
         self.items = [
-                      ["Window Size", "Key Configuration", "Color Blindness Mode", "Reset Settings"],
+                      ["Window Size", "Key Configuration", "Color Blindness Mode", "Set Volume", "Reset Settings"],
                       ["800 x 600", "size 2", "Fullscreen"],
                       list(keys.items()),
                       ["Deuteranopia(Red-Green)", "Tritanopia(Blue-Yellow)", "None"],
+                      ["Music Volume", "", "Sound Volume", ""]
                       ]
         self.font = font
         self.screen = screen
         self.selected = 0
         self.title_font = pygame.font.SysFont(None, 72)
-        self.titles = ["Settings", "Window Size", "Key Configuration", "Color Blindness Mode"]
+        self.titles = ["Settings", "Window Size", "Key Configuration", "Color Blindness Mode", "Set Volume"]
         self.keys = keys
         self.key_font = pygame.font.SysFont(None, 20)
         self.option = 0 
+        self.sounds = sounds
         self.visible = [False, 255]
 
         # load data
@@ -29,7 +32,7 @@ class Setting:
 
 
     def draw(self):
-        if self.visible[0]: self.screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
         self.title_text = self.title_font.render(self.titles[self.option], True, (255, 255, 255))
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
@@ -43,14 +46,17 @@ class Setting:
 
         # Draw the menu items
         gap = 80
+        if self.option == 0 : gap = 70
         for i, item in enumerate(self.items[self.option]):
-            if self.option == 2:
+            if self.option == 2: #key setting의 경우 간격 다르게
                 text = self.font.render(
                 f"{item[0]}: {pygame.key.name(item[1]).capitalize()}",
                 True,
                 (255, 255, 255) if i != self.selected else (255, 0, 0)
                 )
                 gap = 50
+            elif self.option == 4: #volume setting이면 선택해도 색 안 바뀜
+                text = self.font.render(item, True, (255, 255, 255))
             else:   
                 text = self.font.render(
                     item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
@@ -60,6 +66,51 @@ class Setting:
                 text,
                 (screenW // 5, screenH // 4 + i * gap)
             )
+        if self.option == 4: #draw volume setting (if in volume setting)
+            fonts = pygame.font.SysFont(None, 60)
+            minus1 = fonts.render("-",True,(255, 255, 255) if self.selected != 0 else (255,0,0))
+            minus2 = fonts.render("-",True,(255, 255, 255) if self.selected != 1 else (255,0,0))
+            minus3 = fonts.render("-",True,(255, 255, 255) if self.selected != 5 else (255,255,0))
+            plus1 = fonts.render("+",True,(255, 255, 255) if self.selected != 2 else (255,0,0))
+            plus2 = fonts.render("+",True,(255, 255, 255) if self.selected != 3 else (255,0,0))
+            plus3 = fonts.render("+",True,(255, 255, 255) if self.selected != 6 else (255,255,0))
+            self.screen.blit(minus1, (screenW // 4, screenH // 4 + 1 * gap))
+            self.screen.blit(minus2, (screenW // 4, screenH // 4 + 3 * gap))
+            self.screen.blit(minus3, (screenW // 10 + 300, screenH // 12 + 5))
+            self.screen.blit(plus1, (screenW * 3 // 4, screenH // 4 + 1 * gap))
+            self.screen.blit(plus2, (screenW * 3 // 4, screenH // 4 + 3 * gap))
+            self.screen.blit(plus3, (screenW // 10 + 340, screenH // 12 + 5))
+
+            musicVol = sound.getMusicVol()
+            soundVol = self.sounds.getSoundVol()
+            for i in range(0, int(musicVol)):
+                pygame.draw.rect(
+                    self.screen, 
+                    (255,255,255), 
+                    pygame.Rect(screenW * 27//100 + (i+1) * screenW // 25, screenH // 4 + 1 * gap + 10, screenW // 27, 20)
+                    )
+            for i in range(int(musicVol), 10):
+                pygame.draw.rect(
+                    self.screen, 
+                    (70,70,70), 
+                    pygame.Rect(screenW * 27//100 + (i+1) * screenW // 25, screenH // 4 + 1 * gap + 10, screenW // 27, 20)
+                    )
+            for i in range(0, int(soundVol)):
+                pygame.draw.rect(
+                    self.screen, 
+                    (255,255,255), 
+                    pygame.Rect(screenW * 27//100 + (i+1) * screenW // 25, screenH // 4 + 3 * gap + 10, screenW // 27, 20)
+                    )
+            for i in range(int(soundVol), 10):
+                pygame.draw.rect(
+                    self.screen, 
+                    (70,70,70), 
+                    pygame.Rect(screenW * 27//100 + (i+1) * screenW // 25, screenH // 4 + 3 * gap + 10, screenW // 27, 20)
+                    )
+
+
+
+
         
         #Draw "Save"
         text = self.font.render("Save", True,
@@ -103,27 +154,41 @@ class Setting:
                     sys.exit()
                 elif event.type == KEYDOWN:
                     if event.key == self.keys["UP"]:
-                        self.selected = (self.selected - 1) % (len(self.items[self.option])+1)
+                        self.selected -= 1
+                        if self.option == 4:
+                            if self.selected >= 4: self.selected = 4
+                            elif abs(self.selected) == 1: self.selected = 5
+                            elif self.selected == 3: self.selected = 1
+                        else: self.selected %= (len(self.items[self.option])+1)
                     elif event.key == self.keys["DOWN"]:
-                        self.selected = (self.selected + 1) % (len(self.items[self.option])+1)
+                        self.selected += 1
+                        if self.option == 4:
+                            if self.selected >= 6: self.selected = 0
+                            elif self.selected == 2: self.selected = 4
+                        else:  self.selected %= (len(self.items[self.option])+1)
+                    elif event.key == self.keys["LEFT"] and self.option == 4:
+                        if self.selected == 5: self.selected = 6
+                        elif self.selected == 6: self.selected = 5
+                        else: self.selected = (self.selected - 2) % (len(self.items[self.option]))
+                    elif event.key == self.keys["RIGHT"] and self.option == 4:
+                        if self.selected == 5: self.selected = 6
+                        elif self.selected == 6: self.selected = 5
+                        else: self.selected = (self.selected + 2) % (len(self.items[self.option]))
                     elif event.key == self.keys["RETURN"]:
-                        if self.option == 0 and self.selected == 3 : # setting 화면의 reset 버튼
+                        if self.option == 0 and self.selected == 4 : # setting 화면의 reset 버튼
                             self.reset()
                             screenW = self.screen.get_width() # 화면 크기 다시 계산
                             screenH = self.screen.get_height()
-                        elif self.option == 0 and self.selected == 4 : # setting 화면의 save 버튼
+                        elif self.option == 0 and self.selected == len(self.items[self.option]) : # setting 화면의 save 버튼
                             with open('./unogame/setting_data.ini', 'w') as f:
                                     self.config.write(f)
-                            self.screen.fill((0, 0, 0))
                             return 0
                         elif self.option == 0: # setting 화면에 save 제외 버튼 누를 경우
                             self.option = self.selected+1
-                            self.screen.fill((0, 0, 0))
+                            self.selected = len(self.items[self.option])
                         elif self.selected == len(self.items[self.option]): # 다른 화면의 save 버튼
-                            print(self.selected)
-                            print(self.option)
-                            self.screen.fill((0, 0, 0))
                             self.option = 0
+                            self.selected = len(self.items[self.option])
                         elif self.option == 1: # 화면 바꾸기 세팅
                             self.screenSize(self.selected+1)
                             screenW = self.screen.get_width() # 화면 크기 다시 계산
@@ -131,7 +196,29 @@ class Setting:
                         elif self.option == 2: # 키 설정 세팅
                             print(self.selected)
                             self.configKeys(self.selected) # selected는 left 0 right 1 up 2 ...
-                            self.screen.fill((0,0,0))
+                        elif self.option == 4:
+                            if self.selected == 0: 
+                                sound.musicDown()
+                                self.config['sound']['music'] = str(sound.getMusicVol())
+                            elif self.selected == 1:
+                                self.sounds.soundDown()
+                                self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                            elif self.selected == 2: 
+                                sound.musicUp()
+                                self.config['sound']['music'] = str(sound.getMusicVol())
+                            elif self.selected == 3: 
+                                self.sounds.soundUp()
+                                self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                            elif self.selected == 5:
+                                sound.musicDown()
+                                self.config['sound']['music'] = str(sound.getMusicVol())
+                                self.sounds.soundDown()
+                                self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                            elif self.selected == 6:
+                                sound.musicUp()
+                                self.config['sound']['music'] = str(sound.getMusicVol())
+                                self.sounds.soundUp()
+                                self.config['sound']['sound'] = str(self.sounds.getSoundVol())
                     elif event.key == self.keys["ESCAPE"]:
                         pygame.quit()
                         sys.exit()
@@ -141,6 +228,7 @@ class Setting:
                 elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     gap = 80
+                    if self.option == 0 : gap = 70
                     for i, item in enumerate(self.items[self.option]):
                         if self.option == 2 and type(item[1]) == int:
                             text = self.font.render(
@@ -161,23 +249,66 @@ class Setting:
                             screenW // 5,
                             screenH // 4 + i * gap
                         )
-                        if rect.collidepoint(pos):
+                        if rect.collidepoint(pos) and self.option != 4:
                             if event.type == MOUSEMOTION: self.selected = i
                             elif event.type == MOUSEBUTTONUP:
-                                if self.option == 0 and self.selected == 3: # setting 화면의 reset 버튼
+                                if self.option == 0 and self.selected == 4: # setting 화면의 reset 버튼
                                     self.reset()
                                     screenW = self.screen.get_width() # 화면 크기 다시 계산
                                     screenH = self.screen.get_height()
                                 elif self.option == 0: # setting 화면의 다른 버튼
                                     self.option = i+1
-                                    self.screen.fill((0, 0, 0))
                                 elif self.option == 1: # 화면 바꾸기 세팅
                                     self.screenSize(self.selected+1)
                                     screenW = self.screen.get_width() # 화면 크기 다시 계산
                                     screenH = self.screen.get_height()
                                 elif self.option == 2: # 키 설정 변경
                                     self.configKeys(self.selected)
-                                    self.screen.fill((0,0,0))
+                    if self.option == 4: # volume setting의 경우
+                        fonts = pygame.font.SysFont(None, 60)
+                        icons = [
+                            fonts.render("-",True,(255, 255, 255)),
+                            fonts.render("-",True,(255, 255, 255)),
+                            fonts.render("+",True,(255, 255, 255)),
+                            fonts.render("+",True,(255, 255, 255))
+                            ]
+                        for i, icon in enumerate(icons):
+                            rect = icon.get_rect()
+                            rect.topleft = (screenW * (1 + (i//2)*2) // 4, screenH // 4 + (1 + (i%2)*2) * gap)
+                            if rect.collidepoint(pos):
+                                if event.type == MOUSEMOTION: self.selected = i
+                                elif event.type == MOUSEBUTTONDOWN:
+                                    if self.selected == 0: 
+                                        sound.musicDown()
+                                        self.config['sound']['music'] = str(sound.getMusicVol())
+                                    elif self.selected == 1:
+                                        self.sounds.soundDown()
+                                        self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                                    elif self.selected == 2: 
+                                        sound.musicUp()
+                                        self.config['sound']['music'] = str(sound.getMusicVol())
+                                    elif self.selected == 3: 
+                                        self.sounds.soundUp()
+                                        self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                        all = [fonts.render("-",True,(255, 255, 255)), fonts.render("+",True,(255, 255, 255))]
+                        for i, icon in enumerate(all): # 전체 소리 조정
+                            rect = icon.get_rect()
+                            rect.topleft = (screenW // 10 + 300 + 40 * i, screenH // 12 + 5)
+                            if rect.collidepoint(pos):
+                                if event.type == MOUSEMOTION: self.selected = i+5
+                                elif event.type == MOUSEBUTTONDOWN:
+                                    if self.selected == 5:
+                                        sound.musicDown()
+                                        self.config['sound']['music'] = str(sound.getMusicVol())
+                                        self.sounds.soundDown()
+                                        self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                                    elif self.selected == 6:
+                                        sound.musicUp()
+                                        self.config['sound']['music'] = str(sound.getMusicVol())
+                                        self.sounds.soundUp()
+                                        self.config['sound']['sound'] = str(self.sounds.getSoundVol())
+                        
+                        
 
                     save = self.font.render("Save", True, (255, 255, 255))
                     rectSave = save.get_rect()
@@ -188,9 +319,15 @@ class Setting:
                     if rectSave.collidepoint(pos): # Save 버튼
                         if event.type == MOUSEMOTION: self.selected = len(self.items[self.option])
                         elif event.type == MOUSEBUTTONUP: 
-                            if self.option == 0 and self.selected == 4: # 메인 화면의 Save 버튼을 눌렀을 때
-                                with open('setting_data.ini', 'w') as f: # ini 파일에 저장
-                                    self.config.write(f)
+                            if self.option == 0 and self.selected == len(self.items[self.option]): # 메인 화면의 Save 버튼을 눌렀을 때
+                                with open('./unogame/setting_data.ini', 'w') as f: # ini 파일에 저장
+                            
+                            # lms
+                            # develop
+                            #if self.option == 0 and self.selected == 4: # 메인 화면의 Save 버튼을 눌렀을 때
+                            #    with open('setting_data.ini', 'w') as f: # ini 파일에 저장
+                              
+                              self.config.write(f)
                                 self.screen.fill((0, 0, 0))
                                 return 0
                             else: # 다른 setting 화면의 Save 버튼을 눌렀을 때
@@ -241,6 +378,8 @@ class Setting:
                         
                     getKey = False
 
+    def setVolume(self, option):
+        pass
 
     def reset(self):        
         # Screen size reset
@@ -252,4 +391,12 @@ class Setting:
             self.keys[name] = pygame.key.key_code(name.lower())
             self.config['key'][name.lower()] = str(pygame.key.key_code(name.lower()))
         self.items[2] = list(self.keys.items())
+
+        # Color mode reset
+
+        #Volume reset
+        sound.resetMusicVol()
+        self.sounds.resetSoundVol()
+        self.config['sound']['music'] = "6"
+        self.config['sound']['sound'] = "2"
 

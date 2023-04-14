@@ -20,7 +20,7 @@ class Menu:
 
 
     def draw(self):
-        if self.visible[0]: self.screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
 
