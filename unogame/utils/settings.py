@@ -70,16 +70,12 @@ class Setting:
             fonts = pygame.font.SysFont(None, 60)
             minus1 = fonts.render("-",True,(255, 255, 255) if self.selected != 0 else (255,0,0))
             minus2 = fonts.render("-",True,(255, 255, 255) if self.selected != 1 else (255,0,0))
-            minus3 = fonts.render("-",True,(255, 255, 255) if self.selected != 5 else (255,255,0))
             plus1 = fonts.render("+",True,(255, 255, 255) if self.selected != 2 else (255,0,0))
             plus2 = fonts.render("+",True,(255, 255, 255) if self.selected != 3 else (255,0,0))
-            plus3 = fonts.render("+",True,(255, 255, 255) if self.selected != 6 else (255,255,0))
             self.screen.blit(minus1, (screenW // 4, screenH // 4 + 1 * gap))
             self.screen.blit(minus2, (screenW // 4, screenH // 4 + 3 * gap))
-            self.screen.blit(minus3, (screenW // 10 + 300, screenH // 12 + 5))
             self.screen.blit(plus1, (screenW * 3 // 4, screenH // 4 + 1 * gap))
             self.screen.blit(plus2, (screenW * 3 // 4, screenH // 4 + 3 * gap))
-            self.screen.blit(plus3, (screenW // 10 + 340, screenH // 12 + 5))
 
             musicVol = sound.getMusicVol()
             soundVol = self.sounds.getSoundVol()
@@ -154,26 +150,17 @@ class Setting:
                     sys.exit()
                 elif event.type == KEYDOWN:
                     if event.key == self.keys["UP"]:
-                        self.selected -= 1
+                        self.selected = (self.selected - 1) % (len(self.items[self.option])+1)
                         if self.option == 4:
-                            if self.selected >= 4: self.selected = 4
-                            elif abs(self.selected) == 1: self.selected = 5
-                            elif self.selected == 3: self.selected = 1
-                        else: self.selected %= (len(self.items[self.option])+1)
+                            if self.selected % 2 == 1: self.selected = (self.selected - 2) % (len(self.items[self.option])+1)
                     elif event.key == self.keys["DOWN"]:
-                        self.selected += 1
+                        self.selected = (self.selected + 1) % (len(self.items[self.option])+1)
                         if self.option == 4:
-                            if self.selected >= 6: self.selected = 0
-                            elif self.selected == 2: self.selected = 4
-                        else:  self.selected %= (len(self.items[self.option])+1)
+                            if self.selected == 2: self.selected = 4
                     elif event.key == self.keys["LEFT"] and self.option == 4:
-                        if self.selected == 5: self.selected = 6
-                        elif self.selected == 6: self.selected = 5
-                        else: self.selected = (self.selected - 2) % (len(self.items[self.option]))
+                        self.selected = (self.selected - 2) % (len(self.items[self.option]))
                     elif event.key == self.keys["RIGHT"] and self.option == 4:
-                        if self.selected == 5: self.selected = 6
-                        elif self.selected == 6: self.selected = 5
-                        else: self.selected = (self.selected + 2) % (len(self.items[self.option]))
+                        self.selected = (self.selected + 2) % (len(self.items[self.option]))
                     elif event.key == self.keys["RETURN"]:
                         if self.option == 0 and self.selected == 4 : # setting 화면의 reset 버튼
                             self.reset()
@@ -207,16 +194,6 @@ class Setting:
                                 sound.musicUp()
                                 self.config['sound']['music'] = str(sound.getMusicVol())
                             elif self.selected == 3: 
-                                self.sounds.soundUp()
-                                self.config['sound']['sound'] = str(self.sounds.getSoundVol())
-                            elif self.selected == 5:
-                                sound.musicDown()
-                                self.config['sound']['music'] = str(sound.getMusicVol())
-                                self.sounds.soundDown()
-                                self.config['sound']['sound'] = str(self.sounds.getSoundVol())
-                            elif self.selected == 6:
-                                sound.musicUp()
-                                self.config['sound']['music'] = str(sound.getMusicVol())
                                 self.sounds.soundUp()
                                 self.config['sound']['sound'] = str(self.sounds.getSoundVol())
                     elif event.key == self.keys["ESCAPE"]:
@@ -288,23 +265,6 @@ class Setting:
                                         sound.musicUp()
                                         self.config['sound']['music'] = str(sound.getMusicVol())
                                     elif self.selected == 3: 
-                                        self.sounds.soundUp()
-                                        self.config['sound']['sound'] = str(self.sounds.getSoundVol())
-                        all = [fonts.render("-",True,(255, 255, 255)), fonts.render("+",True,(255, 255, 255))]
-                        for i, icon in enumerate(all): # 전체 소리 조정
-                            rect = icon.get_rect()
-                            rect.topleft = (screenW // 10 + 300 + 40 * i, screenH // 12 + 5)
-                            if rect.collidepoint(pos):
-                                if event.type == MOUSEMOTION: self.selected = i+5
-                                elif event.type == MOUSEBUTTONDOWN:
-                                    if self.selected == 5:
-                                        sound.musicDown()
-                                        self.config['sound']['music'] = str(sound.getMusicVol())
-                                        self.sounds.soundDown()
-                                        self.config['sound']['sound'] = str(self.sounds.getSoundVol())
-                                    elif self.selected == 6:
-                                        sound.musicUp()
-                                        self.config['sound']['music'] = str(sound.getMusicVol())
                                         self.sounds.soundUp()
                                         self.config['sound']['sound'] = str(self.sounds.getSoundVol())
                         
