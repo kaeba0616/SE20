@@ -15,15 +15,13 @@ class Game:
     card_width = 50
     card_height = 70
 
-    CENTER_X_POS = 625
-    CENTER_Y_POS = 325
-    change_color_list = []
 
-    def __init__(self, screen, player_number):
+
+    def __init__(self, screen, player_number, key_list):
         self.screen_width = screen.get_width()
         self.screen_height = screen.get_height()
         self.player_number = player_number
-
+        self.key_list = key_list
         self.game_active = False
         self.is_win = False
         self.is_get = False
@@ -140,21 +138,23 @@ class Game:
                     None,
                 )
             )
-
-    for color, pos, color_string in zip(
-        [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
-        [
-            (CENTER_X_POS - 25, CENTER_Y_POS - 25),
-            (CENTER_X_POS + 25, CENTER_Y_POS - 25),
-            (CENTER_X_POS - 25, CENTER_Y_POS + 25),
-            (CENTER_X_POS + 25, CENTER_Y_POS + 25),
-        ],
-        ["red", "green", "blue", "yellow"]
-    ):
-        surf = pygame.Surface((50, 50))
-        surf.fill(color_string)
-        rect = surf.get_rect(center=pos)
-        change_color_list.append([surf, rect, color, color_string])
+        self.change_color_list = []
+        self.CENTER_X_POS = self.screen_width // 10
+        self.CENTER_Y_POS = self.screen_height // 5
+        for color, pos, color_string in zip(
+                [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
+                [
+                    (self.CENTER_X_POS - 25, self.CENTER_Y_POS - 25),
+                    (self.CENTER_X_POS + 25, self.CENTER_Y_POS - 25),
+                    (self.CENTER_X_POS - 25, self.CENTER_Y_POS + 25),
+                    (self.CENTER_X_POS + 25, self.CENTER_Y_POS + 25),
+                ],
+                ["red", "green", "blue", "yellow"]
+        ):
+            surf = pygame.Surface((50, 50))
+            surf.fill(color_string)
+            rect = surf.get_rect(center=pos)
+            self.change_color_list.append([surf, rect, color, color_string])
 
     def start_single_play(self):
         pygame.init()
@@ -174,7 +174,6 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.change_color()
-                        print("hi")
                     if event.key == pygame.K_q:
                         self.turn_list[self.turn_index].hand.clear()
 
@@ -194,7 +193,7 @@ class Game:
                         # self.me.update_hand(screen)
                 else:
                     pass
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and not self.game_active:
                     if self.add_button.is_clicked(event.pos):
                         if self.player_number <= 5:
                             self.player_number += 1
@@ -219,27 +218,48 @@ class Game:
                     event.type == pygame.KEYDOWN
                     and self.game_active
                     and not self.is_color_change
+                    and self.me.turn == self.turn_index
                 ):
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == self.key_list["RIGHT"]:
                         print("key pressed")
-                        if self.now_select is None:
+                        if self.now_select is None or self.now_select == self.skip_button:
                             self.now_select = self.me.hand[0]
-                            print(self.me.hand.index(self.now_select))
+                        elif self.now_select == self.deck_rect:
+                            print("test")
+                            self.now_select = self.skip_button
+
                         elif (
                             len(self.me.hand) == self.me.hand.index(self.now_select) + 1
                         ):
                             self.now_select = self.me.hand[0]
-                            print(self.me.hand.index(self.now_select))
                         else:
                             self.now_select = self.me.hand[
                                 self.me.hand.index(self.now_select) + 1
                             ]
-                            print(self.me.hand.index(self.now_select))
+
+                    elif event.key == self.key_list["LEFT"]:
+                        if self.now_select is None or self.now_select == self.deck_rect:
+                            self.now_select = self.me.hand[0]
+                        elif self.now_select == self.skip_button:
+                            self.now_select = self.deck_rect
+                        elif (
+                            self.me.hand.index(self.now_select) == 0
+                        ):
+                            self.now_select = self.me.hand[len(self.me.hand) - 1]
+                        else:
+                            self.now_select = self.me.hand[
+                                self.me.hand.index(self.now_select) - 1
+                            ]
+
+                    elif event.key == self.key_list["UP"]:
+                        self.now_select = self.deck_rect
+                    elif event.key == self.key_list["DOWN"]:
+                        self.now_select = self.me.hand[0]
 
                 # self.is_color_change에 따라 색깔을 바꿔주는 옵션
                 if self.is_color_change and event.type == pygame.MOUSEBUTTONDOWN:
 
-                    for color_list in Game.change_color_list:
+                    for color_list in self.change_color_list:
                         if color_list[1].collidepoint(event.pos):
 
                             self.now_card_surf = pygame.image.load(
@@ -254,11 +274,29 @@ class Game:
 
                 # self.turn_index를 이용해 게임 flow control
                 # 플레이어 턴에 플레이어가 할 수 있는 행동
-                if (
-                    event.type == pygame.MOUSEBUTTONDOWN
-                    and self.game_active
-                    and not self.is_color_change
-                ):
+                if event.type == pygame.KEYDOWN and self.game_active and not self.is_color_change:
+                    if event.key == self.key_list["RETURN"]:
+                        if self.now_select in self.me.hand:
+                            if self.check_condition(self.now_select):
+                                pop_card = self.now_select
+                                self.turn_list[self.turn_index].hand.remove(pop_card)
+                                self.now_select = self.me.hand[0]
+                                self.remain.append(pop_card)
+                                self.now_card = pop_card
+                                self.now_card_surf = pop_card.image
+                                if pop_card.skill is not None:
+                                    self.skill_active(pop_card.skill)
+                                if pop_card.skill not in ["change", "block", "all"]:
+                                    self.pass_turn()
+                        if self.now_select == self.deck_rect and not self.is_get:
+                            self.draw_from_center(self.turn_list[self.turn_index].hand)
+                        if self.is_get and self.now_select == self.skip_button:
+                            self.pass_turn()
+                        for player in self.turn_list:
+                            if len(player.hand) == 0:
+                                self.game_active = False
+                                self.is_win = True
+                if event.type == pygame.MOUSEBUTTONDOWN and self.game_active and not self.is_color_change:
                     # 1. 낼 수 있는 카드를 낸다
                     for card in self.me.hand:
                         if card.rect.collidepoint(event.pos) and self.me.turn == self.turn_index:
@@ -267,7 +305,7 @@ class Game:
                                 print("카드 냈음")
                                 pop_card = card
                                 self.turn_list[self.turn_index].hand.remove(pop_card)
-                                self.now_select = self.turn_list[0].hand[0]
+                                self.now_select = self.me.hand[0]
                                 self.remain.append(pop_card)
                                 self.now_card = pop_card
                                 self.now_card_surf = pop_card.image
@@ -306,11 +344,10 @@ class Game:
 
                 # 손패를 그려주는 부분
                 self.me.draw_hand(screen)
-                if self.now_select:
-                    pygame.draw.rect(screen, (0, 0, 0), self.now_select, 5)
+
                 if self.is_color_change:
                     screen.blit(self.alpha_surface, (0, 0))
-                    for color_list in Game.change_color_list:
+                    for color_list in self.change_color_list:
                         screen.blit(color_list[0], color_list[1])
 
                 self.uno_button.draw(screen)
@@ -318,9 +355,10 @@ class Game:
                     self.skip_button.surface.fill((255, 255, 255))
                     self.skip_button.draw(screen)
                 else:
-                    self.skip_button.surface.fill((30, 30, 30))
+                    self.skip_button.surface.fill((120, 120, 120))
                     self.skip_button.draw(screen)
-
+                if self.now_select and self.me.turn == self.turn_index:
+                    pygame.draw.rect(screen, (0, 0, 0), self.now_select, 5)
                 pygame.draw.rect(screen, (20, 20, 20), self.lobby_background)
                 for i in range(0, self.player_number - 1):
                     self.info_list[i].draw(screen)
