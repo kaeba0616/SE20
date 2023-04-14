@@ -275,6 +275,7 @@ class Game:
                 # self.turn_index를 이용해 게임 flow control
                 # 플레이어 턴에 플레이어가 할 수 있는 행동
                 if event.type == pygame.KEYDOWN and self.game_active and not self.is_color_change:
+                    # 1. 낼 수 있는 카드를 낸다
                     if event.key == self.key_list["RETURN"]:
                         if self.now_select in self.me.hand:
                             if self.check_condition(self.now_select):
@@ -288,10 +289,16 @@ class Game:
                                     self.skill_active(pop_card.skill)
                                 if pop_card.skill not in ["change", "block", "all"]:
                                     self.pass_turn()
+                        # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
                         if self.now_select == self.deck_rect and not self.is_get:
                             self.draw_from_center(self.turn_list[self.turn_index].hand)
+                        # 3. 낼 수 있는 카드가 없거나, 가운데에서 이미 카드를 가져온 상태면 PASS를 눌러 턴을 넘김
                         if self.is_get and self.now_select == self.skip_button:
                             self.pass_turn()
+                        # 4. 컴퓨터의 알고리즘 수행
+                        # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
+
+                        # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
                         for player in self.turn_list:
                             if len(player.hand) == 0:
                                 self.game_active = False
