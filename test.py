@@ -76,7 +76,7 @@ class MessageBox:
 # Create the message box object
 message_box = MessageBox(50, 50, 200, 100)
 
-# Run the game loop
+# self.run the game loop
 while True:
     # Handle events
     for event in pygame.event.get():
