@@ -7,10 +7,10 @@ SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-run = True
-while run:
+self.run = True
+while self.run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            self.run = False
 
 pygame.quit()

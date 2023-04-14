@@ -321,7 +321,13 @@ class Setting:
                         elif event.type == MOUSEBUTTONUP: 
                             if self.option == 0 and self.selected == len(self.items[self.option]): # 메인 화면의 Save 버튼을 눌렀을 때
                                 with open('./unogame/setting_data.ini', 'w') as f: # ini 파일에 저장
-                                    self.config.write(f)
+                            
+                            # lms
+                            # develop
+                            #if self.option == 0 and self.selected == 4: # 메인 화면의 Save 버튼을 눌렀을 때
+                            #    with open('setting_data.ini', 'w') as f: # ini 파일에 저장
+                              
+                              self.config.write(f)
                                 self.screen.fill((0, 0, 0))
                                 return 0
                             else: # 다른 setting 화면의 Save 버튼을 눌렀을 때

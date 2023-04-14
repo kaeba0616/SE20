@@ -1,1 +1,1 @@
-__all__=['menu', 'settings','sound']
+__all__=['menu', 'settings','sound', 'storyMode']
