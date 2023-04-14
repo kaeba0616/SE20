@@ -248,7 +248,7 @@ class Game:
                             self.now_card_surf = pygame.transform.scale(
                                 self.now_card_surf, (50, 70)
                             )
-                            self.now_card.color = color_list[2]
+                            self.now_card.color = color_list[3]
                             self.is_color_change = False
                             self.pass_turn()
 
