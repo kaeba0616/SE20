@@ -10,7 +10,7 @@ from models.button import Button, Component
 
 class Game:
     pygame.font.init()
-    font = pygame.font.Font("../assets/font/Pixeltype.ttf", 36)
+    font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", 36)
     spacing = 2
     card_width = 50
     card_height = 70
