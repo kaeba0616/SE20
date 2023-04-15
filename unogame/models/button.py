@@ -3,16 +3,16 @@ from .player import Player
 
 
 class Button:
-    def __init__(self, x, y, width, height, color, text, text_color, font_size):
+    def __init__(self, x, y, width, height, color, text, text_color, font_size, alpha):
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
         self.text = text
         self.text_color = text_color
         self.font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", font_size)
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        self.alpha = 255
-        self.surface.fill((color[0], color[1], color[2], self.alpha))
-
+        self.alpha = alpha
+        self.surface.fill(color)
+        self.surface.set_alpha(self.alpha)
     def draw(self, screen):
         screen.blit(self.surface, self.rect)
         text_surface = self.font.render(self.text, True, self.text_color)
