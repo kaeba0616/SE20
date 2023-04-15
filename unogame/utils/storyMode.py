@@ -9,6 +9,7 @@ class StoryMode:
     def __init__(self, screen, font, config, key):
         self.screen = screen                                                        # 게임의 스크린
         self.font = font                                                            # 폰트
+
         self.stages = ["Stage1", "Stage2", "Stage3", "Stage4"]                      # stage 이름
         self.back = ["Go back"]                                                     # Go back 버튼 이름
         self.current_stage = 0                                                      # 현재 커서의 가로 위치
@@ -100,13 +101,24 @@ on the first distribution.""")
                     )
                 )
 
+        if int(self.config['window']['default']) == 1:
+            new_font = pygame.font.SysFont(None, 30)
+            set_y = 30
+        elif int(self.config['window']['default']) == 2:
+            new_font = pygame.font.SysFont(None, 48)
+            set_y = 48
+        elif int(self.config['window']['default']) == 3:
+            new_font = pygame.font.SysFont(None, 60)
+            set_y = 60
+
+
         # 맵 선택시 나오는 설명
         lines = self.note[num].splitlines()
         for i, l in enumerate(lines):
-            self.screen.blit(self.font.render(l, True, (255, 255, 255)),
+            self.screen.blit(new_font.render(l, True, (255, 255, 255)),
                              (
-            self.screen.get_width() // 2 - self.font.render(l, True, (255, 255, 255)).get_width() // 2,
-            self.screen.get_height() * 0.2 - self.font.render(l, True, (255, 255, 255)).get_height() // 2 + 48 * i
+            self.screen.get_width() // 2 - new_font.render(l, True, (255, 255, 255)).get_width() // 2,
+            self.screen.get_height() * 0.2 - new_font.render(l, True, (255, 255, 255)).get_height() // 2 + set_y * i
                 )
             )
         # text = self.font.render(self.note[num], True, (255, 255, 255))
