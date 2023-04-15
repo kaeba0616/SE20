@@ -1,0 +1,106 @@
+import pygame, configparser
+import sys
+from pygame.locals import *
+from utils import *
+
+
+
+class Pause:
+
+    def __init__(self, screen, font, config, key):
+        self.screen = screen                                                        # 게임의 스크린
+        self.font = font                                                            # 폰트
+        self.title_font = pygame.font.SysFont(None, 72)
+        self.key_font = pygame.font.SysFont(None, 48)
+        self.items = ['Resume', 'Settings', 'Exit']
+        self.title_text = self.title_font.render("PAUSE", True, (255, 255, 255))
+        self.keys = key
+        self.selected = 0
+        self.config = config
+
+        self.screen.fill((0, 0, 0))
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+
+        # Draw the title
+        self.screen.blit(
+            self.title_text,
+            (self.screen.get_width() // 2 - self.title_text.get_width() // 2, self.screen.get_height() // 6),
+        )
+
+        # Draw the menu items
+        for i, item in enumerate(self.items):
+            text = self.font.render(
+                item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
+            )
+            self.screen.blit(
+                text, (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() // 2 + i * 50)
+            )
+
+
+    def run(self):
+        clock = pygame.time.Clock()
+        screenW = self.screen.get_width()
+        screenH = self.screen.get_height()
+
+        # 메인 루프
+        running = True
+        while running:
+            # 이벤트 처리
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == self.keys["UP"]:
+                        self.selected = (self.selected - 1) % len(self.items)
+                    elif event.key == self.keys["DOWN"]:
+                        self.selected = (self.selected + 1) % len(self.items)
+                    elif event.key == self.keys["RETURN"]:
+                        if self.selected == 0:                                      # Resume 선택 -> 게임 계속하기
+                            return
+                        elif self.selected == 1:                                    # Settings 선택 -> 설정 화면으로
+                            setting = settings.Setting(self.keys, self.font, self.screen, self.config)
+                            num = setting.run()
+                        elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로  // 어려워서 그냥 종료로 함..
+                            pygame.quit()
+                            sys.exit()
+                            # menu_select = menu.Menu(self.keys, self.font, self.screen)
+                            # num = menu_select.run()
+                    elif event.key == self.keys["ESCAPE"]:                          # 게임 계속 진행하기
+                        return
+
+
+                elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    for i, item in enumerate(self.items):
+                        text = self.font.render(item, True, (255, 255, 255))
+                        rect = text.get_rect()
+                        rect.topleft = (
+                            self.screen.get_width() // 2 - text.get_width() // 2,
+                            self.screen.get_height() // 2 + i * 50,
+                        )
+                        if rect.collidepoint(pos):
+                            if event.type == MOUSEMOTION:
+                                self.selected = i
+                            elif event.type == MOUSEBUTTONUP:
+                                if self.selected == 0:                                      # Resume 선택 -> 게임 계속하기
+                                    return
+                                elif self.selected == 1:                                    # Settings 선택 -> 설정 화면으로
+                                    setting = settings.Setting(self.keys, self.font, self.screen, self.config)
+                                    num = setting.run()
+                                elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로  // 어려워서 그냥 종료로 함..
+                                    pygame.quit()
+                                    sys.exit()
+                                    # menu_select = menu.Menu(self.keys, self.font, self.screen)
+                                    # num = menu_select.run()
+            
+            # 화면 채우기
+            self.draw()
+            
+            # Update the screen
+            pygame.display.update()
+
+            # Limit the frame rate
+            clock.tick(60)

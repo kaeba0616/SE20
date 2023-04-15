@@ -8,6 +8,9 @@ from models.button import Button, Component
 from models.card import Card
 from models.player import Player
 
+from models.button import Button, Component
+from pause import Pause
+
 
 class Game:
     pygame.font.init()
@@ -16,11 +19,20 @@ class Game:
     card_width = 50
     card_height = 70
 
-    def __init__(self, screen, player_number, key_list):
+    CENTER_X_POS = 625
+    CENTER_Y_POS = 325
+    change_color_list = []
+
+    def __init__(self, screen, player_number, keys, config):
         self.screen_width = screen.get_width()
         self.screen_height = screen.get_height()
         self.player_number = player_number
-        self.key_list = key_list
+        
+
+        self.keys = keys
+        self.config = config
+
+
         self.game_active = False
         self.is_win = False
         self.is_get = False
@@ -180,7 +192,10 @@ class Game:
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.change_color()
+                        font = pygame.font.SysFont(None, 48)
+                        pause = Pause(screen, font, self.config, self.keys)
+                        pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+
                     if event.key == pygame.K_q:
                         self.turn_list[self.turn_index].hand.clear()
 

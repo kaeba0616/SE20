@@ -48,7 +48,7 @@ while True:
         # Start single player game
         print("Start Game")  # Replace with your game code
         # start_single_play()
-        game = Game(screen, 2, key_list)
+        game = Game(screen, 2, key_list, config)
         selected = game.start_single_play()
     elif selected == 1:
         screen.fill((0, 0, 0))

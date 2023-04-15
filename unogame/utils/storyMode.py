@@ -7,18 +7,23 @@ from pygame.locals import *
 class StoryMode:
 
     def __init__(self, screen, font, config, key):
-        self.screen = screen
-        self.font = font
-        self.stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4", "Go back"]
-        self.current_stage = 0
-        self.text_color = (255, 255, 255)
-        self.note = ["Stage 1 description", "Stage 2 description", "Stage 3 description", "Stage 4 description"]
-        self.items = ['Play', 'Back']
+        self.screen = screen                                                        # 게임의 스크린
+        self.font = font                                                            # 폰트
+        self.stages = ["Stage1", "Stage2", "Stage3", "Stage4"]                      # stage 이름
+        self.back = ["Go back"]                                                     # Go back 버튼 이름
+        self.current_stage = 0                                                      # 현재 커서의 가로 위치
+        self.current_UpDown = 0                                                     # 현재 커서의 세로 위치
+        self.text_color = (255, 255, 255)                                           # 텍스트 색깔
+        self.note = ["Stage 1 description", "Stage 2 description", "Stage 3 description", "Stage 4 description"]    # 적 설명
+        self.items = ['Play', 'Back']                                               # 스테이지 선택 시 play or back
         self.WIDTH = self.screen.get_width()
         self.HEIGHT = self.screen.get_height()
         self.config = config
-        self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
+        self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])),
+                            bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])),
+                            True]                                                   # stage 클리어 변수 설정
         self.key = key
+        self.window_size = int(self.config['window']['default'])
 
         
         
@@ -26,22 +31,35 @@ class StoryMode:
 
     def draw(self):
         self.screen.fill((0, 0, 0))
-
+        # 스토리 모드 지도 구현
+        x_pos_list = [(self.screen.get_width() // 5) * i for i in range(1, 5)]             # 동그라미를 1/5, 2/5, ... 에 위치하게 함
+        y_pos = self.screen.get_height() // 2 - (self.screen.get_height() // 7)
         for i, stage in enumerate(self.stages):
-            text = self.font.render(stage, True, (255, 255, 255) if self.stage_clear[i] == True else (100, 100, 100))
-            if self.current_stage == i:
-                text = self.font.render(stage, True, (255, 0, 0))
+            # 스테이지 안깬거는 회색, 깬거는 흰색
+            pygame.draw.circle(self.screen, (255, 255, 255) if self.stage_clear[i] == True else (100, 100, 100), (x_pos_list[i], y_pos), 30)
+            stage_name = self.font.render(self.stages[i], True, (255, 255, 255))
+            # self.font.render("Go back", True, (255, 255, 255) if self.stage_clear[i] == True else (100, 100, 100))
+
+            # 현재 위치면 빨간색으로
+            if self.current_stage == i and self.current_UpDown == 0:
+                pygame.draw.circle(self.screen, (255, 0, 0), (x_pos_list[i], y_pos), 30)
+
+            elif self.current_stage == i and self.current_UpDown == 1:
+                 pygame.draw.circle(self.screen, (255, 255, 255), (x_pos_list[i], y_pos), 30)
             self.screen.blit(
-                text,
+                stage_name,
                 (
-                self.screen.get_width() // 2 - text.get_width() // 2,
-                100 + i * 100
+                (self.screen.get_width() // 5) * (i+1) - stage_name.get_width() // 2,
+                y_pos + self.screen.get_height() // 10
                 )
             )
+        font = self.font.render("Go back", True, (255, 255, 255) if self.current_UpDown == 0 else (255, 0, 0))
+        self.screen.blit(font, (self.screen.get_width() // 2 - font.get_width() // 2, self.screen.get_height() * 3 // 4))
 
     def description(self, num, selected):
         self.screen.fill((0, 0, 0))
 
+        # 맵 선택시 나오는 play or back
         for i, item in enumerate(self.items):
             text = self.font.render(
                 item, True, (255, 255, 255) if i != selected else (255, 0, 0)
@@ -60,6 +78,7 @@ class StoryMode:
                     )
                 )
 
+        # 맵 선택시 나오는 설명
         text = self.font.render(self.note[num], True, (255, 255, 255))
         self.screen.blit(
             text,
@@ -74,9 +93,19 @@ class StoryMode:
         clock = pygame.time.Clock()
         running = True
         selected = 0
+        text1 = self.font.render("Play", True, (255, 255, 255))
+        text2 = self.font.render("Back", True, (255, 255, 255))
+
+        text1_rect = text1.get_rect()
+        text2_rect = text2.get_rect()
+        text1_rect.topleft = (self.screen.get_width() * 0.4 - text1.get_width() // 2,
+                    self.screen.get_height() * 0.75 - text1.get_height() // 2)
+        text2_rect.topleft = (self.screen.get_width() * 0.6 - text2.get_width() // 2,
+                    self.screen.get_height() * 0.75 - text2.get_height() // 2)
         while running:
             self.description(num, selected)
             for event in pygame.event.get():
+                pos = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -99,6 +128,35 @@ class StoryMode:
                     elif event.key == self.key["RETURN"] and selected == 1:
                         print("Back click!")
                         return
+                    
+
+                elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
+                    if text1_rect.collidepoint(pos):
+                        if event.type == MOUSEMOTION:
+                            selected = 0
+                        if event.type == MOUSEBUTTONUP:
+                            print(f"Play click!")
+                            print("임의로 레벨 clear 시킴")
+                            self.config['clear'][f'stage{num + 2}'] = str(1)
+                            with open('setting_data.ini', 'w') as f:
+                                self.config.write(f)
+                            self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
+                            return
+                            '''
+                            Todo
+                            대전하기 만들기
+                            '''
+                    elif text2_rect.collidepoint(pos):
+                        if event.type == MOUSEMOTION:
+                            selected = 1
+                        if event.type == MOUSEBUTTONUP:
+                            print(f"Back click!")
+                            return
+                            '''
+                            Todo
+                            대전하기 만들기
+                            '''
+
             # Update the screen
             pygame.display.update()
 
@@ -118,26 +176,35 @@ class StoryMode:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == self.key["UP"]:
+                    if event.key == self.key["LEFT"]:
                         next = (self.current_stage - 1) % len(self.stages)
                         while self.stage_clear[next] == False:
                             next = (next - 1) % len(self.stages)
                         self.current_stage = next
                                 
-                    elif event.key == self.key["DOWN"]:
+                    elif event.key == self.key["RIGHT"]:
                         next = (self.current_stage + 1) % len(self.stages)
                         while self.stage_clear[next] == False:
                             next = (next + 1) % len(self.stages)
                         self.current_stage = next
-                    elif event.key == pygame.K_ESCAPE: # and self.stage_clear[self.current_stage]:
+                    
+                    elif event.key == self.key["UP"] or event.key == self.key["DOWN"]:
+                        if self.current_UpDown == 0:
+                            self.current_UpDown = 1
+                        else:
+                            self.current_UpDown = 0
+
+                    elif event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-                    elif event.key == self.key["RETURN"] and self.stage_clear[self.current_stage]:
-                        print(f"{self.stages[self.current_stage]} click!")
-                        if self.current_stage == 4:
+                    elif event.key == self.key["RETURN"]:
+                        
+                        if self.current_UpDown == 1:
+                            print(f"Go Back click!")
                             self.screen.fill((0, 0, 0))
                             return 0
                         else:
+                            print(f"{self.stages[self.current_stage]} click!")
                             self.description_draw(self.current_stage)
                         '''
                             수정 필요
@@ -150,23 +217,18 @@ class StoryMode:
 
                 elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
+                    text = self.font.render("Go back", True, (255, 255, 255))
+                    text_rect = text.get_rect()
+                    text_rect.topleft = (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() * 3 // 4)
                     for i, stage in enumerate(self.stages):
-                        text = self.font.render(stage, True, (255, 255, 255))
-                        rect = text.get_rect()
-                        rect.topleft = (
-                            self.screen.get_width() // 2 - text.get_width() // 2,
-                            100 + i * 100
-                        )
-                        if rect.collidepoint(pos) and self.stage_clear[i]:
+                        circle_rect = pygame.Rect((self.screen.get_width() // 5) * (i+1) - 30, self.screen.get_height() // 2 - (self.screen.get_height() // 7) - 30, 60, 60)
+                        if circle_rect.collidepoint(pos) and self.stage_clear[i]:
                             if event.type == MOUSEMOTION:
+                                self.current_UpDown = 0
                                 self.current_stage = i
                             elif event.type == MOUSEBUTTONUP:
                                 print(f"{self.stages[self.current_stage]} click!")
-                                if self.current_stage == 4:
-                                    self.screen.fill((0, 0, 0))
-                                    return 0
-                                else:
-                                    self.description_draw(self.current_stage)
+                                self.description_draw(self.current_stage)
                             '''
                                 수정 필요
                                 stage 1, stage 2 등의 설명이 나오는 화면
@@ -174,6 +236,14 @@ class StoryMode:
                                 ex) start_single_play(self.current_stage) 식으로
                                 current_stage의 스테이지를 플레이할 수 있도록
                             '''
+                        elif text_rect.collidepoint(pos):
+                            if event.type == MOUSEMOTION:
+                                self.current_UpDown = 1
+                            elif event.type == MOUSEBUTTONUP:
+                                print("Go Back click!")
+                                if self.current_UpDown == 1:
+                                    self.screen.fill((0, 0, 0))
+                                    return 0
             
             
             # 화면 채우기
@@ -184,23 +254,6 @@ class StoryMode:
             1. 스테이지 클릭 시, 스테이지 설명 화면 + 대결 버튼 + 뒤로가기 버튼
             2. 스테이지 클리어 시, 스테이지 TF 업데이트
             '''
-            
-            # # 스테이지 텍스트 렌더링
-            # for i in range(len(self.stages)):
-            #     color = (255, 255, 255) if self.stage_clear[i] else (100, 100, 100)
-            #     text = self.font.render(self.stages[i], True, color)
-            #     text_rect = text.get_rect(center=(self.screen.get_width()/2, 100+i*100))
-            #     self.screen.blit(text, text_rect)
-            
-            
-            # 선택된 스테이지 설명 렌더링
-            # description = self.font.render(self.stages[self.current_stage], True, (255, 255, 255))
-            # description_rect = description.get_rect(center=(self.screen.get_width()/2, self.screen.get_height()-100))
-            # self.screen.blit(description, description_rect)
-            
-            # 클리어한 스테이지 업데이트
-            # if self.current_stage > 0:
-            #     self.stage_clear[self.current_stage-1] = True
             
             # Update the screen
             pygame.display.update()
