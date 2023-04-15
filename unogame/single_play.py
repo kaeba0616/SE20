@@ -23,10 +23,11 @@ class Game:
     CENTER_Y_POS = 325
     change_color_list = []
 
-    def __init__(self, screen, player_number, keys, config):
+    def __init__(self, screen, player_number, keys, config, soundFX):
         self.screen_width = screen.get_width()
         self.screen_height = screen.get_height()
         self.player_number = player_number
+        self.soundFX = soundFX
         
 
         self.keys = keys
@@ -193,7 +194,7 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
-                        pause = Pause(screen, font, self.config, self.keys)
+                        pause = Pause(screen, font, self.config, self.keys, self.soundFX)
                         pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
 
                     if event.key == pygame.K_q:

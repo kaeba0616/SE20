@@ -30,7 +30,7 @@ def getMusicVol(): #floating-point error mitigation
 def resetMusicVol():
     pygame.mixer.music.set_volume(0.6)
 
-class Sounds:
+class SoundFX:
     def __init__(self) :
         pygame.mixer.init() #mixer 초기화
         path = os.getcwd() #원래 작업 디렉토리 임시 저장
@@ -38,9 +38,9 @@ class Sounds:
         os.chdir(module_path+"/../resources/sounds") #파일 경로 탐색 용이하게 한번 바꾸기
 
         self.soundEffects = [
-            pygame.mixer.Sound("bleep.mp3"),
+            pygame.mixer.Sound("short_blip.mp3"),
             pygame.mixer.Sound("coin.mp3"),
-            pygame.mixer.Sound("short_blip.mp3")
+            pygame.mixer.Sound("bleep.mp3")
         ]
 
         os.chdir(path) # 경로 원위치
@@ -51,7 +51,7 @@ class Sounds:
     
     def soundPlay(self, num):
         self.soundEffects[num-1].play()
-    def soundIni(self, config):
+    def soundIni(self, config): # 저장된 소리 크기로 불러오기
         pygame.mixer.music.set_volume(int(config['sound']['music']) / 10)
         for sound in self.soundEffects:
             sound.set_volume(int(config['sound']['sound']) / 10)
