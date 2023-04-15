@@ -350,10 +350,32 @@ class Game:
                         if len(player.hand) == 0:
                             self.game_active = False
                             self.is_win = True
+                    # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
+                    # if len(self.deck) == 0:
+                    #     win_condition = False
+                    #     less = self.calculation_point(self.me.hand)
+                    #     winner = self.me
+                    #     temp = []
+                    #     # 다시 생각
+                    #     for player in self.turn_list:
+                    #         for card in player.hand:
+                    #             temp.append(self.check_condition(card))
+                    #     for card in temp:
+                    #         if not card:
+                    #             win_condition = True
+                    #     if win_condition:
+                    #         for player in self.turn_list:
+                    #             if less >= self.calculation_point(player.hand):
+                    #                 less = self.calculation_point(player.hand)
+                    #                 winner = player
+                    #                 self.win_button.text = f"Player {winner.number} win !!"
+
+
             # event loop 종료 *****************************
 
             if self.game_active:
-                screen.blit(self.deck_surf, self.deck_rect)
+                if len(self.deck):
+                    screen.blit(self.deck_surf, self.deck_rect)
                 screen.blit(self.now_card_surf, self.now_card_rect)
 
                 # 누구의 턴인지 보여주는 부분
@@ -506,11 +528,12 @@ class Game:
             )
             for i in range(self.player_number)
         ]
+        self.win_button = Button(self.screen_width / 2 - 50, self.screen_height / 2 - 20, 100, 40, (255,255,255),"Player 1 win !!", (64,64,64), 30, 0)
+
         for i, component in enumerate(self.info_list):
             component.player = self.turn_list[i + 1]
             if i == len(self.turn_list) - 2:
                 break
-            print(f"index : {i}")
         self.me = self.turn_list[0]
 
     # self.turn_index를 더 깔끔하게 다루기
@@ -604,3 +627,14 @@ class Game:
             for player in self.turn_list:
                 if len(player.hand) == 1 and player.turn != self.turn_index:
                     self.draw_card(player.hand)
+
+    def calculation_point(self, input_hand):
+        point = 0
+        for card in input_hand:
+            if card.is_wild:
+                point += 5
+            elif card.skill:
+                point += 3
+            else:
+                point += 1
+        return point
