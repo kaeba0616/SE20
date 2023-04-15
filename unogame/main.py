@@ -34,11 +34,13 @@ elif config["window"]["default"] == "3":
 
 
 font = pygame.font.SysFont(None, 48)
-sounds = sound.Sounds()
+soundFX = sound.SoundFX()
+soundFX.soundIni(config)
+sound.playMusic(1)
 
 # Create the menu
 menu = menu.Menu(key_list, font, screen)
-setting = settings.Setting(key_list, font, screen, sounds, config)
+setting = settings.Setting(key_list, font, screen, soundFX, config)
 storyMode = storyMode.StoryMode(screen, font, config, key_list)
 
 # Main loop
@@ -48,18 +50,21 @@ while True:
     if selected == 0:
         # Start single player game
         print("Start Game")  # Replace with your game code
-        # start_single_play()
-        game = Game(screen, 2, key_list, config)
+        soundFX.soundPlay(1)
+        game = Game(screen, 2, key_list, config, soundFX)
         selected = game.start_single_play()
     elif selected == 1:
+        soundFX.soundPlay(1)
         screen.fill((0, 0, 0))
         selected = storyMode.run()
 
     elif selected == 2:
         # Open settings menu
+        soundFX.soundPlay(1)
         screen.fill((0, 0, 0))
         selected = setting.run()
     elif selected == 3:
         # Exit the program
+        soundFX.soundPlay(1)
         pygame.quit()
         sys.exit()
