@@ -4,6 +4,7 @@ class Player:
         self.number = number
         self.hand = hand
         self.turn = turn
+        self.uno = False
 
     def update_hand(self, screen):
 

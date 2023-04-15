@@ -175,6 +175,9 @@ class Game:
         self.current_time = 10000
         pygame.time.set_timer(self.turn_timer, 1000)
         self.time_button = Button(self.screen_width // 8 + 40, self.screen_height // 2 + 15, 80,30,(255,255,255),f"TIME : {self.current_time}", (64,64,64,), 30, 255)
+
+        self.uno_timer = pygame.USEREVENT + 2
+        self.is_uno = True
     def start_single_play(self):
         pygame.init()
         screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -222,8 +225,12 @@ class Game:
                             self.player_card_setting(player.hand)
                             self.turn_index += 1
                         self.turn_index = 0
-                        for _ in range(0, 6):
+                        for _ in range(0, 5):
                             self.me.hand.pop()
+                        for _ in range(0, 6):
+                            self.turn_list[self.turn_index + 1].hand.pop()
+                        for _ in range(0, 6):
+                            self.turn_list[self.turn_index + 2].hand.pop()
                         # self.me.update_hand(screen)
                 else:
                     pass
@@ -236,13 +243,26 @@ class Game:
                         if self.player_number > 2:
                             self.player_number -= 1
                         print(f"delete / player_number : {self.player_number}")
+                
+                # 매 턴 UNO를 할 수 있는지 없는지 체크하는 부분
+                for player in self.turn_list:
+                    if len(player.hand) == 1 and not player.uno and self.is_uno:
+                        print("uno timer start")
+
+                        pygame.time.set_timer(self.uno_timer, 5000, 1)
+                        player.uno = True
+                        break
+                if event.type == self.uno_timer and self.game_active:
+                    self.is_uno = False
+                    for player in self.turn_list:
+                        print("turn off player.uno")
+                        player.uno = False
 
                 # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
-                if event.type == pygame.MOUSEMOTION and self.game_active and not self.is_color_change:
+                if event.type == pygame.MOUSEMOTION and self.game_active and not self.is_color_change and self.me.turn == self.turn_index:
                     for card in self.me.hand:
                         if card.rect.collidepoint(event.pos):
                             self.now_select = card
-                            print(self.me.hand.index(card))
                     for rect in [self.deck_rect, self.skip_button.rect, self.uno_button.rect]:
                         if rect.collidepoint(event.pos):
                             self.now_select = rect
@@ -338,7 +358,7 @@ class Game:
                             if self.check_condition(self.now_select):
                                 pop_card = self.now_select
                                 self.turn_list[self.turn_index].hand.remove(pop_card)
-                                self.now_select = self.me.hand[0]
+                                self.now_select = None
                                 self.remain.append(pop_card)
                                 self.now_card = pop_card
                                 self.now_card_surf = pop_card.image
@@ -355,10 +375,9 @@ class Game:
                         self.pass_turn()
                     # 4. 컴퓨터의 알고리즘 수행
                     # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
-                    if (key == self.keys["RETURN"] or self.check_collide(pos)) and self.now_select == self.uno_button:
+                    if (key == self.keys["RETURN"] or self.check_collide(pos)) and self.now_select == self.uno_button and self.is_uno:
                         print("if enter")
                         self.press_uno()
-
 
                     # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
                     for player in self.turn_list:
@@ -366,24 +385,21 @@ class Game:
                             self.game_active = False
                             self.is_win = True
                     # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
-                    # if len(self.deck) == 0:
-                    #     win_condition = False
-                    #     less = self.calculation_point(self.me.hand)
-                    #     winner = self.me
-                    #     temp = []
-                    #     # 다시 생각
-                    #     for player in self.turn_list:
-                    #         for card in player.hand:
-                    #             temp.append(self.check_condition(card))
-                    #     for card in temp:
-                    #         if not card:
-                    #             win_condition = True
-                    #     if win_condition:
-                    #         for player in self.turn_list:
-                    #             if less >= self.calculation_point(player.hand):
-                    #                 less = self.calculation_point(player.hand)
-                    #                 winner = player
-                    #                 self.win_button.text = f"Player {winner.number} win !!"
+                    if len(self.deck) == 0:
+                        win_condition = True
+                        for player in self.turn_list:
+                            for card in player.hand:
+                                if card:
+                                    win_condition = False
+
+                        winner = self.me
+                        if win_condition:
+                            less_point = self.calculation_point(self.me.hand)
+                            for player in self.turn_list:
+                                if less_point >= self.calculation_point(player.hand):
+                                    less_point = self.calculation_point(player.hand)
+                                    winner = player
+                                    self.win_button.text = f"Player {winner.number} win !!"
 
 
             # event loop 종료 *****************************
@@ -482,14 +498,6 @@ class Game:
     ):  # deck : list / first, second : card
         for _ in range(count):
             pop_card = self.deck.pop()
-
-            if next_player == 0:
-                pop_card.rect.y = 450  # 200 - rect_height // 2
-                pop_card.initial_y = 450
-            elif next_player == 1:
-                pop_card.rect.y = 50  # 200 - rect_height // 2
-                pop_card.initial_y = 50
-
             input_deck.append(pop_card)
 
     # def hand_update(self, input_deck):
@@ -613,7 +621,7 @@ class Game:
             self.turn_index = 0
         self.is_get = False
         self.current_time = 10
-
+        self.is_uno = True
     def check_collide(self, pos):
         for card in self.me.hand:
             if card.rect.collidepoint(pos):
@@ -637,12 +645,13 @@ class Game:
                 break
 
         if mistake:
-            self.draw_card(self.me.hand)
+            self.draw_card(self.turn_list[self.turn_index])
         else:
             for player in self.turn_list:
-                if len(player.hand) == 1 and player.turn != self.turn_index:
+                if len(player.hand) == 1 and player.turn != self.turn_index and player.uno:
                     self.draw_card(player.hand)
-
+                    player.uno = False
+        self.is_uno = False
     def calculation_point(self, input_hand):
         point = 0
         for card in input_hand:
