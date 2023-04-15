@@ -207,6 +207,8 @@ class Game:
                             self.player_card_setting(player.hand)
                             self.turn_index += 1
                         self.turn_index = 0
+                        for _ in range(0, 6):
+                            self.me.hand.pop()
                         # self.me.update_hand(screen)
                 else:
                     pass
@@ -312,6 +314,7 @@ class Game:
                 # 클릭 및 엔터 이벤트
                 if (event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN) and self.game_active and not self.is_color_change:
                     pos = pygame.mouse.get_pos()
+                    key = None
                     if event.type == pygame.KEYDOWN:
                         key = event.key
                     # 1. 낼 수 있는 카드를 낸다
@@ -337,7 +340,10 @@ class Game:
                         self.pass_turn()
                     # 4. 컴퓨터의 알고리즘 수행
                     # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
-                    # if self.uno_button.
+                    if (key == self.key_list["RETURN"] or self.check_collide(pos)) and self.now_select == self.uno_button:
+                        print("if enter")
+                        self.press_uno()
+
 
                     # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
                     for player in self.turn_list:
@@ -431,15 +437,12 @@ class Game:
         self.is_color_change = True
 
     def draw_card(self, input_deck):
-        random.shuffle(self.deck)
         pop_card = self.deck.pop()
-
         input_deck.append(pop_card)
 
-    def draw(
+    def plus(
             self, input_deck, next_player, count
     ):  # deck : list / first, second : card
-        random.shuffle(self.deck)
         for _ in range(count):
             pop_card = self.deck.pop()
 
@@ -561,9 +564,9 @@ class Game:
         elif skill == "change" or skill == "all":
             self.change_color()
         elif skill == "plus2":
-            self.draw(self.turn_list[next_player].hand, next_player, 2)
+            self.plus(self.turn_list[next_player].hand, next_player, 2)
         elif skill == "plus4" or skill == "all4":
-            self.draw(self.turn_list[next_player].hand, next_player, 4)
+            self.plus(self.turn_list[next_player].hand, next_player, 4)
 
     def pass_turn(self):
         print("turn is passed")
@@ -585,3 +588,19 @@ class Game:
             return True
         else:
             return False
+
+    def press_uno(self):
+        print("calling")
+        mistake = True
+        for player in self.turn_list:
+            if len(player.hand) == 1:
+                print(len(player.hand))
+                mistake = False
+                break
+
+        if mistake:
+            self.draw_card(self.me.hand)
+        else:
+            for player in self.turn_list:
+                if len(player.hand) == 1 and player.turn != self.turn_index:
+                    self.draw_card(player.hand)
