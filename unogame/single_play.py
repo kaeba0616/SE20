@@ -253,7 +253,7 @@ class Game:
                         and not self.is_color_change
                         and self.me.turn == self.turn_index
                 ):
-                    if event.key == self.key_list["RIGHT"]:
+                    if event.key == self.keys["RIGHT"]:
                         print("key pressed")
                         if self.now_select is None:
                             self.now_select = self.me.hand[0]
@@ -274,7 +274,7 @@ class Game:
                                 self.me.hand.index(self.now_select) + 1
                                 ]
 
-                    elif event.key == self.key_list["LEFT"]:
+                    elif event.key == self.keys["LEFT"]:
                         if self.now_select is None:
                             self.now_select = self.me.hand[0]
                         elif self.now_select == self.skip_button:
@@ -295,14 +295,14 @@ class Game:
                                 self.me.hand.index(self.now_select) - 1
                                 ]
 
-                    elif event.key == self.key_list["UP"]:
+                    elif event.key == self.keys["UP"]:
                         if self.now_select is None:
                             self.now_select = self.me.hand[0]
                         elif self.now_select in self.me.hand:
                             self.now_select = self.deck_rect
                         elif self.now_select in [self.deck_rect, self.skip_button, self.uno_button]:
                             self.now_select = self.me.hand[0]
-                    elif event.key == self.key_list["DOWN"]:
+                    elif event.key == self.keys["DOWN"]:
                         if self.now_select is None:
                             self.now_select = self.me.hand[0]
                         elif self.now_select in self.me.hand:
@@ -333,7 +333,7 @@ class Game:
                     if event.type == pygame.KEYDOWN:
                         key = event.key
                     # 1. 낼 수 있는 카드를 낸다
-                    if key == self.key_list["RETURN"] or self.check_collide(pos):
+                    if key == self.keys["RETURN"] or self.check_collide(pos):
                         if self.now_select in self.me.hand and self.me.turn == self.turn_index:
                             if self.check_condition(self.now_select):
                                 pop_card = self.now_select
@@ -348,14 +348,14 @@ class Game:
                                     self.pass_turn()
 
                     # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
-                    if (key == self.key_list["RETURN"] or self.check_collide(pos)) and self.now_select == self.deck_rect and not self.is_get:
+                    if (key == self.keys["RETURN"] or self.check_collide(pos)) and self.now_select == self.deck_rect and not self.is_get:
                         self.draw_from_center(self.turn_list[self.turn_index].hand)
                     # 3. 낼 수 있는 카드가 없거나, 가운데에서 이미 카드를 가져온 상태면 PASS를 눌러 턴을 넘김
-                    if (key == self.key_list["RETURN"] or self.check_collide(pos)) and self.now_select == self.skip_button and self.is_get:
+                    if (key == self.keys["RETURN"] or self.check_collide(pos)) and self.now_select == self.skip_button and self.is_get:
                         self.pass_turn()
                     # 4. 컴퓨터의 알고리즘 수행
                     # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
-                    if (key == self.key_list["RETURN"] or self.check_collide(pos)) and self.now_select == self.uno_button:
+                    if (key == self.keys["RETURN"] or self.check_collide(pos)) and self.now_select == self.uno_button:
                         print("if enter")
                         self.press_uno()
 
