@@ -40,8 +40,7 @@ class Setting:
         self.screen.fill((0, 0, 0))
 
     def draw(self):
-        if self.visible[0]:
-            self.screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
         self.title_text = self.title_font.render(
             self.titles[self.option], True, (255, 255, 255)
         )
@@ -124,12 +123,9 @@ class Setting:
                             self.reset()
                             screenW = self.screen.get_width()  # 화면 크기 다시 계산
                             screenH = self.screen.get_height()
-                        elif (
-                            self.option == 0 and self.selected == 4
-                        ):  # setting 화면의 save 버튼
-                            with open("./setting_data.ini", "w") as f:
-                                self.config.write(f)
-                            self.screen.fill((0, 0, 0))
+                        elif self.option == 0 and self.selected == len(self.items[self.option]) : # setting 화면의 save 버튼
+                            with open('setting_data.ini', 'w') as f:
+                                    self.config.write(f)
                             return 0
                         elif self.option == 0:  # setting 화면에 save 제외 버튼 누를 경우
                             self.option = self.selected + 1
@@ -197,15 +193,16 @@ class Setting:
 
                     save = self.font.render("Save", True, (255, 255, 255))
                     rectSave = save.get_rect()
-                    rectSave.topleft = (screenW // 5, screenH * 10 // 12)
-                    if rectSave.collidepoint(pos):  # Save 버튼
-                        if event.type == MOUSEMOTION:
-                            self.selected = len(self.items[self.option])
-                        elif event.type == MOUSEBUTTONUP:
-                            if (
-                                self.option == 0 and self.selected == 4
-                            ):  # 메인 화면의 Save 버튼을 눌렀을 때
-                                with open("./setting_data.ini", "w") as f:  # ini 파일에 저장
+                    rectSave.topleft = (
+                        screenW // 5,
+                        screenH * 10 // 12
+                    )
+                    if rectSave.collidepoint(pos): # Save 버튼
+                        if event.type == MOUSEMOTION: self.selected = len(self.items[self.option])
+                        elif event.type == MOUSEBUTTONUP: 
+                            if self.option == 0 and self.selected == len(self.items[self.option]): # 메인 화면의 Save 버튼을 눌렀을 때
+                                with open('setting_data.ini', 'w') as f: # ini 파일에 저장
+
                                     self.config.write(f)
                                 self.screen.fill((0, 0, 0))
                                 return 0
@@ -268,3 +265,12 @@ class Setting:
             self.keys[name] = pygame.key.key_code(name.lower())
             self.config["key"][name.lower()] = str(pygame.key.key_code(name.lower()))
         self.items[2] = list(self.keys.items())
+
+        # Color mode reset
+
+        #Volume reset
+        sound.resetMusicVol()
+        self.sounds.resetSoundVol()
+        self.config['sound']['music'] = "6"
+        self.config['sound']['sound'] = "2"
+
