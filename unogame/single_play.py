@@ -78,7 +78,7 @@ class Game:
         self.current_time = 10000
         pygame.time.set_timer(self.turn_timer, 1000)
         self.time_button = Button(self.screen_width // 8 + 40, self.screen_height // 2 + 15, 80,30,(255,255,255),f"TIME : {self.current_time}", (64,64,64,), 30, 255)
-        
+
     def start_single_play(self):
         pygame.init()
         screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -98,7 +98,9 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
                         pause = Pause(screen, font, self.config, self.keys, self.soundFX)
-                        pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+                        value = pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+                        if value == "out":
+                            return
 
                     if event.key == pygame.K_q:
                         self.turn_list[self.turn_index].hand.clear()
