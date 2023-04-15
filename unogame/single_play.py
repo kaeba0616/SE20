@@ -160,7 +160,7 @@ class Game:
 
         # Timer 변수 세팅
         self.turn_timer = pygame.USEREVENT + 1
-        self.current_time = 10
+        self.current_time = 10000
         pygame.time.set_timer(self.turn_timer, 1000)
         self.time_button = Button(self.screen_width // 8 + 40, self.screen_height // 2 + 15, 80,30,(255,255,255),f"TIME : {self.current_time}", (64,64,64,), 30, 255)
     def start_single_play(self):
@@ -221,16 +221,14 @@ class Game:
                         print(f"delete / player_number : {self.player_number}")
 
                 # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
-                if (
-                        event.type == pygame.MOUSEMOTION
-                        and self.game_active
-                        and not self.is_color_change
-                ):
+                if event.type == pygame.MOUSEMOTION and self.game_active and not self.is_color_change:
                     for card in self.me.hand:
                         if card.rect.collidepoint(event.pos):
                             self.now_select = card
                             print(self.me.hand.index(card))
-                
+                    for rect in [self.deck_rect, self.skip_button.rect, self.uno_button.rect]:
+                        if rect.collidepoint(event.pos):
+                            self.now_select = rect
                 # 키보드 입력을 정의
                 if (
                         event.type == pygame.KEYDOWN
@@ -310,13 +308,15 @@ class Game:
                             self.now_card.color = color_list[3]
                             self.is_color_change = False
                             self.pass_turn()
-
-                # self.turn_index를 이용해 게임 flow control
-                # 플레이어 턴에 플레이어가 할 수 있는 행동
-                if event.type == pygame.KEYDOWN and self.game_active and not self.is_color_change:
+                
+                # 클릭 및 엔터 이벤트
+                if (event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN) and self.game_active and not self.is_color_change:
+                    pos = pygame.mouse.get_pos()
+                    if event.type == pygame.KEYDOWN:
+                        key = event.key
                     # 1. 낼 수 있는 카드를 낸다
-                    if event.key == self.key_list["RETURN"]:
-                        if self.now_select in self.me.hand:
+                    if key == self.key_list["RETURN"] or self.check_collide(pos):
+                        if self.now_select in self.me.hand and self.me.turn == self.turn_index:
                             if self.check_condition(self.now_select):
                                 pop_card = self.now_select
                                 self.turn_list[self.turn_index].hand.remove(pop_card)
@@ -328,50 +328,17 @@ class Game:
                                     self.skill_active(pop_card.skill)
                                 if pop_card.skill not in ["change", "block", "all"]:
                                     self.pass_turn()
-                        # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
-                        if self.now_select == self.deck_rect and not self.is_get:
-                            self.draw_from_center(self.turn_list[self.turn_index].hand)
-                        # 3. 낼 수 있는 카드가 없거나, 가운데에서 이미 카드를 가져온 상태면 PASS를 눌러 턴을 넘김
-                        if self.is_get and self.now_select == self.skip_button:
-                            self.pass_turn()
-                        # 4. 컴퓨터의 알고리즘 수행
-                        # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
-                        
-                        # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
-                        for player in self.turn_list:
-                            if len(player.hand) == 0:
-                                self.game_active = False
-                                self.is_win = True
 
-                if event.type == pygame.MOUSEBUTTONDOWN and self.game_active and not self.is_color_change:
-                    # 1. 낼 수 있는 카드를 낸다
-                    for card in self.me.hand:
-                        if card.rect.collidepoint(event.pos) and self.me.turn == self.turn_index:
-                            if self.check_condition(card):
-                                # 카드 내기
-                                print("카드 냈음")
-                                pop_card = card
-                                self.turn_list[self.turn_index].hand.remove(pop_card)
-                                self.now_select = self.me.hand[0]
-                                self.remain.append(pop_card)
-                                self.now_card = pop_card
-                                self.now_card_surf = pop_card.image
-                                # 1-1. 낸 카드의 능력이 있다면 해당 카드의 능력을 수행해야 한다
-                                if card.skill is not None:
-                                    self.skill_active(card.skill)
-                                if card.skill not in ["change", "block", "all"]:
-                                    print(card.skill)
-                                    print(f"pass_turn call in check condition")
-                                    self.pass_turn()
-                                    break
                     # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
-                    if self.deck_rect.collidepoint(event.pos) and not self.is_get:
+                    if (key == self.key_list["RETURN"] or self.check_collide(pos)) and self.now_select == self.deck_rect and not self.is_get:
                         self.draw_from_center(self.turn_list[self.turn_index].hand)
                     # 3. 낼 수 있는 카드가 없거나, 가운데에서 이미 카드를 가져온 상태면 PASS를 눌러 턴을 넘김
-                    if self.is_get and self.skip_button.rect.collidepoint(event.pos):
+                    if (key == self.key_list["RETURN"] or self.check_collide(pos)) and self.now_select == self.skip_button and self.is_get:
                         self.pass_turn()
                     # 4. 컴퓨터의 알고리즘 수행
                     # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
+                    # if self.uno_button.
+
                     # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
                     for player in self.turn_list:
                         if len(player.hand) == 0:
@@ -605,3 +572,16 @@ class Game:
             self.turn_index = 0
         self.is_get = False
         self.current_time = 10
+
+    def check_collide(self, pos):
+        for card in self.me.hand:
+            if card.rect.collidepoint(pos):
+                return True
+        if self.deck_rect.collidepoint(pos):
+            return True
+        elif self.skip_button.rect.collidepoint(pos):
+            return True
+        elif self.uno_button.rect.collidepoint(pos):
+            return True
+        else:
+            return False
