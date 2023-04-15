@@ -14,7 +14,8 @@ class StoryMode:
         self.current_stage = 0                                                      # 현재 커서의 가로 위치
         self.current_UpDown = 0                                                     # 현재 커서의 세로 위치
         self.text_color = (255, 255, 255)                                           # 텍스트 색깔
-        self.note = ["Stage 1 description", "Stage 2 description", "Stage 3 description", "Stage 4 description"]    # 적 설명
+        self.note = []
+        # self.note = ["Stage 1 description", "Stage 2 description", "Stage 3 description", "Stage 4 description"]    # 적 설명
         self.items = ['Play', 'Back']                                               # 스테이지 선택 시 play or back
         self.WIDTH = self.screen.get_width()
         self.HEIGHT = self.screen.get_height()
@@ -25,6 +26,27 @@ class StoryMode:
         self.key = key
         self.window_size = int(self.config['window']['default'])
 
+        self.note.append("""In this stage, on the first distribution,
+the opponent player will receive
+the skill card with a 50% higher
+probability. Use a combo that allows
+the opponent player to play two to
+three or more cards at once by properly
+combining skill cards such as reverse
+progression and jump.""")
+        self.note.append("""In this stage, you play against
+3 opponent players and distribute
+all cards to the players in equal numbers
+except for the first card.""")
+        self.note.append("""In this stage, you will play
+against the opponent player, and
+the color of the card you can play
+every 5 turns will be randomly changed.""")
+        self.note.append("""In this stage, you play
+against the opposition player, and
+the opposition starts with three cards
+on the first distribution.""")
+        
         
         
         self.screen.fill((0, 0, 0))
@@ -79,14 +101,22 @@ class StoryMode:
                 )
 
         # 맵 선택시 나오는 설명
-        text = self.font.render(self.note[num], True, (255, 255, 255))
-        self.screen.blit(
-            text,
-            (
-            self.screen.get_width() // 2 - text.get_width() // 2,
-            self.screen.get_height() * 0.35 - text.get_height() // 2
+        lines = self.note[num].splitlines()
+        for i, l in enumerate(lines):
+            self.screen.blit(self.font.render(l, True, (255, 255, 255)),
+                             (
+            self.screen.get_width() // 2 - self.font.render(l, True, (255, 255, 255)).get_width() // 2,
+            self.screen.get_height() * 0.2 - self.font.render(l, True, (255, 255, 255)).get_height() // 2 + 48 * i
+                )
             )
-        )
+        # text = self.font.render(self.note[num], True, (255, 255, 255))
+        # self.screen.blit(
+        #     text,
+        #     (
+        #     self.screen.get_width() // 2 - text.get_width() // 2,
+        #     self.screen.get_height() * 0.35 - text.get_height() // 2
+        #     )
+        # )
 
 
     def description_draw(self, num):
