@@ -153,14 +153,26 @@ class Game:
         (self.screen_width // 2, self.screen_height // 2 + 80)
         self.ok_button = Button(
             self.screen_width // 2,
-            self.screen_height // 2 + 80,
+            self.screen_height // 2 + 100,
             40,
             30,
             (255, 255, 255),
             "ok",
             (64, 64, 64),
-            20,
+            40,
             255
+        )
+        center = (self.screen_width / 8, self.screen_height / 2)
+        self.now_turn_button = Button(
+            self.screen_width // 8,
+            self.screen_height // 2 - 30,
+            40,
+            30,
+            (255, 255, 255),
+            "",
+            (64, 64, 64),
+            35,
+            0
         )
         self.info_list = []
         self.info_list.append(
@@ -226,7 +238,7 @@ class Game:
                         pause = Pause(screen, font, self.config, self.keys)
                         pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
 
-                    if event.key == pygame.K_q:
+                    if event.key == pygame.K_q and self.game_active:
                         self.turn_list[self.turn_index].hand.clear()
 
                 if self.is_win and not self.game_active:
@@ -296,19 +308,18 @@ class Game:
                         self.edit_text = self.edit_text[:-1]
                     elif event.key == pygame.K_RETURN:
                         self.info_list[0].text = self.edit_text
-                        if self.edit_text == "__________":
+                        if self.edit_text == "__________" or self.edit_text == "":
                             self.info_list[0].text = "PLAYER 1(ME)"
-                        self.edit_text = "__________"
                         self.edit_name = False
                     else:
-                        self.edit_text += pygame.key.name(event.key)
+                        if len(self.edit_text) < 8:
+                            self.edit_text += pygame.key.name(event.key)
 
                 if event.type == pygame.MOUSEBUTTONDOWN and self.edit_name:
                     if self.ok_button.is_clicked(event.pos):
                         self.info_list[0].text = self.edit_text
-                        if self.edit_text == "__________":
+                        if self.edit_text == "__________" or self.edit_text == "":
                             self.info_list[0].text = "PLAYER 1(ME)"
-                        self.edit_text = "__________"
                         self.edit_name = False
 
                 # 매 턴 UNO를 할 수 있는지 없는지 체크하는 부분
@@ -507,10 +518,14 @@ class Game:
                 screen.blit(self.now_card_surf, self.now_card_rect)
 
                 # 누구의 턴인지 보여주는 부분
-                screen.blit(
-                    self.now_turn_list[self.turn_index][0],
-                    self.now_turn_list[self.turn_index][1],
-                )
+                self.now_turn_button.text = f"PLAYER {self.turn_index + 1}'s turn"
+                if self.turn_index == self.me.turn:
+                    self.now_turn_button.text = f"my turn"
+                self.now_turn_button.draw(screen)
+                # screen.blit(
+                #     self.now_turn_list[self.turn_index][0],
+                #     self.now_turn_list[self.turn_index][1],
+                # )
 
                 # 손패를 그려주는 부분
                 self.me.draw_hand(screen)
@@ -561,13 +576,13 @@ class Game:
 
                 if self.edit_name:
                     screen.blit(self.alpha_surface, (0, 0))
-                    rect = pygame.Rect(self.screen_width // 2 - 100, self.screen_height // 2 - 50, 200, 150)
+                    rect = pygame.Rect(self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180)
                     pygame.draw.rect(screen, (255, 255, 255), rect)
-                    name_surf = Game.font.render("Enter your Name ", False, (64, 64, 64))
+                    name_surf = Game.font.render("Enter Name(maximum 8)", False, (64, 64, 64))
                     name_rect = name_surf.get_rect(center=(self.screen_width // 2, self.screen_height // 2-20))
                     input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
-                    input_rect = input_surf.get_rect(center=(self.screen_width // 2, self.screen_height // 2 + 30))
-                    self.ok_button.rect.center = (self.screen_width // 2, self.screen_height // 2 + 80)
+                    input_rect = input_surf.get_rect(center=(self.screen_width // 2, self.screen_height // 2 + 50))
+                    self.ok_button.rect.center = (self.screen_width // 2, self.screen_height // 2 + 100)
                     screen.blit(name_surf, name_rect)
                     screen.blit(input_surf, input_rect)
                     self.ok_button.draw(screen)
