@@ -29,6 +29,7 @@ class Game:
         self.player_number = player_number
         self.soundFX = soundFX
         
+        self.screen = screen
 
         self.keys = keys
         self.config = config
@@ -69,113 +70,15 @@ class Game:
         self.now_turn_list = []
         self.win_list = []
 
-        self.skip_button = Button(
-            self.screen_width / 3 + 150,
-            self.screen_height / 3,
-            50,
-            30,
-            (255, 255, 255),
-            "SKIP",
-            (64, 64, 64),
-            30,
-            255
-        )
-
-        self.uno_button = Button(
-            self.screen_width / 3 + 240,
-            self.screen_height / 3,
-            50,
-            30,
-            (255, 255, 255),
-            "UNO",
-            (64, 64, 64),
-            30,
-            255
-        )
-        self.retry_surf = Game.font.render("click to retry", False, (64, 64, 64))
-        self.retry_rect = self.retry_surf.get_rect(
-            center=(self.screen_width / 2, self.screen_height / 2 + 50)
-        )
-
-        self.start_button = Button(
-            self.screen_width // 2 - 100,
-            self.screen_height // 2 - 30,
-            100,
-            60,
-            (255, 255, 255),
-            "START",
-            (64, 64, 64),
-            40,
-            255
-        )
-
         # 지금 선택한 카드를 나타내는 변수
         self.now_select = None
-
-        # 로비를 생성하는데 필요한 변수
-        self.lobby_background = pygame.Rect(
-            self.screen_width - 150, 0, 150, self.screen_height
-        )
-        self.add_button = Button(
-            self.lobby_background.x + 10,
-            self.lobby_background.height - 50,
-            40,
-            20,
-            (255, 255, 255),
-            "add",
-            (64, 64, 64),
-            15,
-            255
-        )
-        self.del_button = Button(
-            self.lobby_background.x + 60,
-            self.lobby_background.height - 50,
-            40,
-            20,
-            (255, 255, 255),
-            "delete",
-            (64, 64, 64),
-            15,
-            255
-        )
-        self.info_list = []
-        for i in range(0, 5):
-            self.info_list.append(
-                Component(
-                    self.lobby_background.x,
-                    self.lobby_background.y + 100 * i,
-                    150,
-                    90,
-                    (255, 255, 255),
-                    f"PLAYER {i + 2}",
-                    (64, 64, 64),
-                    20,
-                    None,
-                )
-            )
-        self.change_color_list = []
-        self.CENTER_X_POS = self.screen_width // 10
-        self.CENTER_Y_POS = self.screen_height // 5
-        for color, pos, color_string in zip(
-                [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
-                [
-                    (self.CENTER_X_POS - 25, self.CENTER_Y_POS - 25),
-                    (self.CENTER_X_POS + 25, self.CENTER_Y_POS - 25),
-                    (self.CENTER_X_POS - 25, self.CENTER_Y_POS + 25),
-                    (self.CENTER_X_POS + 25, self.CENTER_Y_POS + 25),
-                ],
-                ["red", "green", "blue", "yellow"]
-        ):
-            surf = pygame.Surface((50, 50))
-            surf.fill(color_string)
-            rect = surf.get_rect(center=pos)
-            self.change_color_list.append([surf, rect, color, color_string])
 
         # Timer 변수 세팅
         self.turn_timer = pygame.USEREVENT + 1
         self.current_time = 10000
         pygame.time.set_timer(self.turn_timer, 1000)
         self.time_button = Button(self.screen_width // 8 + 40, self.screen_height // 2 + 15, 80,30,(255,255,255),f"TIME : {self.current_time}", (64,64,64,), 30, 255)
+
     def start_single_play(self):
         pygame.init()
         screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -183,7 +86,7 @@ class Game:
 
         while self.run:
             screen.fill((50, 200, 50))
-
+            self.make_screen()
             # event loop
 
             for event in pygame.event.get():
@@ -195,7 +98,9 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
                         pause = Pause(screen, font, self.config, self.keys, self.soundFX)
-                        pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+                        value = pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+                        if value == "out":
+                            return
 
                     if event.key == pygame.K_q:
                         self.turn_list[self.turn_index].hand.clear()
@@ -452,6 +357,113 @@ class Game:
 
             # Limit the frame rate
             clock.tick(60)
+
+    def make_screen(self):
+        self.screen_width = self.screen.get_width()
+        self.screen_height = self.screen.get_height()
+
+
+        self.skip_button = Button(
+            self.screen_width / 3 + 150,
+            self.screen_height / 3,
+            50,
+            30,
+            (255, 255, 255),
+            "SKIP",
+            (64, 64, 64),
+            30,
+            255
+        )
+
+        self.uno_button = Button(
+            self.screen_width / 3 + 240,
+            self.screen_height / 3,
+            50,
+            30,
+            (255, 255, 255),
+            "UNO",
+            (64, 64, 64),
+            30,
+            255
+        )
+        self.retry_surf = Game.font.render("click to retry", False, (64, 64, 64))
+        self.retry_rect = self.retry_surf.get_rect(
+            center=(self.screen_width / 2, self.screen_height / 2 + 50)
+        )
+
+        self.start_button = Button(
+            self.screen_width // 2 - 100,
+            self.screen_height // 2 - 30,
+            100,
+            60,
+            (255, 255, 255),
+            "START",
+            (64, 64, 64),
+            40,
+            255
+        )
+
+        # 로비를 생성하는데 필요한 변수
+        self.lobby_background = pygame.Rect(
+            self.screen_width - 150, 0, 150, self.screen_height
+        )
+        self.add_button = Button(
+            self.lobby_background.x + 10,
+            self.lobby_background.height - 50,
+            40,
+            20,
+            (255, 255, 255),
+            "add",
+            (64, 64, 64),
+            15,
+            255
+        )
+        self.del_button = Button(
+            self.lobby_background.x + 60,
+            self.lobby_background.height - 50,
+            40,
+            20,
+            (255, 255, 255),
+            "delete",
+            (64, 64, 64),
+            15,
+            255
+        )
+        self.info_list = []
+        for i in range(0, 5):
+            self.info_list.append(
+                Component(
+                    self.lobby_background.x,
+                    self.lobby_background.y + 100 * i,
+                    150,
+                    90,
+                    (255, 255, 255),
+                    f"PLAYER {i + 2}",
+                    (64, 64, 64),
+                    20,
+                    None,
+                )
+            )
+        self.change_color_list = []
+        self.CENTER_X_POS = self.screen_width // 10
+        self.CENTER_Y_POS = self.screen_height // 5
+        for color, pos, color_string in zip(
+                [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
+                [
+                    (self.CENTER_X_POS - 25, self.CENTER_Y_POS - 25),
+                    (self.CENTER_X_POS + 25, self.CENTER_Y_POS - 25),
+                    (self.CENTER_X_POS - 25, self.CENTER_Y_POS + 25),
+                    (self.CENTER_X_POS + 25, self.CENTER_Y_POS + 25),
+                ],
+                ["red", "green", "blue", "yellow"]
+        ):
+            surf = pygame.Surface((50, 50))
+            surf.fill(color_string)
+            rect = surf.get_rect(center=pos)
+            self.change_color_list.append([surf, rect, color, color_string])
+
+        # return
+        
 
     def block_turn(self):
         print(f"before block : {self.turn_index}")
