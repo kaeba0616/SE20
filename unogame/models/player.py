@@ -4,7 +4,7 @@ class Player:
         self.number = number
         self.hand = hand
         self.turn = turn
-        self.uno = False
+        self.uno = "unactive" # unactive : 손패가 2장 이상, active : 손패가 1장이고, 우노버튼 누르면 영향, expired : 손패가 1장이고 우노버튼 눌러도 영향 없음
 
     def update_hand(self, screen):
 
@@ -43,7 +43,28 @@ class Player:
                     card.initial_y = card.rect.y
                 else:
                     pass
+        elif 100 < len(self.hand) <= 130:
+            for i, card in enumerate(self.hand):
+                card.rect = card.small_image_surface.get_rect(center=(0, 0))
+                if i <= 9:
+                    card.rect.x = 20 + (card.width // 2 + 5) * i
+                    card.rect.y = screen.get_height() - 200
+                    card.initial_y = card.rect.y
 
+                elif 10 <= i < 20:
+                    card.rect.x = 20 + (card.width // 2 + 5) * (i - 10)
+                    card.rect.y = screen.get_height() - 160
+                    card.initial_y = card.rect.y
+
+                elif 20 <= i < 30:
+                    card.rect.x = 20 + (card.width // 2 + 5) * (i - 20)
+                    card.rect.y = screen.get_height() - 120
+                    card.initial_y = card.rect.y
+                else:
+                    card.rect.x = 100
+                    card.rect.y = 100
+                    card.initial_y = card.rect.y
+                    pass
     def draw_hand(self, screen):
         self.update_hand(screen)
         for card in self.hand:

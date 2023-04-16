@@ -35,7 +35,17 @@ class Component:
         self.font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", font_size)
         self.player = player
 
-    def draw(self, screen):
+    def draw(self, screen, player_number, index):
+        if index == 0:
+            pass
+        elif index < player_number:
+            self.text = f"PLAYER {index+1}"
+            self.color = (255, 255, 255)
+            self.text_color = (64, 64, 64)
+        else:
+            self.text = "EMPTY"
+            self.color = (64, 64, 64)
+            self.text_color = (255, 255, 255)
         pygame.draw.rect(screen, self.color, self.rect)
         text_surface = self.font.render(self.text, True, self.text_color)
         text_x = self.rect.x + 5
@@ -51,7 +61,7 @@ class Component:
                 )
                 screen.blit(surf, rect)
             text_surface = self.font.render(
-                self.text + f"'s remain : {len(self.player.hand)}",
+                self.text + f" : {len(self.player.hand)}",
                 False,
                 self.text_color,
             )
