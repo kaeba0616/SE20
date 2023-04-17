@@ -92,10 +92,9 @@ class stage_B(Game):
         self.me = self.turn_list[0]
 
 
-    def player_card_setting(self, input_deck):
-        if not len(input_deck):
-            for i in range(31):
-                self.draw_card(input_deck)
+    def player_card_setting(self, player):
+        for i in range(31):
+            self.draw_card(player.hand)
 
 
     def draw_card(self, input_deck):
