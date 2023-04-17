@@ -3,6 +3,7 @@ import sys
 from pygame.locals import *
 from single_play import Game
 from stageB import stage_B
+from utils import menu, settings, sound, stageA, stageC, stageD
 
 
 
@@ -155,7 +156,10 @@ on the first distribution.""")
                         
                         print(num)
                         if num == 0:            # 스테이지 A 선택 + Play
-                            pass
+                            stage = stageA.stageA(self.screen, 2, self.key, self.config, self.soundFX)
+                            win = stage.start_single_play()
+                            if win != 0:
+                                return
                         elif num == 1:          # 스테이지 B 선택 + Play
                             stage = stage_B(self.screen, 4, self.key, self.config, self.soundFX)
                             win = stage.start_single_play()
@@ -163,9 +167,15 @@ on the first distribution.""")
                                 return
 
                         elif num == 2:          # 스테이지 C 선택 + Play
-                            pass
+                            stage = stageC.stageC(self.screen, 3, self.key, self.config, self.soundFX)
+                            win = stage.start_single_play()
+                            if win != 0:
+                                return
                         elif num == 3:          # 스테이지 D 선택 + Play
-                            pass
+                            stage = stageD.StageD(self.screen, 2, self.key, self.config, self.soundFX)
+                            win = stage.start_single_play()
+                            if win != 0:
+                                return 
 
                         # 승리 시, 다음 스테이지를 열게함
                         self.config['clear'][f'stage{num + 2}'] = str(1)
@@ -186,16 +196,25 @@ on the first distribution.""")
                             selected = 0
                         if event.type == MOUSEBUTTONUP:
                             if num == 0:            # 스테이지 A 선택 + Play
-                                return
+                                stage = stageA.stageA(self.screen, 2, self.key, self.config, self.soundFX)
+                                win = stage.start_single_play()
+                                if win != 0:
+                                    return
                             elif num == 1:          # 스테이지 B 선택 + Play
                                 stage = stage_B(self.screen, 4, self.key, self.config, self.soundFX)
                                 win = stage.start_single_play()
                                 if win != 0:
                                     return
                             elif num == 2:          # 스테이지 C 선택 + Play
-                                return
+                                stage = stageC.stageC(self.screen, 3, self.key, self.config, self.soundFX)
+                                win = stage.start_single_play()
+                                if win != 0:
+                                    return  
                             elif num == 3:          # 스테이지 D 선택 + Play
-                                return
+                                stage = stageD.stageD(self.screen, 2, self.key, self.config, self.soundFX)
+                                win = stage.start_single_play()
+                                if win != 0:
+                                    return  
                             
                             self.config['clear'][f'stage{num + 2}'] = str(1)
                             with open('setting_data.ini', 'w') as f:

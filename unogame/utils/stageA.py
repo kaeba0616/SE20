@@ -14,24 +14,25 @@ class stageA(Game):
         self.tempNumDeck = []
         self.tempSkillDeck = []
         self.firstDraw = True
+        self.config = config
     
     def generate_deck(self):
         # 숫자 카드를 모두 덱에 담기
         for color, number in itertools.product(Card.colors, Card.numbers):
-            self.deck.append(Card(color, number, None, False))
+            self.deck.append(Card(color, number, None, False, self.config))
             if number != 0:
-                self.tempNumDeck.append(Card(color, number, None, False))
+                self.tempNumDeck.append(Card(color, number, None, False, self.config))
 
         # 색깔별로 기술 카드를 담음
         self.tempSkillDeck = []
         for color, skill in itertools.product(Card.colors, Card.skills):
             for _ in range(2):
-                self.tempSkillDeck.append(Card(color, None, skill, False))
+                self.tempSkillDeck.append(Card(color, None, skill, False, self.config))
 
         # all, all4 카드 추가
         for _ in range(4):
-            self.tempSkillDeck.append(Card(None, None, "all4", True))
-            self.tempSkillDeck.append(Card(None, None, "all", True))
+            self.tempSkillDeck.append(Card(None, None, "all4", True, self.config))
+            self.tempSkillDeck.append(Card(None, None, "all", True, self.config))
 
         # 초기 설정(조건에 맞춘 카드 배분)용 임시 덱
         random.shuffle(self.tempNumDeck)
