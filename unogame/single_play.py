@@ -457,9 +457,21 @@ class Game:
                 if self.is_color_change and event.type == pygame.MOUSEBUTTONDOWN:
                     for color_list in self.change_color_list:
                         if color_list[1].collidepoint(event.pos):
-                            self.now_card_surf = pygame.image.load(
-                                f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
-                            ).convert_alpha()
+
+                            # lsj: 색약모드 change card
+                            if self.config['color']['default'] == str(2):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config['color']['default'] == str(1):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/YG/change/{color_list[3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config['color']['default'] == str(0):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/RG/change/{color_list[3]}_change.png"
+                                ).convert_alpha()
+
                             self.now_card_surf = pygame.transform.scale(
                                 self.now_card_surf, (50, 70)
                             )
@@ -988,9 +1000,22 @@ class Game:
 
         self.now_card.color = max(color_list, key=color_list.get)
         print(self.now_card.color)
-        self.now_card_surf = pygame.image.load(
-            f"resources/images/card/normalMode/change/{self.now_card.color}_change.png"
-        ).convert_alpha()
+
+
+        # lsj: 색약모드 change card
+        if self.config['color']['default'] == str(2):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/normalMode/change/{self.now_card.color}_change.png"
+            ).convert_alpha()
+        elif self.config['color']['default'] == str(1):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/YG/change/{self.now_card.color}_change.png"
+            ).convert_alpha()
+        elif self.config['color']['default'] == str(0):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/RG/change/{self.now_card.color}_change.png"
+            ).convert_alpha()
+
         self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
         # self.now_card_surf = self.now_card.image
         self.now_card_rect = self.now_card_surf.get_rect(
