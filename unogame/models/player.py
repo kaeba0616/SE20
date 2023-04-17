@@ -4,3 +4,4 @@ class Player:
         self.number = number
         self.hand = hand
         self.turn = turn
+        self.uno = "unactive"  # unactive : 손패가 2장 이상, active : 손패가 1장이고, 우노버튼 누르면 영향, expired : 손패가 1장이고 우노버튼 눌러도 영향 없음
