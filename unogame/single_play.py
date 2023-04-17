@@ -1161,6 +1161,7 @@ class Game:
 
     def change_color_ai(self):
         color_list = {"red": 0, "blue": 0, "green": 0, "yellow": 0}
+        ## error
 
         print("change_color_ai : ", self.turn_list[self.turn_index].hand.color)
 
