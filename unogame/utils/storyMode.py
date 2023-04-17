@@ -52,7 +52,6 @@ against the opposition player, and
 the opposition starts with three cards
 on the first distribution.""")
         
-
     def draw(self):
         self.screen.fill((0, 0, 0))
         # 스토리 모드 지도 구현
@@ -79,8 +78,6 @@ on the first distribution.""")
             )
         font = self.font.render("Go back", True, (255, 255, 255) if self.current_UpDown == 0 else (255, 0, 0))
         self.screen.blit(font, (self.screen.get_width() // 2 - font.get_width() // 2, self.screen.get_height() * 3 // 4))
-
-    #def description(self, selected):
         
         if self.isDescript:
             self.screen.fill((0, 0, 0))
