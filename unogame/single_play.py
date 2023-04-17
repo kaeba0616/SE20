@@ -930,8 +930,8 @@ class Game:
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
 
-            self.deck.append(Card(color, number, None, False))
-            self.card_list.append(Card(color, number, None, False))
+            self.deck.append(Card(color, number, None, False, self.config))
+            self.card_list.append(Card(color, number, None, False, self.config))
 
             if number != 0:
                 self.deck.append(Card(color, number, None, False, self.config))

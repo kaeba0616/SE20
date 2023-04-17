@@ -14,6 +14,7 @@ class Card:
         self.file_path = ""
         self.width = 50
         self.height = 70
+        self.config = config
 
         if self.config['color']['default'] == str(2):           # 색맹모드 none
             if number is not None:    # 숫자카드

@@ -19,7 +19,7 @@ class stageC(Game):
 
         self.now_card.color = changeToCol
         self.now_card_surf = pygame.image.load(
-            f"../resources/images/card/normalMode/change/{self.now_card.color}_change.png"
+            f"./resources/images/card/normalMode/change/{self.now_card.color}_change.png"
         ).convert_alpha()
         self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
         self.now_card_rect = self.now_card_surf.get_rect(
