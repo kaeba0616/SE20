@@ -34,7 +34,7 @@ class Component:
         self.text_color = text_color
         self.font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", font_size)
         self.player = player
-
+        self.is_block = False
     def draw(self, screen, player_number, index):
         if index == 0:
             pass
@@ -66,6 +66,10 @@ class Component:
                 self.text_color,
             )
         screen.blit(text_surface, (text_x, text_y))
+
+        if self.is_block:
+            pygame.draw.line(screen, (255, 0, 0), self.rect.topleft, self.rect.bottomright, 5)
+            pygame.draw.line(screen, (255, 0, 0), self.rect.bottomleft, self.rect.topright, 5)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)

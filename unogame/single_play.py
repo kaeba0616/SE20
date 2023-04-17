@@ -30,7 +30,6 @@ class Game:
         self.screen_height = screen.get_height()
         self.player_number = player_number
 
-
         self.soundFX = soundFX     
         self.screen = screen
 
@@ -78,7 +77,6 @@ class Game:
 
         self.now_turn_list = []
         self.win_list = []
-
 
         self.skip_button = Button(
             self.screen_width / 3 + 150,
@@ -184,6 +182,17 @@ class Game:
             35,
             0
         )
+        self.skill_active_button = Button(
+            self.screen_width // 8+50,
+            self.screen_height // 8,
+            40,
+            30,
+            (255, 255, 255),
+            "reverse skill active yellow > green",
+            (64, 64, 64),
+            35,
+            0
+        )
         self.info_list = []
         self.info_list.append(
             Component(self.lobby_background.x, self.lobby_background.y , 150, 90, (255, 255, 255),
@@ -199,6 +208,13 @@ class Game:
                           )
             )
         print(f"self.info_list[0] : {self.info_list[0].text}")
+
+        self.move_surf = pygame.image.load("resources/images/card/normalMode/backcard.png").convert_alpha()
+        self.move_surf = pygame.transform.scale(self.move_surf, (50,70))
+        self.move_rect = self.move_surf.get_rect(center=(self.screen_width, self.screen_height))
+
+        self.card_list = []
+
         self.change_color_list = []
         self.CENTER_X_POS = self.screen_width // 10
         self.CENTER_Y_POS = self.screen_height // 5
@@ -232,6 +248,11 @@ class Game:
 
         self.uno_timer = pygame.USEREVENT + 2
         self.is_uno = False
+
+        self.skill_active_timer = pygame.USEREVENT + 3
+        self.is_skill_active = False
+
+        self.block_timer = pygame.USEREVENT + 4
 
     def start_single_play(self):
         pygame.init()
@@ -283,6 +304,11 @@ class Game:
                         break
                     self.current_time -= 1
 
+                if event.type == self.skill_active_timer and self.game_active and not self.is_win:
+                    self.is_skill_active = False
+                if event.type == self.block_timer and self.game_active and not self.is_win:
+                    for component in self.info_list:
+                        component.is_block = False
                 # 게임 전 카드 덱과 손 패를 세팅하는 부분 > 따로빼서 함수로 refactor하기
                 elif (
                       event.type == pygame.MOUSEBUTTONUP
@@ -502,13 +528,15 @@ class Game:
                                 pop_card = self.now_select
                                 self.turn_list[self.turn_index].hand.remove(pop_card)
                                 self.now_select = None
-                                self.remain.append(pop_card)
-                                self.now_card = pop_card
-                                self.now_card_surf = pop_card.image
+                                # self.remain.append(pop_card)
                                 if pop_card.skill is not None:
-                                    self.skill_active(pop_card.skill)
+                                    self.skill_active(pop_card)
                                 if pop_card.skill not in ["change", "block", "all"]:
                                     self.pass_turn()
+                                print(pop_card.skill)
+
+                                self.now_card = pop_card
+                                self.now_card_surf = pop_card.image
 
                     # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
                     if (key == self.keys["RETURN"] and pos is None) or (self.check_collide(
@@ -524,9 +552,11 @@ class Game:
 
                     ## lms
                     self.com_card = []
-
-                    if self.turn_list[self.turn_index].turn != self.me.turn:
+                    print(self.turn_list[self.turn_index].type)
+                    if self.turn_list[self.turn_index].type == "AI":
+                        print("computer turn start")
                         for card in self.turn_list[self.turn_index].hand:
+
                             if self.check_condition(card):
                                 self.com_card.append(card)
                         if len(self.com_card) == 0:
@@ -538,10 +568,11 @@ class Game:
                             self.turn_list[self.turn_index].hand.remove(self.now_card)
                             self.remain.append(self.now_card)
                             if self.now_card.skill is not None:
-                                self.skill_active(self.now_card.skill)
+                                # edit by sth
+                                # self.skill_active(self.now_card.skill)
+                                self.skill_active(self.com_card[0])
                             if self.now_card.skill not in ["change", "block", "all"]:
                                 self.pass_turn()
-                        time.sleep(1)
                         self.next_screen(screen)
 
                     ## lms
@@ -583,6 +614,7 @@ class Game:
 
             # event loop 종료 *****************************
             self.next_screen(screen)
+            print(clock.get_time())
             # if self.game_active:
             #     if len(self.deck):
             #         screen.blit(self.deck_surf, self.deck_rect)
@@ -655,7 +687,10 @@ class Game:
             screen.blit(self.now_card_surf, self.now_card_rect)
 
             # 누구의 턴인지 보여주는 부분
-            self.now_turn_button.text = f"PLAYER {self.turn_index + 1}'s turn"
+            if self.me.turn == self.turn_index:
+                self.now_turn_button.text = f"my turn"
+            else:
+                self.now_turn_button.text = f"PLAYER {self.turn_index + 1}'s turn"
             if self.turn_index == self.me.turn:
                 self.now_turn_button.text = f"my turn"
             self.now_turn_button.draw(screen)
@@ -695,6 +730,8 @@ class Game:
             else:
                 self.now_button.surface.fill((80,80,80))
             self.now_button.draw(screen)
+            if self.is_skill_active:
+                self.skill_active_button.draw(screen)
         else:
             screen.fill("green")
             # 게임이 종료되었을 때 덱 초기화
@@ -732,7 +769,6 @@ class Game:
         self.screen_width = self.screen.get_width()
         self.screen_height = self.screen.get_height()
 
-
         self.skip_button = Button(
             self.screen_width / 3 + 150,
             self.screen_height / 3,
@@ -756,7 +792,8 @@ class Game:
             30,
             255
         )
-        self.retry_surf = Game.font.render("click to retry", False, (64, 64, 64))
+        self.retry_surf = Game.font.render("click to return to main", False, (64, 64, 64))
+
         self.retry_rect = self.retry_surf.get_rect(
             center=(self.screen_width / 2, self.screen_height / 2 + 50)
         )
@@ -839,7 +876,7 @@ class Game:
         print(f"before block : {self.turn_index}")
         self.turn_index = (self.turn_index + 2) % len(self.turn_list)
         print(f"after block : {self.turn_index}")
-
+        self.current_time = 10
     def reverse_turn(self):
         print(f"before reverse : {self.turn_index}")
         temp_player = self.turn_list[self.turn_index]
@@ -849,7 +886,8 @@ class Game:
         self.turn_index = self.turn_list.index(temp_player)
         self.now_turn_list.reverse()
         print(f"after reverse : {self.turn_index}")
-
+        self.me = self.turn_list[-1]
+        print(f"self.me : {self.me.type}")
     def change_color(self):
         if self.is_color_change:
             self.is_color_change = False
@@ -884,7 +922,10 @@ class Game:
 
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
-            self.deck.append(Card(color, number, None, False, self.config))
+
+            self.deck.append(Card(color, number, None, False))
+            self.card_list.append(Card(color, number, None, False))
+
             if number != 0:
                 self.deck.append(Card(color, number, None, False, self.config))
 
@@ -960,9 +1001,9 @@ class Game:
     def check_condition(self, input_card):
         # input 카드가 현재 맨 위에 있는 카드에 낼 수 있는 카드인지 확인하는 함수
         now = self.now_card
-        print(f"input.color : {input_card.color} / now.color : {now.color}")
-        print(f"input.skill : {input_card.skill} / now.skill : {now.skill}")
-        print(f"input.number : {input_card.number} / now.number : {now.number}")
+        # print(f"input.color : {input_card.color} / now.color : {now.color}")
+        # print(f"input.skill : {input_card.skill} / now.skill : {now.skill}")
+        # print(f"input.number : {input_card.number} / now.number : {now.number}")
         if input_card.is_wild or now.is_wild:
             return True
 
@@ -987,11 +1028,16 @@ class Game:
             next_player = 0
 
         if pop_card.skill == "reverse":
+            self.skill_active_button.text = "reverse active : turn reversed"
             self.reverse_turn()
         elif pop_card.skill == "block":
+            self.skill_active_button.text = f"block active"
+            self.info_list[next_player].is_block = True
             # 타이머를 설정하고 타이머가 끝나면 X가 삭제
+            pygame.time.set_timer(self.block_timer, 3000)
             self.block_turn()
         elif pop_card.skill == "change" or pop_card.skill == "all":
+            self.skill_active_button.text = f"color is changed {self.now_card.color} > {pop_card.color}"
             if self.turn_list[self.turn_index].type == "Human":
                 self.change_color()
             elif self.turn_list[self.turn_index].type == "AI":
@@ -1000,8 +1046,10 @@ class Game:
                 pass
 
         elif pop_card.skill == "plus2":
+            self.skill_active_button.text = "plus2 attack active"
             self.plus(self.turn_list[next_player].hand, 2)
         elif pop_card.skill == "plus4" or pop_card.skill == "all4":
+            self.skill_active_button.text = "plus4 attack active"
             self.plus(self.turn_list[next_player].hand, 4)
 
         self.is_skill_active = True
@@ -1049,6 +1097,9 @@ class Game:
         if len(self.turn_list[self.turn_index].hand) == 1 and self.turn_list[self.turn_index].uno == "active":
             self.draw_card(self.turn_list[self.turn_index].hand)
             self.turn_list[self.turn_index].uno = "unactive"
+        # 일반카드를 냈을 때도 텍스트가 뜨는 코드 > 바꿔야함
+
+
     def check_collide(self, pos):
         for card in self.me.hand:
             if card.rect.collidepoint(pos):
@@ -1102,7 +1153,13 @@ class Game:
         pygame.event.set_allowed(pygame.MOUSEMOTION)
         self.event_active = True
 
-    def edit_name_function(self,screen):
+    def edit_name_function(self, screen):
         self.edit_name = True
         while self.edit_name:
             screen.blit(self.alpha_surface, (0,0))
+
+    def card_move(self, start, end, card, clock):
+        temp = Card(None, None, None, False)
+        if card is not None:
+            temp = card
+        temp.rect.x += 100 * clock.get_time() / 1000
