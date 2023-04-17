@@ -23,7 +23,7 @@ class Game:
 
     CENTER_X_POS = 625
     CENTER_Y_POS = 325
-    change_color_list = []  #color change 시 표시될 사각형들
+    change_color_list = []  # color change 시 표시될 사각형들
 
     def __init__(self, screen, player_number, keys, config, soundFX):
         self.screen_width = screen.get_width()
@@ -38,9 +38,9 @@ class Game:
         self.config = config
         self.event_active = True
 
-        self.game_active = False #start를 누른 이후 게임 진행 중이면 True
+        self.game_active = False  # start를 누른 이후 게임 진행 중이면 True
         self.is_win = False
-        self.is_get = False #자기 턴에 카드 뽑음
+        self.is_get = False  # 자기 턴에 카드 뽑음
         self.run = True
         self.is_color_change = False
         self.edit_name = False
@@ -50,7 +50,9 @@ class Game:
         self.alpha_surface = pygame.Surface(
             (self.screen_width, self.screen_height), pygame.SRCALPHA
         )
-        self.alpha_surface.fill((0, 0, 0, 128)) #(0,0,0,128) -> (0,0,0)으로 (불필요한 값. 작동 안될 수 있음)
+        self.alpha_surface.fill(
+            (0, 0, 0, 128)
+        )  # (0,0,0,128) -> (0,0,0)으로 (불필요한 값. 작동 안될 수 있음)
         self.alpha_surface.set_alpha(128)
 
         self.turn_list = []  # 차례의 순서를 나타내는 list
@@ -299,19 +301,19 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
 
-                        pause = Pause(
+                        pause = PauseClass(
                             screen, font, self.config, self.keys, self.soundFX
                         )
                         value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
 
                         if value == "out":
                             return
-# 치트키
-#                    if event.key == pygame.K_q and self.game_active:
-#                        self.turn_list[self.turn_index].hand.clear()
-#                    
-#                    if event.key == pygame.K_w and self.game_active:
-#                        self.turn_list[2].hand.clear()
+                # 치트키
+                #                    if event.key == pygame.K_q and self.game_active:
+                #                        self.turn_list[self.turn_index].hand.clear()
+                #
+                #                    if event.key == pygame.K_w and self.game_active:
+                #                        self.turn_list[2].hand.clear()
 
                 if self.is_win and not self.game_active:
                     if not self.event_active:
@@ -321,7 +323,9 @@ class Game:
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         print(self.who.number)
                         print(type(self.who.number))
-                        return self.who.number                              ################################################################
+                        return (
+                            self.who.number
+                        )  ################################################################
 
                 # Timer 재설정 하는 event loop
                 if event.type == self.turn_timer and self.game_active:
@@ -683,7 +687,7 @@ class Game:
                             self.game_active = False
                             self.is_win = True
 
-#################################################
+                            #################################################
                             self.who = player
                             ##################################################
 
@@ -824,7 +828,6 @@ class Game:
             self.time_button.draw(screen)
 
             if self.now_card.color is not None:
-
                 pixel = self.now_card_surf.get_at(
                     (
                         self.now_card_surf.get_width() // 2,
