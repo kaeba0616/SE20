@@ -24,7 +24,7 @@ class Card:
             elif skill == "all4":
                 file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"
         else:
-            print("path error")
+            file_path = f"resources/images/card/normalMode/backcard.png"
 
         image_surface = pygame.image.load(file_path).convert_alpha()
         # image_surface = pygame.transform.rotozoom(image_surface, 0, 0.5)

@@ -207,6 +207,13 @@ class Game:
                           )
             )
         print(f"self.info_list[0] : {self.info_list[0].text}")
+
+        self.move_surf = pygame.image.load("resources/images/card/normalMode/backcard.png").convert_alpha()
+        self.move_surf = pygame.transform.scale(self.move_surf, (50,70))
+        self.move_rect = self.move_surf.get_rect(center=(self.screen_width, self.screen_height))
+
+        self.card_list = []
+
         self.change_color_list = []
         self.CENTER_X_POS = self.screen_width // 10
         self.CENTER_Y_POS = self.screen_height // 5
@@ -585,6 +592,7 @@ class Game:
 
             # event loop 종료 *****************************
             self.next_screen(screen)
+            print(clock.get_time())
             # if self.game_active:
             #     if len(self.deck):
             #         screen.blit(self.deck_surf, self.deck_rect)
@@ -736,7 +744,6 @@ class Game:
     def make_screen(self):
         self.screen_width = self.screen.get_width()
         self.screen_height = self.screen.get_height()
-
 
         self.skip_button = Button(
             self.screen_width / 3 + 150,
@@ -890,6 +897,7 @@ class Game:
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
             self.deck.append(Card(color, number, None, False))
+            self.card_list.append(Card(color, number, None, False))
             if number != 0:
                 self.deck.append(Card(color, number, None, False))
 
@@ -1107,3 +1115,9 @@ class Game:
         self.edit_name = True
         while self.edit_name:
             screen.blit(self.alpha_surface, (0,0))
+
+    def card_move(self, start, end, card, clock):
+        temp = Card(None, None, None, False)
+        if card is not None:
+            temp = card
+        temp.rect.x += 100 * clock.get_time() / 1000
