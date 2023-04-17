@@ -570,6 +570,7 @@ class Game:
                         if len(player.hand) == 0:
                             self.game_active = False
                             self.is_win = True
+                            self.win_button.text = f"Player {player.number + 1} win !!"
                             self.pause_event_handling()
                     # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
                     if len(self.deck) == 0:
@@ -587,6 +588,7 @@ class Game:
                                     self.win_button.text = f"Player {player.number + 1} win !!"
                             self.game_active = False
                             self.is_win = True
+
                             self.pause_event_handling()
 
 
@@ -702,7 +704,8 @@ class Game:
             self.time_button.draw(screen)
 
             if self.now_card.color is not None:
-                self.now_button.surface.fill(self.now_card.color)
+                pixel = self.now_card_surf.get_at((self.now_card_surf.get_width() // 2, self.now_card_surf.get_height()-1))
+                self.now_button.surface.fill(pixel)
             else:
                 self.now_button.surface.fill((80,80,80))
             self.now_button.draw(screen)
@@ -1115,9 +1118,3 @@ class Game:
         self.edit_name = True
         while self.edit_name:
             screen.blit(self.alpha_surface, (0,0))
-
-    def card_move(self, start, end, card, clock):
-        temp = Card(None, None, None, False)
-        if card is not None:
-            temp = card
-        temp.rect.x += 100 * clock.get_time() / 1000
