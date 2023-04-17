@@ -1,11 +1,11 @@
 import pygame, configparser
 import sys
 from pygame.locals import *
-from utils import *
+from utils import menu , settings, sound 
 
 
 
-class Pause:
+class PauseClass:
 
     def __init__(self, screen, font, config, key, soundFX):
         self.screen = screen                                                        # 게임의 스크린

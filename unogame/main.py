@@ -2,7 +2,6 @@ import pygame, configparser
 import sys
 from pygame.locals import *
 from utils import *
-
 # from single_play import start_single_play
 from single_play import Game
 
@@ -41,7 +40,7 @@ sound.playMusic(1)
 # Create the menu
 menu = menu.Menu(key_list, font, screen)
 setting = settings.Setting(key_list, font, screen, soundFX, config)
-storyMode = storyMode.StoryMode(screen, font, config, key_list)
+storyModess = storyMode.StoryModes(screen, font, config, key_list, soundFX)
 
 # Main loop
 while True:
@@ -56,7 +55,7 @@ while True:
     elif selected == 1:
         soundFX.soundPlay(1)
         screen.fill((0, 0, 0))
-        selected = storyMode.run()
+        selected = storyModess.run()
 
     elif selected == 2:
         # Open settings menu
