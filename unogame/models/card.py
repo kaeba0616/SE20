@@ -64,55 +64,5 @@ class Card:
 
         self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
 
-    def getConfig(self):
-        return self.config["color"]["default"]
-    # def setCard(self):
-    #     # self.config = str(num)
-    #     if self.config['color']['default'] == str(2):           # 색맹모드 none
-    #         if self.number is not None:    # 숫자카드
-    #             file_path = f"resources/images/card/normalMode/{self.number}/{self.color}_{self.number}.png"
-    #         elif self.color is not None and self.number is None and self.skill is not None:   # 색깔있는 스킬카드
-    #             file_path = f"resources/images/card/normalMode/{self.skill}/{self.color}_{self.skill}.png"
-    #         elif self.color is None:                  
-    #             if self.skill == "all":                    # 색 바꾸는 wild 카드
-    #                 file_path = f"resources/images/card/normalMode/change/all_change.png"
-    #             elif self.skill == "all4":                 # 공격 wild 카드
-    #                 file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"
-    #         else:
-    #             print("path error")
-
-    #     elif self.config['color']['default'] == str(0):         # 색맹모드 RG
-    #         if self.number is not None:    # 숫자카드
-    #             file_path = f"resources/images/card/RG/{self.number}/{self.color}_{self.number}.png"
-    #         elif self.color is not None and self.number is None and self.skill is not None:   # 색깔있는 스킬카드
-    #             file_path = f"resources/images/card/RG/{self.skill}/{self.color}_{self.skill}.png"
-    #         elif self.color is None:                  
-    #             if self.skill == "all":                    # 색 바꾸는 wild 카드
-    #                 file_path = f"resources/images/card/normalMode/change/all_change.png"
-    #             elif self.skill == "all4":                 # 공격 wild 카드
-    #                 file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"            
-
-    #     elif self.config['color']['default'] == str(1):
-    #         if self.number is not None:    # 숫자카드
-    #             file_path = f"resources/images/card/YB/{self.number}/{self.color}_{self.number}.png"
-    #         elif self.color is not None and self.number is None and self.skill is not None:   # 색깔있는 스킬카드
-    #             file_path = f"resources/images/card/YB/{self.skill}/{self.color}_{self.skill}.png"
-    #         elif self.color is None:                  
-    #             if self.skill == "all":                    # 색 바꾸는 wild 카드
-    #                 file_path = f"resources/images/card/normalMode/change/all_change.png"
-    #             elif self.skill == "all4":                 # 공격 wild 카드
-    #                 file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"                
-
-    #     image_surface = pygame.image.load(file_path).convert_alpha()
-    #     # image_surface = pygame.transform.rotozoom(image_surface, 0, 0.5)
-    #     self.large_image_surface = pygame.transform.scale(image_surface, (self.width, self.height))
-    #     self.small_image_surface = pygame.transform.scale(image_surface, (self.width / 2, self.height / 2))
-
-    #     self.image = self.large_image_surface
-    #     self.rect = self.image.get_rect(center=(0, 0))
-    #     # print(f"width : {self.rect.width} / height : {self.rect.height}")
-    #     self.initial_y = self.rect.y
-
-    #     self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
 
     # def draw_now_select(self, screen):
