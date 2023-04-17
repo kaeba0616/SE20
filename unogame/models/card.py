@@ -1,10 +1,11 @@
 import pygame
 
-class Card:
 
-    colors = ['red', 'blue', 'green', 'yellow']
+class Card:
+    colors = ["red", "blue", "green", "yellow"]
     numbers = list(range(0, 10))
-    skills = ['reverse', 'block', 'plus2', 'change', 'plus4']
+    skills = ["reverse", "block", "plus2", "change", "plus4"]
+
     def __init__(self, color, number, skill, wild, config):
         self.color = color
         self.number = number
@@ -14,46 +15,69 @@ class Card:
         self.file_path = ""
         self.width = 50
         self.height = 70
+        self.config = config
 
-        if self.config['color']['default'] == str(2):           # 색맹모드 none
-            if number is not None:    # 숫자카드
+        if self.config["color"]["default"] == str(2):  # 색맹모드 none
+            if number is not None:  # 숫자카드
                 file_path = f"resources/images/card/normalMode/{number}/{self.color}_{number}.png"
-            elif color is not None and number is None and skill is not None:   # 색깔있는 스킬카드
-                file_path = f"resources/images/card/normalMode/{skill}/{self.color}_{skill}.png"
-            elif color is None:                  
-                if skill == "all":                    # 색 바꾸는 wild 카드
-                    file_path = f"resources/images/card/normalMode/change/all_change.png"
-                elif skill == "all4":                 # 공격 wild 카드
+            elif (
+                color is not None and number is None and skill is not None
+            ):  # 색깔있는 스킬카드
+                file_path = (
+                    f"resources/images/card/normalMode/{skill}/{self.color}_{skill}.png"
+                )
+            elif color is None:
+                if skill == "all":  # 색 바꾸는 wild 카드
+                    file_path = (
+                        f"resources/images/card/normalMode/change/all_change.png"
+                    )
+                elif skill == "all4":  # 공격 wild 카드
                     file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"
             else:
                 print("path error")
 
-        elif self.config['color']['default'] == str(0):         # 색맹모드 RG
-            if number is not None:    # 숫자카드
-                file_path = f"resources/images/card/RG/{number}/{self.color}_{number}.png"
-            elif color is not None and number is None and skill is not None:   # 색깔있는 스킬카드
+        elif self.config["color"]["default"] == str(0):  # 색맹모드 RG
+            if number is not None:  # 숫자카드
+                file_path = (
+                    f"resources/images/card/RG/{number}/{self.color}_{number}.png"
+                )
+            elif (
+                color is not None and number is None and skill is not None
+            ):  # 색깔있는 스킬카드
                 file_path = f"resources/images/card/RG/{skill}/{self.color}_{skill}.png"
-            elif color is None:                  
-                if skill == "all":                    # 색 바꾸는 wild 카드
-                    file_path = f"resources/images/card/normalMode/change/all_change.png"
-                elif skill == "all4":                 # 공격 wild 카드
-                    file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"            
+            elif color is None:
+                if skill == "all":  # 색 바꾸는 wild 카드
+                    file_path = (
+                        f"resources/images/card/normalMode/change/all_change.png"
+                    )
+                elif skill == "all4":  # 공격 wild 카드
+                    file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"
 
-        elif self.config['color']['default'] == str(1):
-            if number is not None:    # 숫자카드
-                file_path = f"resources/images/card/YB/{number}/{self.color}_{number}.png"
-            elif color is not None and number is None and skill is not None:   # 색깔있는 스킬카드
+        elif self.config["color"]["default"] == str(1):
+            if number is not None:  # 숫자카드
+                file_path = (
+                    f"resources/images/card/YB/{number}/{self.color}_{number}.png"
+                )
+            elif (
+                color is not None and number is None and skill is not None
+            ):  # 색깔있는 스킬카드
                 file_path = f"resources/images/card/YB/{skill}/{self.color}_{skill}.png"
-            elif color is None:                  
-                if skill == "all":                    # 색 바꾸는 wild 카드
-                    file_path = f"resources/images/card/normalMode/change/all_change.png"
-                elif skill == "all4":                 # 공격 wild 카드
-                    file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"                
+            elif color is None:
+                if skill == "all":  # 색 바꾸는 wild 카드
+                    file_path = (
+                        f"resources/images/card/normalMode/change/all_change.png"
+                    )
+                elif skill == "all4":  # 공격 wild 카드
+                    file_path = f"resources/images/card/normalMode/plus4/all_plus4.png"
 
         image_surface = pygame.image.load(file_path).convert_alpha()
         # image_surface = pygame.transform.rotozoom(image_surface, 0, 0.5)
-        self.large_image_surface = pygame.transform.scale(image_surface, (self.width, self.height))
-        self.small_image_surface = pygame.transform.scale(image_surface, (self.width / 2, self.height / 2))
+        self.large_image_surface = pygame.transform.scale(
+            image_surface, (self.width, self.height)
+        )
+        self.small_image_surface = pygame.transform.scale(
+            image_surface, (self.width / 2, self.height / 2)
+        )
 
         self.image = self.large_image_surface
         self.rect = self.image.get_rect(center=(0, 0))
@@ -61,6 +85,5 @@ class Card:
         self.initial_y = self.rect.y
 
         self.card_state = False  # 앞뒷면을 나타내는 변수, True = 앞면 / False = 뒷면
-
 
     # def draw_now_select(self, screen):
