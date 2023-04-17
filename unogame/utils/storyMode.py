@@ -40,7 +40,7 @@ progression and jump.""")
 all cards to the players in equal numbers
 except for the first card.""")
         self.note.append("""In this stage, you will play
-against the opponent player, and
+against 2 opponent players, and
 the color of the card you can play
 every 5 turns will be randomly changed.""")
         self.note.append("""In this stage, you play
