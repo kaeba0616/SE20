@@ -78,7 +78,6 @@ class Game:
             center=(self.screen_width / 3 + 30, self.screen_height / 3)
         )
 
-        self.now_turn_list = []
         self.win_list = []
 
         self.uno_button = Button(
@@ -115,28 +114,7 @@ class Game:
         self.lobby_background = pygame.Rect(
             self.screen_width - 150, 0, 150, self.screen_height
         )
-        self.add_button = Button(
-            self.lobby_background.x + 10,
-            self.lobby_background.height - 50,
-            40,
-            20,
-            (255, 255, 255),
-            "add",
-            (64, 64, 64),
-            15,
-            255,
-        )
-        self.del_button = Button(
-            self.lobby_background.x + 60,
-            self.lobby_background.height - 50,
-            40,
-            20,
-            (255, 255, 255),
-            "delete",
-            (64, 64, 64),
-            15,
-            255,
-        )
+
         self.now_button = Button(
             self.screen_width // 2 + 60,
             self.screen_height // 5 - 50,
@@ -148,7 +126,7 @@ class Game:
             15,
             255,
         )
-        (self.screen_width // 2, self.screen_height // 2 + 80)
+
         self.ok_button = Button(
             self.screen_width // 2,
             self.screen_height // 2 + 100,
@@ -160,7 +138,6 @@ class Game:
             40,
             255,
         )
-        center = (self.screen_width / 8, self.screen_height / 2)
         self.now_turn_button = Button(
             self.screen_width // 8,
             self.screen_height // 2 - 30,
@@ -261,6 +238,19 @@ class Game:
             30,
             255,
         )
+
+        self.win_button = Button(
+            self.screen_width / 2 - 50,
+            self.screen_height / 2 - 20,
+            100,
+            40,
+            (255, 255, 255),
+            "Player 1 win !!",
+            (64, 64, 64),
+            30,
+            0,
+        )
+
         self.AI_timer = pygame.USEREVENT + 5
         self.is_computer_turn = False
 
@@ -281,6 +271,13 @@ class Game:
             screen.fill((50, 200, 50))
             self.make_screen()
             # event loop
+
+            ## lms
+
+            if self.game_active:
+                self.time_button.text = f"TIME : {self.current_time}"
+                self.time_button.draw(screen)
+            ##
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -821,6 +818,7 @@ class Game:
 
     def next_screen(self, screen):
         # print("next_screen")
+
         if self.game_active:
             ## error point!!
             ##
@@ -864,8 +862,8 @@ class Game:
                 self.info_list[i].draw(screen, self.player_number, i)
 
             ## test
-            self.time_button.text = f"TIME : {self.current_time}"
-            self.time_button.draw(screen)
+            # self.time_button.text = f"TIME : {self.current_time}"
+            # self.time_button.draw(screen)
             ##
 
             if self.now_card.color is not None:
@@ -879,7 +877,9 @@ class Game:
                 self.now_button.surface.fill(pixel)
             else:
                 self.now_button.surface.fill((80, 80, 80))
+
             self.now_button.draw(screen)
+
             if self.is_skill_active:
                 self.skill_active_button.draw(screen)
         else:
@@ -928,82 +928,62 @@ class Game:
             pygame.display.update()
 
     def make_screen(self):
-        # print("make_screen")
         self.screen_width = self.screen.get_width()
         self.screen_height = self.screen.get_height()
 
-        self.uno_button = Button(
-            self.screen_width / 3 + 240,
-            self.screen_height / 3,
-            50,
-            30,
-            (255, 255, 255),
-            "UNO",
-            (64, 64, 64),
-            30,
-            255,
-        )
-        self.retry_surf = Game.font.render(
-            "click to return to main", False, (64, 64, 64)
-        )
+        self.deck_rect.centerx = self.screen_width / 3
+        self.deck_rect.centery = self.screen_height / 3
 
-        self.retry_rect = self.retry_surf.get_rect(
-            center=(self.screen_width / 2, self.screen_height / 2 + 50)
-        )
+        self.uno_button.rect.x = self.deck_rect.centerx + 150
+        self.uno_button.rect.y = self.deck_rect.centery + 30
 
-        self.start_button = Button(
-            self.screen_width // 2 - 100,
+        self.retry_rect.centerx = self.screen_width / 2
+        self.retry_rect.centery = self.screen_height / 2 + 50
+
+        self.start_button.rect.x = self.screen_width // 2 - 100
+        self.start_button.rect.y = self.screen_height // 2 - 30
+
+        self.lobby_background.x = self.screen_width - 150
+        self.lobby_background.y = 0
+        self.lobby_background.height = self.screen_height
+
+        self.now_button.rect.x = self.deck_rect.centerx + 150
+        self.now_button.rect.y = self.deck_rect.centery - 50
+
+        self.skill_active_button.rect.x = self.screen_width // 8 + 50
+        self.skill_active_button.rect.y = self.screen_height // 8
+        self.ok_button.rect.x = self.screen_width // 2
+        self.ok_button.rect.y = self.screen_height // 2 + 100
+
+        self.win_button.rect.center = (
+            self.screen_width / 2 - 50,
+            self.screen_height / 2 - 20,
+        )
+        self.now_turn_button.center = (
+            self.screen_width // 8,
             self.screen_height // 2 - 30,
-            100,
-            60,
-            (255, 255, 255),
-            "START",
-            (64, 64, 64),
-            40,
-            255,
+        )
+        self.time_button.center = (
+            self.screen_width // 8 + 40,
+            self.screen_height // 2 + 15,
         )
 
-        # 로비를 생성하는데 필요한 변수
-        self.lobby_background = pygame.Rect(
-            self.screen_width - 150, 0, 150, self.screen_height
+        self.now_card_rect.centerx = self.deck_rect.centerx + 80
+        self.now_card_rect.centery = self.deck_rect.centery
+
+        self.alpha_surface = pygame.Surface(
+            (self.screen_width, self.screen_height), pygame.SRCALPHA
         )
-        self.add_button = Button(
-            self.lobby_background.x + 10,
-            self.lobby_background.height - 50,
-            40,
-            20,
-            (255, 255, 255),
-            "add",
-            (64, 64, 64),
-            15,
-            255,
-        )
-        self.del_button = Button(
-            self.lobby_background.x + 60,
-            self.lobby_background.height - 50,
-            40,
-            20,
-            (255, 255, 255),
-            "delete",
-            (64, 64, 64),
-            15,
-            255,
-        )
-        # self.info_list = []
-        # for i in range(0, 5):
-        #     self.info_list.append(
-        #         Component(
-        #             self.lobby_background.x,
-        #             self.lobby_background.y + 100 * i,
-        #             150,
-        #             90,
-        #             (255, 255, 255),
-        #             f"PLAYER {i + 2}",
-        #             (64, 64, 64),
-        #             20,
-        #             None,
-        #         )
-        #     )
+        self.alpha_surface.fill(
+            (0, 0, 0, 128)
+        )  # (0,0,0,128) -> (0,0,0)으로 (불필요한 값. 작동 안될 수 있음)
+        self.alpha_surface.set_alpha(128)
+
+        # self.name_rect.x = self.screen_width // 2
+        # self.name_rect.y = self.screen_height // 2 - 20
+        # self.input_rect.x = self.screen_width // 2
+        # self.input_rect.y = self.screen_height // 2 + 50
+
         self.change_color_list = []
         self.CENTER_X_POS = self.screen_width // 10
         self.CENTER_Y_POS = self.screen_height // 5
@@ -1022,7 +1002,9 @@ class Game:
             rect = surf.get_rect(center=pos)
             self.change_color_list.append([surf, rect, color, color_string])
 
-        # return
+        for i, component in enumerate(self.info_list):
+            component.rect.x = self.lobby_background.x
+            component.rect.y = self.lobby_background.y + 100 * i
 
     def block_turn(self):
         # print("block_turn")
@@ -1041,7 +1023,6 @@ class Game:
         for player in self.turn_list:
             player.turn = self.turn_list.index(player)
         self.turn_index = self.turn_list.index(temp_player)
-        self.now_turn_list.reverse()
         # print(f"after reverse : {self.turn_index}")
 
         ## lms
@@ -1130,28 +1111,6 @@ class Game:
 
         # for player in self.turn_list:
         # print(player)
-
-        self.now_turn_list = [
-            (
-                Game.font.render(f"Player{i + 1}'s turn", False, (64, 64, 64)),
-                Game.font.render(f"Player{i + 1}'s turn", False, (64, 64, 64)).get_rect(
-                    center=(self.screen_width / 8, self.screen_height / 2)
-                ),
-            )
-            for i in range(self.player_number)
-        ]
-
-        self.win_button = Button(
-            self.screen_width / 2 - 50,
-            self.screen_height / 2 - 20,
-            100,
-            40,
-            (255, 255, 255),
-            "Player 1 win !!",
-            (64, 64, 64),
-            30,
-            0,
-        )
 
         for i, component in enumerate(self.info_list):
             component.player = self.turn_list[i]
