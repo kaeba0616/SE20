@@ -10,7 +10,7 @@ from models.Human import Human
 from models.AI import AI
 
 from models.button import Button, Component
-from pause import Pause
+from pause import PauseClass
 import time
 
 
@@ -33,6 +33,7 @@ class Game:
         self.soundFX = soundFX     
         self.screen = screen
 
+        self.who = 0
         self.keys = keys
         self.config = config
         self.event_active = True
@@ -271,7 +272,7 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
-                        pause = Pause(screen, font, self.config, self.keys, self.soundFX)
+                        pause = PauseClass(screen, font, self.config, self.keys, self.soundFX)
                         value = pause.run()
                         if value == "out":
                             return
@@ -279,7 +280,9 @@ class Game:
 
                     if event.key == pygame.K_q and self.game_active:
                         self.turn_list[self.turn_index].hand.clear()
-
+                    
+                    if event.key == pygame.K_w and self.game_active:
+                        self.turn_list[2].hand.clear()
 
                 if self.is_win and not self.game_active:
                     if not self.event_active:
@@ -287,7 +290,9 @@ class Game:
                         print("event_active")
                         self.resume_event_handling()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        return
+                        print(self.who.number)
+                        print(type(self.who.number))
+                        return self.who.number                              ################################################################
 
                 # Timer 재설정 하는 event loop
                 if event.type == self.turn_timer and self.game_active:
@@ -319,6 +324,7 @@ class Game:
                         for player in self.turn_list:
                             self.player_card_setting(player.hand)
                             self.turn_index += 1
+                        # self.deck.clear()
                         self.turn_index = 0
                         # test
                         # while True:
@@ -582,6 +588,10 @@ class Game:
                         if len(player.hand) == 0:
                             self.game_active = False
                             self.is_win = True
+#################################################
+                            self.who = player
+                            ##################################################
+                            self.win_button.text = f"Player {player.number + 1} win !!"
                             self.pause_event_handling()
                     # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
                     if len(self.deck) == 0:
@@ -715,7 +725,8 @@ class Game:
             self.time_button.draw(screen)
 
             if self.now_card.color is not None:
-                self.now_button.surface.fill(self.now_card.color)
+                pixel = self.now_card_surf.get_at((self.now_card_surf.get_width() // 2, self.now_card_surf.get_height()-1))
+                self.now_button.surface.fill(pixel)
             else:
                 self.now_button.surface.fill((80,80,80))
             self.now_button.draw(screen)
@@ -884,6 +895,8 @@ class Game:
         self.is_color_change = True
 
     def draw_card(self, input_deck):
+        if len(input_deck) == 0 and input_deck == self.deck:
+            return
         pop_card = self.deck.pop()
         input_deck.append(pop_card)
 
