@@ -1,14 +1,17 @@
 import pygame, configparser
 import sys
 from pygame.locals import *
+from single_play import Game
+from stageB import stage_B
 
 
 
-class StoryMode:
+class StoryModes:
 
-    def __init__(self, screen, font, config, key):
+    def __init__(self, screen, font, config, key, soundFX):
         self.screen = screen                                                        # 게임의 스크린
         self.font = font                                                            # 폰트
+        self.soundFX = soundFX
 
         self.stages = ["Stage1", "Stage2", "Stage3", "Stage4"]                      # stage 이름
         self.back = ["Go back"]                                                     # Go back 버튼 이름
@@ -40,7 +43,7 @@ progression and jump.""")
 all cards to the players in equal numbers
 except for the first card.""")
         self.note.append("""In this stage, you will play
-against the opponent player, and
+against 2 opponent players, and
 the color of the card you can play
 every 5 turns will be randomly changed.""")
         self.note.append("""In this stage, you play
@@ -121,14 +124,6 @@ on the first distribution.""")
             self.screen.get_height() * 0.2 - new_font.render(l, True, (255, 255, 255)).get_height() // 2 + set_y * i
                 )
             )
-        # text = self.font.render(self.note[num], True, (255, 255, 255))
-        # self.screen.blit(
-        #     text,
-        #     (
-        #     self.screen.get_width() // 2 - text.get_width() // 2,
-        #     self.screen.get_height() * 0.35 - text.get_height() // 2
-        #     )
-        # )
 
 
     def description_draw(self, num):
@@ -157,16 +152,29 @@ on the first distribution.""")
                     selected = selected % 2
                     if event.key == self.key["RETURN"] and selected == 0:
                         print("Play click!")
-                        print("임의로 레벨 clear 시킴")
+                        
+                        print(num)
+                        if num == 0:            # 스테이지 A 선택 + Play
+                            pass
+                        elif num == 1:          # 스테이지 B 선택 + Play
+                            stage = stage_B(self.screen, 4, self.key, self.config, self.soundFX)
+                            win = stage.start_single_play()
+                            if win != 0:
+                                return
+
+                        elif num == 2:          # 스테이지 C 선택 + Play
+                            pass
+                        elif num == 3:          # 스테이지 D 선택 + Play
+                            pass
+
+                        # 승리 시, 다음 스테이지를 열게함
                         self.config['clear'][f'stage{num + 2}'] = str(1)
                         with open('setting_data.ini', 'w') as f:
                             self.config.write(f)
                         self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
                         return
-                        '''
-                        Todo
-                        대전하기 만들기
-                        '''
+                    
+
                     elif event.key == self.key["RETURN"] and selected == 1:
                         print("Back click!")
                         return
@@ -177,8 +185,18 @@ on the first distribution.""")
                         if event.type == MOUSEMOTION:
                             selected = 0
                         if event.type == MOUSEBUTTONUP:
-                            print(f"Play click!")
-                            print("임의로 레벨 clear 시킴")
+                            if num == 0:            # 스테이지 A 선택 + Play
+                                return
+                            elif num == 1:          # 스테이지 B 선택 + Play
+                                stage = stage_B(self.screen, 4, self.key, self.config, self.soundFX)
+                                win = stage.start_single_play()
+                                if win != 0:
+                                    return
+                            elif num == 2:          # 스테이지 C 선택 + Play
+                                return
+                            elif num == 3:          # 스테이지 D 선택 + Play
+                                return
+                            
                             self.config['clear'][f'stage{num + 2}'] = str(1)
                             with open('setting_data.ini', 'w') as f:
                                 self.config.write(f)
@@ -248,13 +266,6 @@ on the first distribution.""")
                         else:
                             print(f"{self.stages[self.current_stage]} click!")
                             self.description_draw(self.current_stage)
-                        '''
-                            수정 필요
-                            stage 1, stage 2 등의 설명이 나오는 description_draw
-                            밑에는 아님..
-                            ex) start_single_play(self.current_stage) 식으로
-                            current_stage의 스테이지를 플레이할 수 있도록
-                        '''
 
 
                 elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
@@ -271,13 +282,6 @@ on the first distribution.""")
                             elif event.type == MOUSEBUTTONUP:
                                 print(f"{self.stages[self.current_stage]} click!")
                                 self.description_draw(self.current_stage)
-                            '''
-                                수정 필요
-                                stage 1, stage 2 등의 설명이 나오는 화면
-                                밑에는 아님..   
-                                ex) start_single_play(self.current_stage) 식으로
-                                current_stage의 스테이지를 플레이할 수 있도록
-                            '''
                         elif text_rect.collidepoint(pos):
                             if event.type == MOUSEMOTION:
                                 self.current_UpDown = 1
@@ -293,8 +297,7 @@ on the first distribution.""")
 
             '''
             Todo
-            1. 스테이지 클릭 시, 스테이지 설명 화면 + 대결 버튼 + 뒤로가기 버튼
-            2. 스테이지 클리어 시, 스테이지 TF 업데이트
+            1. 스테이지 구현
             '''
             
             # Update the screen

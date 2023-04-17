@@ -23,7 +23,7 @@ class Human(Player):
                     card.rect.y = screen.get_height() - 120
                     card.initial_y = card.rect.y
 
-        elif 20 < len(self.hand) <= 30:
+        elif 20 < len(self.hand) <= 31:
             for i, card in enumerate(self.hand):
                 card.rect = card.small_image_surface.get_rect(center=(0, 0))
                 if i <= 9:
@@ -36,7 +36,7 @@ class Human(Player):
                     card.rect.y = screen.get_height() - 160
                     card.initial_y = card.rect.y
 
-                elif 20 <= i < 30:
+                elif 20 <= i < 31:
                     card.rect.x = 20 + (card.width // 2 + 5) * (i - 20)
                     card.rect.y = screen.get_height() - 120
                     card.initial_y = card.rect.y

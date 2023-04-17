@@ -10,7 +10,7 @@ from models.Human import Human
 from models.AI import AI
 
 from models.button import Button, Component
-from pause import Pause
+from pause import PauseClass
 import time
 
 
@@ -33,6 +33,7 @@ class Game:
         self.soundFX = soundFX     
         self.screen = screen
 
+        self.who = 0
         self.keys = keys
         self.config = config
         self.event_active = True
@@ -65,7 +66,7 @@ class Game:
             center=(self.screen_width / 3, self.screen_height / 3)
         )
 
-        # self.now_card = Card("red", None, 0, False)
+        # self.now_card = Card("red", None, 0, False, self.config)
         self.now_card = None
         self.now_card_surf = pygame.image.load(
             "resources/images/card/normalMode/backcart.png"
@@ -271,16 +272,17 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
-
-
-                        pause = Pause(screen, font, self.config, self.keys, self.soundFX)
-                        value = pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+                        pause = PauseClass(screen, font, self.config, self.keys, self.soundFX)
+                        value = pause.run()
                         if value == "out":
                             return
 
+
                     if event.key == pygame.K_q and self.game_active:
                         self.turn_list[self.turn_index].hand.clear()
-
+                    
+                    if event.key == pygame.K_w and self.game_active:
+                        self.turn_list[2].hand.clear()
 
                 if self.is_win and not self.game_active:
                     if not self.event_active:
@@ -288,7 +290,9 @@ class Game:
                         print("event_active")
                         self.resume_event_handling()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
-                        return
+                        print(self.who.number)
+                        print(type(self.who.number))
+                        return self.who.number                              ################################################################
 
                 # Timer 재설정 하는 event loop
                 if event.type == self.turn_timer and self.game_active:
@@ -316,9 +320,11 @@ class Game:
                         self.is_win = False
                         self.generate_deck()
                         # self.test_set_all_card_to_red0()
+                        # 여기서 덱 위에 있는 카드들을 나눠줌
                         for player in self.turn_list:
                             self.player_card_setting(player.hand)
                             self.turn_index += 1
+                        # self.deck.clear()
                         self.turn_index = 0
                         # test
                         # while True:
@@ -483,9 +489,21 @@ class Game:
                 if self.is_color_change and event.type == pygame.MOUSEBUTTONDOWN:
                     for color_list in self.change_color_list:
                         if color_list[1].collidepoint(event.pos):
-                            self.now_card_surf = pygame.image.load(
-                                f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
-                            ).convert_alpha()
+
+                            # lsj: 색약모드 change card
+                            if self.config['color']['default'] == str(2):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config['color']['default'] == str(1):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/YG/change/{color_list[3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config['color']['default'] == str(0):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/RG/change/{color_list[3]}_change.png"
+                                ).convert_alpha()
+
                             self.now_card_surf = pygame.transform.scale(
                                 self.now_card_surf, (50, 70)
                             )
@@ -570,6 +588,11 @@ class Game:
                         if len(player.hand) == 0:
                             self.game_active = False
                             self.is_win = True
+
+#################################################
+                            self.who = player
+                            ##################################################
+
                             self.win_button.text = f"Player {player.number + 1} win !!"
                             self.pause_event_handling()
                     # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
@@ -655,6 +678,7 @@ class Game:
             #         )
             #         screen.blit(self.retry_surf, self.retry_rect)
             pygame.display.update()
+
 
             # Limit the frame rate
             clock.tick(60)
@@ -874,6 +898,8 @@ class Game:
         self.is_color_change = True
 
     def draw_card(self, input_deck):
+        if len(input_deck) == 0 and input_deck == self.deck:
+            return
         pop_card = self.deck.pop()
         input_deck.append(pop_card)
 
@@ -899,21 +925,24 @@ class Game:
 
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
+
             self.deck.append(Card(color, number, None, False))
             self.card_list.append(Card(color, number, None, False))
+
             if number != 0:
-                self.deck.append(Card(color, number, None, False))
+                self.deck.append(Card(color, number, None, False, self.config))
 
         # 색깔별로 기술 카드를 담음
         for color, skill in itertools.product(Card.colors, Card.skills):
             for _ in range(2):
-                self.deck.append(Card(color, None, skill, False))
+                self.deck.append(Card(color, None, skill, False, self.config))
 
         # all, all4 카드 추가
         for _ in range(4):
-            self.deck.append(Card(None, None, "all4", True))
-            self.deck.append(Card(None, None, "all", True))
+            self.deck.append(Card(None, None, "all4", True, self.config))
+            self.deck.append(Card(None, None, "all", True, self.config))
 
+        
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
         # test
@@ -922,10 +951,10 @@ class Game:
         #         pop_card = card
         #         break
 
-        self.remain.append(pop_card)
+        self.remain.append(pop_card)                            # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
         self.turn_index = 0
-        self.now_card = pop_card
-        self.now_card_surf = pop_card.image
+        self.now_card = pop_card                                # pop_card(바닥에 있는 카드)가 현재 카드임
+        self.now_card_surf = pop_card.image                     # 현재 카드 객체화
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
@@ -1039,9 +1068,22 @@ class Game:
 
         self.now_card.color = max(color_list, key=color_list.get)
         print(self.now_card.color)
-        self.now_card_surf = pygame.image.load(
-            f"resources/images/card/normalMode/change/{self.now_card.color}_change.png"
-        ).convert_alpha()
+
+
+        # lsj: 색약모드 change card
+        if self.config['color']['default'] == str(2):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/normalMode/change/{self.now_card.color}_change.png"
+            ).convert_alpha()
+        elif self.config['color']['default'] == str(1):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/YG/change/{self.now_card.color}_change.png"
+            ).convert_alpha()
+        elif self.config['color']['default'] == str(0):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/RG/change/{self.now_card.color}_change.png"
+            ).convert_alpha()
+
         self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
         # self.now_card_surf = self.now_card.image
         self.now_card_rect = self.now_card_surf.get_rect(
@@ -1097,8 +1139,8 @@ class Game:
     def test_set_all_card_to_red0(self):
         self.deck.clear()
         for _ in range(0, 128):
-            self.deck.append(Card("red", None, 0, False))
-        self.now_card = Card("blue", None, 1, False)
+            self.deck.append(Card("red", None, 0, False, self.config))
+        self.now_card = Card("blue", None, 1, False, self.config)
         self.now_card_surf = self.now_card.image
         # self.now_select = self.now_card
 
