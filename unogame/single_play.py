@@ -66,7 +66,7 @@ class Game:
             center=(self.screen_width / 3, self.screen_height / 3)
         )
 
-        # self.now_card = Card("red", None, 0, False)
+        # self.now_card = Card("red", None, 0, False, self.config)
         self.now_card = None
         self.now_card_surf = pygame.image.load(
             "resources/images/card/normalMode/backcart.png"
@@ -250,12 +250,11 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         font = pygame.font.SysFont(None, 48)
-
-
                         pause = Pause(screen, font, self.config, self.keys, self.soundFX)
-                        value = pause.run()                                                 # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
+                        value = pause.run()
                         if value == "out":
                             return
+
 
                     if event.key == pygame.K_q and self.game_active:
                         self.turn_list[self.turn_index].hand.clear()
@@ -290,6 +289,7 @@ class Game:
                         self.is_win = False
                         self.generate_deck()
                         # self.test_set_all_card_to_red0()
+                        # 여기서 덱 위에 있는 카드들을 나눠줌
                         for player in self.turn_list:
                             self.player_card_setting(player.hand)
                             self.turn_index += 1
@@ -620,7 +620,8 @@ class Game:
             #             self.win_list[self.turn_index][1],
             #         )
             #         screen.blit(self.retry_surf, self.retry_rect)
-            # pygame.display.update()
+            pygame.display.update()
+
 
             # Limit the frame rate
             clock.tick(60)
@@ -702,7 +703,7 @@ class Game:
                 self.ok_button.draw(screen)
                 # self.add_button.draw(screen)
                 # self.del_button.draw(screen)
-          pygame.display.update()
+            pygame.display.update()
 
     def make_screen(self):
         self.screen_width = self.screen.get_width()
@@ -775,21 +776,21 @@ class Game:
             15,
             255
         )
-        self.info_list = []
-        for i in range(0, 5):
-            self.info_list.append(
-                Component(
-                    self.lobby_background.x,
-                    self.lobby_background.y + 100 * i,
-                    150,
-                    90,
-                    (255, 255, 255),
-                    f"PLAYER {i + 2}",
-                    (64, 64, 64),
-                    20,
-                    None,
-                )
-            )
+        # self.info_list = []
+        # for i in range(0, 5):
+        #     self.info_list.append(
+        #         Component(
+        #             self.lobby_background.x,
+        #             self.lobby_background.y + 100 * i,
+        #             150,
+        #             90,
+        #             (255, 255, 255),
+        #             f"PLAYER {i + 2}",
+        #             (64, 64, 64),
+        #             20,
+        #             None,
+        #         )
+        #     )
         self.change_color_list = []
         self.CENTER_X_POS = self.screen_width // 10
         self.CENTER_Y_POS = self.screen_height // 5
@@ -840,9 +841,9 @@ class Game:
         self, input_deck, next_player, count
     ):  # deck : list / first, second : card
         for _ in range(count):
-        if len(self.deck) != 0:
-            pop_card = self.deck.pop()
-            input_deck.append(pop_card)
+            if len(self.deck) != 0:
+                pop_card = self.deck.pop()
+                input_deck.append(pop_card)
 
     def plus(self, input_deck, count):  # deck : list / first, second : card
         for _ in range(count):
@@ -858,20 +859,21 @@ class Game:
 
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
-            self.deck.append(Card(color, number, None, False))
+            self.deck.append(Card(color, number, None, False, self.config))
             if number != 0:
-                self.deck.append(Card(color, number, None, False))
+                self.deck.append(Card(color, number, None, False, self.config))
 
         # 색깔별로 기술 카드를 담음
         for color, skill in itertools.product(Card.colors, Card.skills):
             for _ in range(2):
-                self.deck.append(Card(color, None, skill, False))
+                self.deck.append(Card(color, None, skill, False, self.config))
 
         # all, all4 카드 추가
         for _ in range(4):
-            self.deck.append(Card(None, None, "all4", True))
-            self.deck.append(Card(None, None, "all", True))
+            self.deck.append(Card(None, None, "all4", True, self.config))
+            self.deck.append(Card(None, None, "all", True, self.config))
 
+        
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
         # test
@@ -880,10 +882,10 @@ class Game:
         #         pop_card = card
         #         break
 
-        self.remain.append(pop_card)
+        self.remain.append(pop_card)                            # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
         self.turn_index = 0
-        self.now_card = pop_card
-        self.now_card_surf = pop_card.image
+        self.now_card = pop_card                                # pop_card(바닥에 있는 카드)가 현재 카드임
+        self.now_card_surf = pop_card.image                     # 현재 카드 객체화
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
@@ -1041,8 +1043,8 @@ class Game:
     def test_set_all_card_to_red0(self):
         self.deck.clear()
         for _ in range(0, 128):
-            self.deck.append(Card("red", None, 0, False))
-        self.now_card = Card("blue", None, 1, False)
+            self.deck.append(Card("red", None, 0, False, self.config))
+        self.now_card = Card("blue", None, 1, False, self.config)
         self.now_card_surf = self.now_card.image
         # self.now_select = self.now_card
 

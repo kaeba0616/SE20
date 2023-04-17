@@ -185,7 +185,7 @@ class Setting:
                             return 0
                         elif self.option == 0: # setting 화면에 save 제외 버튼 누를 경우
                             self.option = self.selected+1
-                            self.selected = len(self.items[self.option])
+                            self.selected = len(self.items[self.option])                                # option 3이 색맹모드
                         elif self.selected == len(self.items[self.option]): # 다른 화면의 save 버튼
                             self.option = 0
                             self.selected = len(self.items[self.option])
@@ -196,6 +196,8 @@ class Setting:
                         elif self.option == 2: # 키 설정 세팅
                             print(self.selected)
                             self.configKeys(self.selected) # selected는 left 0 right 1 up 2 ...
+                        elif self.option == 3:                                                      # selected가 0이면 RG, 1이면 YB, 2면 None
+                            self.setBlindness(self.selected)
                         elif self.option == 4:
                             if self.selected == 0: 
                                 sound.musicDown()
@@ -264,6 +266,8 @@ class Setting:
                                     screenH = self.screen.get_height()
                                 elif self.option == 2: # 키 설정 변경
                                     self.configKeys(self.selected)
+                                elif self.option == 3:
+                                    self.setBlindness(self.selected)
                     if self.option == 4: # volume setting의 경우
                         fonts = pygame.font.SysFont(None, 60)
                         icons = [
@@ -374,6 +378,19 @@ class Setting:
 
     def setVolume(self, option):
         pass
+
+    def setBlindness(self, option):
+        if option == 0:
+            print("RG")
+            self.config['color']['default'] = str(0)
+        elif option == 1:
+            print("YB")
+            self.config['color']['default'] = str(1)
+
+        elif option == 2:
+            print("None")
+            self.config['color']['default'] = str(2)
+        return
 
     def reset(self):        
         # Screen size reset
