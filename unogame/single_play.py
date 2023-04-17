@@ -23,7 +23,7 @@ class Game:
 
     CENTER_X_POS = 625
     CENTER_Y_POS = 325
-    change_color_list = []
+    change_color_list = []  #color change 시 표시될 사각형들
 
     def __init__(self, screen, player_number, keys, config, soundFX):
         self.screen_width = screen.get_width()
@@ -38,18 +38,19 @@ class Game:
         self.config = config
         self.event_active = True
 
-        self.game_active = False
+        self.game_active = False #start를 누른 이후 게임 진행 중이면 True
         self.is_win = False
-        self.is_get = False
+        self.is_get = False #자기 턴에 카드 뽑음
         self.run = True
         self.is_color_change = False
         self.edit_name = False
         self.edit_text = "__________"
 
+        # color change하는 중 배경
         self.alpha_surface = pygame.Surface(
             (self.screen_width, self.screen_height), pygame.SRCALPHA
         )
-        self.alpha_surface.fill((0, 0, 0, 128))
+        self.alpha_surface.fill((0, 0, 0, 128)) #(0,0,0,128) -> (0,0,0)으로 (불필요한 값. 작동 안될 수 있음)
         self.alpha_surface.set_alpha(128)
 
         self.turn_list = []  # 차례의 순서를 나타내는 list
@@ -182,6 +183,7 @@ class Game:
             35,
             0
         )
+
         self.skill_active_button = Button(
             self.screen_width // 8+50,
             self.screen_height // 8,
@@ -322,7 +324,7 @@ class Game:
                         # self.test_set_all_card_to_red0()
                         # 여기서 덱 위에 있는 카드들을 나눠줌
                         for player in self.turn_list:
-                            self.player_card_setting(player.hand)
+                            self.player_card_setting(player)
                             self.turn_index += 1
                         # self.deck.clear()
                         self.turn_index = 0
@@ -766,6 +768,7 @@ class Game:
                 self.ok_button.draw(screen)
                 # self.add_button.draw(screen)
                 # self.del_button.draw(screen)
+
             pygame.display.update()
 
     def make_screen(self):
@@ -877,7 +880,8 @@ class Game:
 
     def block_turn(self):
         print(f"before block : {self.turn_index}")
-        self.turn_index = (self.turn_index + 2) % len(self.turn_list)
+        self.turn_index = (self.turn_index + 1) % len(self.turn_list)
+        self.pass_turn()
         print(f"after block : {self.turn_index}")
         self.current_time = 10
     def reverse_turn(self):
@@ -996,10 +1000,11 @@ class Game:
         #     # input_deck.change_layer(card, len(input_deck.sprites()) - i - 1)
         #     input_deck.change_layer(card, i)
 
-    def player_card_setting(self, input_deck):
-        if not len(input_deck):  # 초기에 7장 뽑기
-            for i in range(7):
-                self.draw_card(input_deck)
+    def player_card_setting(self, player):
+        # 초기에 7장 뽑기
+        # 맨 처음에 카드 나눠줄 때만 사용하는 함수라 if 문 삭제함
+        for i in range(7):
+            self.draw_card(player.hand)
 
     def check_condition(self, input_card):
         # input 카드가 현재 맨 위에 있는 카드에 낼 수 있는 카드인지 확인하는 함수
@@ -1085,7 +1090,6 @@ class Game:
             ).convert_alpha()
 
         self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
-        # self.now_card_surf = self.now_card.image
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
