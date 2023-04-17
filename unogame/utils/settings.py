@@ -396,6 +396,7 @@ class Setting:
         # Screen size reset
         self.screen = pygame.display.set_mode((800, 600))
         self.config['window']['default'] = "1"
+        self.config['color']['default'] = '2'
 
         # Game key reset
         for i, (name, key) in enumerate(self.keys.items()):
