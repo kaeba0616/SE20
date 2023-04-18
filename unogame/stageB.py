@@ -1,27 +1,13 @@
 import pygame
 from models.card import Card
-import random
 from models.Human import Human
 from models.AI import AI
 from models.button import Button, Component
 from single_play import Game
-import itertools
-import sys
 
 import itertools
 import random
 import sys
-
-import pygame
-
-from models.button import Button, Component
-from models.card import Card
-from models.Human import Human
-from models.AI import AI
-
-from models.button import Button, Component
-from pause import PauseClass
-import time
 
 from pause import PauseClass
 import time
@@ -30,10 +16,11 @@ import time
 
 
 class stage_B(Game):
-
     def __init__(self, screen, player_number, keys, config, soundFX):
-        Game.__init__(self, screen, player_number, keys, config, soundFX)
-        #self.deck = []      # 가운데 바닥에 있는 카드 뭉터기들
+        super().__init__(screen, player_number, keys, config, soundFX)
+
+        print("STAGE B")
+        # self.deck = []      # 가운데 바닥에 있는 카드 뭉터기들
 
     def generate_deck(self):
         # 색깔별로 숫자 카드를 담음
@@ -52,22 +39,18 @@ class stage_B(Game):
             self.deck.append(Card(None, None, "all4", True, self.config))
             self.deck.append(Card(None, None, "all", True, self.config))
 
-        
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
 
-        self.remain.append(pop_card)                            # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
+        self.remain.append(pop_card)  # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
         self.turn_index = 0
-        self.now_card = pop_card                                # pop_card(바닥에 있는 카드)가 현재 카드임
-        self.now_card_surf = pop_card.image                     # 현재 카드 객체화
+        self.now_card = pop_card  # pop_card(바닥에 있는 카드)가 현재 카드임
+        self.now_card_surf = pop_card.image  # 현재 카드 객체화
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
 
-        self.turn_list = [
-            Human(i, [], i) if i == 0 else AI(i, [], i)
-            for i in range(4)
-        ]
+        self.turn_list = [Human(i, [], i) if i == 0 else AI(i, [], i) for i in range(4)]
 
         for player in self.turn_list:
             print(player)
@@ -82,8 +65,17 @@ class stage_B(Game):
             for i in range(self.player_number)
         ]
 
-        self.win_button = Button(self.screen_width / 2 - 50, self.screen_height / 2 - 20, 100, 40, (255, 255, 255),
-                                    "Player 1 win !!", (64, 64, 64), 30, 0)
+        self.win_button = Button(
+            self.screen_width / 2 - 50,
+            self.screen_height / 2 - 20,
+            100,
+            40,
+            (255, 255, 255),
+            "Player 1 win !!",
+            (64, 64, 64),
+            30,
+            0,
+        )
 
         for i, component in enumerate(self.info_list):
             component.player = self.turn_list[i]
@@ -91,18 +83,15 @@ class stage_B(Game):
                 break
         self.me = self.turn_list[0]
 
-
     def player_card_setting(self, player):
         for i in range(31):
             self.draw_card(player.hand)
-
 
     def draw_card(self, input_deck):
         if len(self.deck) == 0:
             return
         pop_card = self.deck.pop()
         input_deck.append(pop_card)
-
 
     def skill_active(self, pop_card):
         next_player = self.turn_index + 1
@@ -119,7 +108,9 @@ class stage_B(Game):
             pygame.time.set_timer(self.block_timer, 3000)
             self.block_turn()
         elif pop_card.skill == "change" or pop_card.skill == "all":
-            self.skill_active_button.text = f"color is changed {self.now_card.color} > {pop_card.color}"
+            self.skill_active_button.text = (
+                f"color is changed {self.now_card.color} > {pop_card.color}"
+            )
             if self.turn_list[self.turn_index].type == "Human":
                 self.change_color()
             elif self.turn_list[self.turn_index].type == "AI":

@@ -33,7 +33,7 @@ class Game:
         self.soundFX = soundFX
         self.screen = screen
 
-        self.who = 0
+        self.who = None
         self.keys = keys
         self.config = config
         self.event_active = True
@@ -292,7 +292,10 @@ class Game:
                             screen, font, self.config, self.keys, self.soundFX
                         )
                         value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
-
+                        for card in self.card_list:
+                            card.change_path(self.config)
+                        self.me.update_hand(screen)
+                        self.now_card_surf = self.now_card.image
                         if value == "out":
                             return
                 # 치트키
@@ -323,6 +326,26 @@ class Game:
                         self.current_time = 10
                         if not self.is_get:
                             self.draw_from_center(self.turn_list[self.turn_index].hand)
+                        if self.is_color_change:
+                            self.is_color_change = False
+                            var = random.randint(0, 3)
+                            if self.config["color"]["default"] == str(2):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/normalMode/change/{self.change_color_list[var][3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config["color"]["default"] == str(1):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/YB/change/{self.change_color_list[var][3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config["color"]["default"] == str(0):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/RG/change/{self.change_color_list[var][3]}_change.png"
+                                ).convert_alpha()
+
+                            self.now_card_surf = pygame.transform.scale(
+                                self.now_card_surf, (50, 70)
+                            )
+                            self.now_card.color = self.change_color_list[var][3]
                         self.pass_turn()
                         break
                     self.current_time -= 1
@@ -353,6 +376,7 @@ class Game:
                         # self.test_set_all_card_to_red0()
                         # 여기서 덱 위에 있는 카드들을 나눠줌
                         for player in self.turn_list:
+                            print("Player-card_setting1!!")
                             self.player_card_setting(player)
                             self.turn_index += 1
                         # self.deck.clear()
@@ -545,7 +569,7 @@ class Game:
                                 ).convert_alpha()
                             elif self.config["color"]["default"] == str(1):
                                 self.now_card_surf = pygame.image.load(
-                                    f"resources/images/card/YG/change/{color_list[3]}_change.png"
+                                    f"resources/images/card/YB/change/{color_list[3]}_change.png"
                                 ).convert_alpha()
                             elif self.config["color"]["default"] == str(0):
                                 self.now_card_surf = pygame.image.load(
@@ -565,9 +589,6 @@ class Game:
                     key = None
 
                     if self.turn_list[self.turn_index].type == "Human":
-                        ## error point
-
-                        # print("human turn!!!")
                         if (
                             event.type == pygame.MOUSEBUTTONDOWN
                             or event.type == pygame.KEYDOWN
@@ -655,30 +676,31 @@ class Game:
                     # 4. 컴퓨터의 알고리즘 수행
 
                     ## lms
-                    self.com_card = []
                     if self.turn_list[self.turn_index].type == "AI":
-                        for card in self.turn_list[self.turn_index].hand:
-                            if self.check_condition(card):
-                                self.com_card.append(card)
-                        if len(self.com_card) == 0:
-                            self.draw_from_center(self.turn_list[self.turn_index].hand)
-                            self.pass_turn()
-                        else:
-                            self.now_card = self.com_card[0]
-                            self.now_card_surf = self.now_card.image
-                            self.turn_list[self.turn_index].hand.remove(self.now_card)
-                            self.remain.append(self.now_card)
-                            if self.now_card.skill is not None:
-                                # edit by sth
-                                # self.skill_active(self.now_card.skill)
-                                self.skill_active(self.com_card[0])
-                            if self.now_card.skill not in [
-                                "change",
-                                "block",
-                                "all",
-                            ]:
-                                self.pass_turn()
-                            self.next_screen(screen)
+                        self.computer_turn()
+                        # for card in self.turn_list[self.turn_index].hand:
+                        #     if self.check_condition(card):
+                        #         self.com_card.append(card)
+                        # if len(self.com_card) == 0:
+                        #     self.draw_from_center(self.turn_list[self.turn_index].hand)
+                        #     self.pass_turn()
+                        # else:
+                        #     self.now_card = self.com_card[0]
+                        #     self.now_card_surf = self.now_card.image
+                        #     self.turn_list[self.turn_index].hand.remove(self.now_card)
+                        #     self.remain.append(self.now_card)
+                        #     if self.now_card.skill is not None:
+                        #         # edit by sth
+                        #         # self.skill_active(self.now_card.skill)
+                        #         self.skill_active(self.com_card[0])
+                        #     if self.now_card.skill not in [
+                        #         "change",
+                        #         "block",
+                        #         "all",
+                        #     ]:
+                        #         self.pass_turn()
+
+                        self.next_screen(screen)
 
                     ## lms
 
@@ -796,14 +818,50 @@ class Game:
             # Limit the frame rate
             clock.tick(60)
 
+    def computer_turn(self):
+        self.com_card = []
+
+        for card in self.turn_list[self.turn_index].hand:
+            if self.check_condition(card):
+                self.com_card.append(card)
+        if len(self.com_card) == 0:
+            self.draw_from_center(self.turn_list[self.turn_index].hand)
+            self.pass_turn()
+        else:
+            self.now_card = self.com_card[0]
+            self.now_card_surf = self.now_card.image
+            self.turn_list[self.turn_index].hand.remove(self.now_card)
+            self.remain.append(self.now_card)
+            if self.now_card.skill is not None:
+                # edit by sth
+                # self.skill_active(self.now_card.skill)
+                self.skill_active(self.com_card[0])
+            if self.now_card.skill not in [
+                # "change",
+                "block",
+                # "all",
+            ]:
+                self.pass_turn()
+
     def deck_none(self):
         if len(self.deck) == 0:
             print("덱이 없어서 계산을 합니다")
             win_condition = True
-            for player in self.turn_list:
-                for card in player.hand:
-                    if self.check_condition(card):
-                        win_condition = False
+
+            ## back up code
+            # for player in self.turn_list:
+            #     for card in player.hand:
+            #         if self.check_condition(card):
+            #             win_condition = False
+            ## back up code
+
+            ## test
+            for hand in self.turn_list[self.turn_index].hand:
+                if self.check_condition(hand):
+                    win_condition = False
+                    break
+
+            ##
 
             if win_condition:
                 less_point = self.calculation_point(self.me.hand)
@@ -811,9 +869,9 @@ class Game:
                     if less_point >= self.calculation_point(player.hand):
                         less_point = self.calculation_point(player.hand)
                         self.win_button.text = f"Player {player.number + 1} win !!"
+                    self.who = player
                 self.game_active = False
                 self.is_win = True
-
                 self.pause_event_handling()
 
     def next_screen(self, screen):
@@ -844,6 +902,13 @@ class Game:
                 screen.blit(self.alpha_surface, (0, 0))
                 for color_list in self.change_color_list:
                     screen.blit(color_list[0], color_list[1])
+                    temp_rect = pygame.Rect(
+                        color_list[1].x - 1,
+                        color_list[1].y - 1,
+                        color_list[1].width + 2,
+                        color_list[1].height + 2,
+                    )
+                    pygame.draw.rect(screen, (0, 0, 0), temp_rect, 3)
 
             self.uno_button.draw(screen)
             # if self.is_get:
@@ -891,6 +956,8 @@ class Game:
             self.remain.clear()
 
             if self.is_win:
+                ## time.sleep(3)
+                time.sleep(3)
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
@@ -951,7 +1018,7 @@ class Game:
         self.now_button.rect.y = self.deck_rect.centery - 50
 
         self.skill_active_button.rect.x = self.screen_width // 8 + 50
-        self.skill_active_button.rect.y = self.screen_height // 8
+        self.skill_active_button.rect.y = 30
         self.ok_button.rect.x = self.screen_width // 2
         self.ok_button.rect.y = self.screen_height // 2 + 100
 
@@ -990,15 +1057,14 @@ class Game:
         for color, pos, color_string in zip(
             [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
             [
-                (self.CENTER_X_POS - 25, self.CENTER_Y_POS - 25),
-                (self.CENTER_X_POS + 25, self.CENTER_Y_POS - 25),
-                (self.CENTER_X_POS - 25, self.CENTER_Y_POS + 25),
-                (self.CENTER_X_POS + 25, self.CENTER_Y_POS + 25),
+                (self.CENTER_X_POS - 32, self.CENTER_Y_POS - 32),
+                (self.CENTER_X_POS + 32, self.CENTER_Y_POS - 32),
+                (self.CENTER_X_POS - 32, self.CENTER_Y_POS + 32),
+                (self.CENTER_X_POS + 32, self.CENTER_Y_POS + 32),
             ],
             ["red", "green", "blue", "yellow"],
         ):
-            surf = pygame.Surface((50, 50))
-            surf.fill(color_string)
+            surf = Game.font.render(color_string, False, (64, 64, 64))
             rect = surf.get_rect(center=pos)
             self.change_color_list.append([surf, rect, color, color_string])
 
@@ -1009,6 +1075,14 @@ class Game:
     def block_turn(self):
         # print("block_turn")
         # print(f"before block : {self.turn_index}")
+        ## test
+        # if self.turn_list[self.turn_index].type == "AI":
+        #     print("computer turn!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        # else:
+        #     print("human turn!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        ##
         self.turn_index = (self.turn_index + 1) % len(self.turn_list)
         # print(f"after block : {self.turn_index}")
 
@@ -1016,14 +1090,13 @@ class Game:
         self.pass_turn()
 
     def reverse_turn(self):
-        # print("reverse_turn")
-        # print(f"before reverse : {self.turn_index}")
         temp_player = self.turn_list[self.turn_index]
+
         self.turn_list.reverse()
         for player in self.turn_list:
             player.turn = self.turn_list.index(player)
+
         self.turn_index = self.turn_list.index(temp_player)
-        # print(f"after reverse : {self.turn_index}")
 
         ## lms
         for player in self.turn_list:
@@ -1070,23 +1143,31 @@ class Game:
     #         card.rect.y = card.initial_y
 
     def generate_deck(self):
-        # print("generate_deck")
         for color, number in itertools.product(Card.colors, Card.numbers):
-            self.deck.append(Card(color, number, None, False, self.config))
-            self.card_list.append(Card(color, number, None, False, self.config))
+            temp_card = Card(color, number, None, False, self.config)
+            self.deck.append(temp_card)
+            self.card_list.append(temp_card)
 
             if number != 0:
-                self.deck.append(Card(color, number, None, False, self.config))
-
+                temp_card = Card(color, number, None, False, self.config)
+                self.deck.append(temp_card)
+                self.card_list.append(temp_card)
         # 색깔별로 기술 카드를 담음
         for color, skill in itertools.product(Card.colors, Card.skills):
             for _ in range(2):
-                self.deck.append(Card(color, None, skill, False, self.config))
+                temp_card = Card(color, None, skill, False, self.config)
+                self.deck.append(temp_card)
+                self.card_list.append(temp_card)
 
         # all, all4 카드 추가
         for _ in range(4):
-            self.deck.append(Card(None, None, "all4", True, self.config))
-            self.deck.append(Card(None, None, "all", True, self.config))
+            temp_card = Card(None, None, "all4", True, self.config)
+            self.deck.append(temp_card)
+            self.card_list.append(temp_card)
+
+            temp_card = Card(None, None, "all4", True, self.config)
+            self.deck.append(temp_card)
+            self.card_list.append(temp_card)
 
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
@@ -1232,7 +1313,7 @@ class Game:
             ).convert_alpha()
         elif self.config["color"]["default"] == str(1):
             self.now_card_surf = pygame.image.load(
-                f"resources/images/card/YG/change/{self.now_card.color}_change.png"
+                f"resources/images/card/YB/change/{self.now_card.color}_change.png"
             ).convert_alpha()
         elif self.config["color"]["default"] == str(0):
             self.now_card_surf = pygame.image.load(
@@ -1247,6 +1328,14 @@ class Game:
     def pass_turn(self):
         # print("pass_turn")
         # print("turn is passed")
+        ## test
+        # if self.turn_list[self.turn_index].type == "AI":
+        #     print("computer turn!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        # else:
+        #     print("human turn!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        # ##
+
         self.turn_index += 1
         if self.turn_index == len(self.turn_list):
             self.turn_index = 0
@@ -1258,6 +1347,7 @@ class Game:
         ):
             self.draw_card(self.turn_list[self.turn_index].hand)
             self.turn_list[self.turn_index].uno = "unactive"
+
         # 일반카드를 냈을 때도 텍스트가 뜨는 코드 > 바꿔야함
 
     def check_collide(self, pos):

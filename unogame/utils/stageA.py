@@ -4,18 +4,21 @@ from models.card import Card
 from models.button import Button
 from models.Human import Human
 from models.AI import AI
+import pygame
 
-class stageA(Game):
+
+class stage_A(Game):
     def __init__(self, screen, player_number, keys, config, soundFX):
         super().__init__(screen, player_number, keys, config, soundFX)
-        
+
+        print("STAGE A")
         # refactoring needed(after single_play refactoring - function seperation)
         # best: delete all variables below
         self.tempNumDeck = []
         self.tempSkillDeck = []
         self.firstDraw = True
         self.config = config
-    
+
     def generate_deck(self):
         # 숫자 카드를 모두 덱에 담기
         for color, number in itertools.product(Card.colors, Card.numbers):
@@ -39,11 +42,11 @@ class stageA(Game):
         random.shuffle(self.tempSkillDeck)
 
         # 0.5로 카드나 숫자 먼저 뽑아서 꺼내기
-        if random.randrange(0,1) == 0:
+        if random.randrange(0, 2) == 0:
             self.now_card = self.tempNumDeck.pop()
         else:
             self.now_card = self.tempSkillDeck.pop()
-        
+
         self.now_card_surf = self.now_card.image
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
@@ -67,39 +70,82 @@ class stageA(Game):
             for i in range(self.player_number)
         ]
 
-        self.win_button = Button(self.screen_width / 2 - 50, self.screen_height / 2 - 20, 100, 40, (255, 255, 255),
-                                 "Player 1 win !!", (64, 64, 64), 30, 0)
+        self.win_button = Button(
+            self.screen_width / 2 - 50,
+            self.screen_height / 2 - 20,
+            100,
+            40,
+            (255, 255, 255),
+            "Player 1 win !!",
+            (64, 64, 64),
+            30,
+            0,
+        )
 
         for i, component in enumerate(self.info_list):
             component.player = self.turn_list[i]
             if i == len(self.turn_list) - 1:
                 break
-        self.me = self.turn_list[0]
+
+        for player in self.turn_list:
+            if player.type == "Human":
+                self.me = player
 
     def temp_draw_card(self, input_deck, isNum):
+        print("temp draw card")
         if isNum:
             input_deck.append(self.tempNumDeck.pop())
         else:
             input_deck.append(self.tempSkillDeck.pop())
-    
+
     def player_card_setting(self, player):
+        print("STAGE A에서 STAGE D가 출력이 되네?")
         prob = 50
         if player.type == "AI":
             prob = 60
-        
-        for i in range(7):            
-            if random.randrange(0,100) < prob:
+
+        for i in range(7):
+            if random.randrange(0, 100) < prob:
                 self.temp_draw_card(player.hand, False)
             else:
                 self.temp_draw_card(player.hand, True)
-        
+
         # refactoring needed
         # player.type == "AI" => distribution ended, empty temp decks
+
         if player.type == "AI":
             while self.tempNumDeck:
                 self.deck.append(self.tempNumDeck.pop())
             while self.tempSkillDeck:
                 self.deck.append(self.tempSkillDeck.pop())
-                
-            #re-shuffle remain cards
             random.shuffle(self.deck)
+
+        # re-shuffle remain cards
+
+    def computer_turn(self):
+        self.com_card = []
+        for card in self.turn_list[self.turn_index].hand:
+            if self.check_condition(card):
+                self.com_card.append(card)
+        if len(self.com_card) == 0:
+            self.draw_from_center(self.turn_list[self.turn_index].hand)
+            self.pass_turn()
+        else:
+            self.now_card = self.com_card[0]
+            self.now_card_surf = self.now_card.image
+            self.turn_list[self.turn_index].hand.remove(self.now_card)
+            self.remain.append(self.now_card)
+            if self.now_card.skill is not None:
+                # edit by sth
+                # self.skill_active(self.now_card.skill)
+                self.skill_active(self.com_card[0])
+
+            if self.now_card.skill is "change":
+                self.computer_turn()
+
+            if self.now_card.skill not in [
+                # "change",
+                "block",
+                # "all",
+            ]:
+                self.pass_turn()
