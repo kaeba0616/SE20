@@ -2,8 +2,7 @@ import pygame, configparser
 import sys
 from pygame.locals import *
 from single_play import Game
-from stageB import stage_B
-from utils import menu, settings, sound, stageA, stageC, stageD
+from utils import menu, settings, sound, stageA, stageC, stageD, stageB
 
 
 class StoryModes:
@@ -206,7 +205,7 @@ on the first distribution."""
                             if win != 0:
                                 break
                         elif self.selected == 1:  # 스테이지 B 선택 + Play
-                            stage = stage_B(
+                            stage = stageB.stage_B(
                                 self.screen, 4, self.key, self.config, self.soundFX
                             )
                             win = stage.start_single_play()
