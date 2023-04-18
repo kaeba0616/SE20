@@ -26,6 +26,8 @@ class Game:
     change_color_list = []  # color change 시 표시될 사각형들
 
     def __init__(self, screen, player_number, keys, config, soundFX):
+        self.start_count = 1
+
         self.screen_width = screen.get_width()
         self.screen_height = screen.get_height()
         self.player_number = player_number
@@ -321,6 +323,10 @@ class Game:
                 # Timer 재설정 하는 event loop
                 # if event.type == self.AI_timer:
                 # self.is_computer_turn = True
+
+                if event.type == self.AI_timer and self.game_active:
+                    self.is_computer_turn = True
+                    self.AI_timer_on = False
 
                 if event.type == self.turn_timer and self.game_active:
                     if self.current_time == 0:
@@ -682,7 +688,7 @@ class Game:
                         if self.is_computer_turn:
                             self.computer_turn()
                             self.is_computer_turn = False
-                            self.next_screen(screen)
+                            # self.next_screen(screen)
                         if not self.AI_timer_on and not self.is_computer_turn:
                             pygame.time.set_timer(self.AI_timer, 2000)
                             self.AI_timer_on = True
@@ -709,8 +715,9 @@ class Game:
                         #         "all",
                         #     ]:
                         #         self.pass_turn()
-
+                    if self.start_count:
                         self.next_screen(screen)
+                        self.start_count -= 1
 
                     ## lms
 
@@ -895,9 +902,10 @@ class Game:
             screen.blit(self.now_card_surf, self.now_card_rect)
 
             # 누구의 턴인지 보여주는 부분
-            if self.me.turn == self.turn_index:
+            if self.turn_list[self.turn_index].type == "Human":
+                # if self.me.turn == self.turn_index:
                 self.now_turn_button.text = f"my turn"
-            else:
+            if self.turn_list[self.turn_index].type == "AI":
                 self.now_turn_button.text = f"PLAYER {self.turn_index + 1}'s turn"
             self.now_turn_button.draw(screen)
             # screen.blit(
@@ -1292,6 +1300,7 @@ class Game:
         elif pop_card.skill == "plus4" or pop_card.skill == "all4":
             self.skill_active_button.text = "plus4 attack active"
             self.plus(self.turn_list[next_player].hand, 4)
+        self.is_skill_active = True
 
     def change_color_ai(self):
         # print("change_color_ai")
@@ -1356,7 +1365,6 @@ class Game:
             self.turn_list[self.turn_index].uno = "unactive"
 
         # 일반카드를 냈을 때도 텍스트가 뜨는 코드 > 바꿔야함
-        self.is_skill_active = True
         pygame.time.set_timer(self.skill_active_timer, 3000)
 
     def check_collide(self, pos):
