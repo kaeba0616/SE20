@@ -1,7 +1,7 @@
 from single_play import Game
 
 
-class Stage_D(Game):
+class stage_D(Game):
     def __init__(self, screen, player_number, keys, config, soundFX):
         super().__init__(screen, player_number, keys, config, soundFX)
 

@@ -253,6 +253,7 @@ class Game:
 
         self.AI_timer = pygame.USEREVENT + 5
         self.is_computer_turn = False
+        self.AI_timer_on = False
 
         self.uno_timer = pygame.USEREVENT + 2
         self.is_uno = False
@@ -346,6 +347,7 @@ class Game:
                                 self.now_card_surf, (50, 70)
                             )
                             self.now_card.color = self.change_color_list[var][3]
+                            self.is_color_change = False
                         self.pass_turn()
                         break
                     self.current_time -= 1
@@ -629,7 +631,7 @@ class Game:
                             # print(pos)
                             # 1. 낼 수 있는 카드를 낸다
 
-                            if (key == self.keys["RETURN"] and pos is None) or (
+                            if (key == self.keys["RETURN"]) or (
                                 self.check_collide(pos) and key is None
                             ):
                                 if self.now_select in self.me.hand:
@@ -677,7 +679,15 @@ class Game:
 
                     ## lms
                     if self.turn_list[self.turn_index].type == "AI":
-                        self.computer_turn()
+                        if self.is_computer_turn:
+                            self.computer_turn()
+                            self.is_computer_turn = False
+                            self.next_screen(screen)
+                        if not self.AI_timer_on and not self.is_computer_turn:
+                            pygame.time.set_timer(self.AI_timer, 2000)
+                            self.AI_timer_on = True
+                        print("AI timer set")
+
                         # for card in self.turn_list[self.turn_index].hand:
                         #     if self.check_condition(card):
                         #         self.com_card.append(card)
@@ -1283,9 +1293,6 @@ class Game:
             self.skill_active_button.text = "plus4 attack active"
             self.plus(self.turn_list[next_player].hand, 4)
 
-        self.is_skill_active = True
-        pygame.time.set_timer(self.skill_active_timer, 3000)
-
     def change_color_ai(self):
         # print("change_color_ai")
         color_list = {"red": 0, "blue": 0, "green": 0, "yellow": 0}
@@ -1349,6 +1356,8 @@ class Game:
             self.turn_list[self.turn_index].uno = "unactive"
 
         # 일반카드를 냈을 때도 텍스트가 뜨는 코드 > 바꿔야함
+        self.is_skill_active = True
+        pygame.time.set_timer(self.skill_active_timer, 3000)
 
     def check_collide(self, pos):
         # print("check_collide")
