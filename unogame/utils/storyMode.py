@@ -2,8 +2,7 @@ import pygame, configparser
 import sys
 from pygame.locals import *
 from single_play import Game
-from stageB import stage_B
-from utils import menu, settings, sound, stageA, stageC, stageD
+from utils import menu, settings, sound, stageA, stageC, stageD, stageB
 
 
 class StoryModes:
