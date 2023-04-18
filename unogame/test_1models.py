@@ -1,5 +1,5 @@
 import pytest, pygame, configparser, shutil
-from .models import __init__,button,card,player
+from .models import __init__,button,card,player,Human,AI
 from .utils import sound, menu, settings, storyMode
 from . import pause
 from .single_play import Game
@@ -37,7 +37,7 @@ def soundFX():
     yield sound.SoundFX()
 
     
-
+pygame.init()
 def test_sound():
     sound.playMusic(1)
     sound.pauseMusic()
@@ -59,23 +59,33 @@ def test_sound():
 
     assert True
 
-def test_models(screen):
+def test_models(screen, config):
+
+    configs = config
     pygame.font.init()
 
     testBut = button.Button(0,0,0,0,(0,0,0),"","red",0,0)
     testBut.draw(screen)
     testBut.is_clicked(pygame.mouse.get_pos())
 
-    testCard = card.Card('red',0,'reverse',True)
-    testPlayer = player.Player(0,[testCard],True)
-    testPlayer.update_hand(screen)
-    testPlayer.hand[1:15] = [testCard] * 15
-    testPlayer.update_hand(screen)
-    testPlayer.hand[1:15] = [testCard] * 25
-    testPlayer.update_hand(screen)
+    testCard = card.Card('red',0,'reverse',True, config)
+    configs["color"]["default"] = str(0)
+    testCard.change_path(configs)
+    configs["color"]["default"] = str(1)
+    testCard.change_path(configs)
+    configs["color"]["default"] = str(2)
+    testCard.change_path(configs)
 
-    testCom = button.Component(0,0,0,0,(0,0,0),"",'red',0,testPlayer)
-    testCom.draw(screen)
+
+    testHuman = Human.Human(0,[testCard],True)
+    testHuman.update_hand(screen)
+    testHuman.hand[1:15] = [testCard] * 15
+    testHuman.update_hand(screen)
+    testHuman.hand[1:15] = [testCard] * 25
+    testHuman.update_hand(screen)
+
+    testCom = button.Component(0,0,0,0,(0,0,0),"",'red',0,testHuman)
+    testCom.draw(screen, 1, 0)
 
     assert True
 
@@ -177,10 +187,10 @@ def test_Setting(config, keyList, screen):
         testSet.run()
 
     assert True
-'''
+
 def test_storyMode(screen, font, config, keyList):
     pygame.init()
-    testStory = storyMode.StoryMode(screen, font, config, keyList)
+    testStory = storyMode.StoryModes(screen, font, config, keyList, soundFX)
 
     pygame.event.clear()
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
@@ -191,12 +201,13 @@ def test_storyMode(screen, font, config, keyList):
     pygame.event.post(mouse)
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
 
     testStory.run()
 
     assert True
-'''
+
 def test_menu(keyList, screen):
     from .utils import __init__
 
@@ -230,10 +241,10 @@ def test_menu(keyList, screen):
 
     pygame.quit()
     assert True
-
+'''
 def test_pause(screen, font, config, keyList, soundFX):
     pygame.init()
-    testPause = pause.Pause(screen, font, config, keyList, soundFX)
+    testPause = pause.PauseClass(screen, font, config, keyList, soundFX)
 
     down = pygame.event.Event(pygame.KEYDOWN, key=testPause.keys["DOWN"])
     up = pygame.event.Event(pygame.KEYDOWN, key=testPause.keys["UP"])
@@ -273,7 +284,7 @@ def test_main(keyList, screen):
 
     assert True
 
-'''
+
 def test_singlePlay(keyList):
     pygame.init()
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key = keyList["RETURN"]))

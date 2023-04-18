@@ -93,7 +93,7 @@ class Game:
             30,
             255,
         )
-        self.retry_surf = Game.font.render(
+        self.retry_surf = self.font.render(
             "click to return to main", False, (64, 64, 64)
         )
         self.retry_rect = self.retry_surf.get_rect(

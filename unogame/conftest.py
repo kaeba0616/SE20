@@ -5,10 +5,11 @@ from io import StringIO
 def pytest_sessionstart(session):
     unogame_dir = os.path.dirname(__file__)
     sys.path.insert(0, unogame_dir)
-    pygame.init()
+    #pygame.init()
 
 def pytest_sessionfinish(session, exitstatus):
-    pygame.quit()
+    pass
+    #pygame.quit()
 
 '''
 def pytest_terminal_summary(terminalreporter):
