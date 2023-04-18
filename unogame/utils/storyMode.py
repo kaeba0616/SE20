@@ -197,23 +197,31 @@ on the first distribution."""
                             break
                         print("Play click!")
                         print(self.selected)
-                        if self.stage == 0:            # 스테이지 A 선택 + Play
-                            stage = stageA.stageA(self.screen, 2, self.key, self.config, self.soundFX)
+                        if self.stage == 0:  # 스테이지 A 선택 + Play
+                            stage = stageA.stage_A(
+                                self.screen, 2, self.key, self.config, self.soundFX
+                            )
                             win = stage.start_single_play()
                             if win != 0:
                                 break
-                        elif self.stage == 1:          # 스테이지 B 선택 + Play
-                            stage = stage_B(self.screen, 4, self.key, self.config, self.soundFX)
+                        elif self.stage == 1:  # 스테이지 B 선택 + Play
+                            stage = stageB.stage_B(
+                                self.screen, 4, self.key, self.config, self.soundFX
+                            )
                             win = stage.start_single_play()
                             if win != 0:
                                 break
-                        elif self.stage == 2:          # 스테이지 C 선택 + Play
-                            stage = stageC.stageC(self.screen, 3, self.key, self.config, self.soundFX)
+                        elif self.stage == 2:  # 스테이지 C 선택 + Play
+                            stage = stageC.stage_C(
+                                self.screen, 3, self.key, self.config, self.soundFX
+                            )
                             win = stage.start_single_play()
                             if win != 0:
                                 break
-                        elif self.stage == 3:          # 스테이지 D 선택 + Play
-                            stage = stageD.StageD(self.screen, 2, self.key, self.config, self.soundFX)
+                        elif self.stage == 3:  # 스테이지 D 선택 + Play
+                            stage = stageD.stage_D(
+                                self.screen, 2, self.key, self.config, self.soundFX
+                            )
                             win = stage.start_single_play()
                             if win != 0:
                                 break
@@ -283,24 +291,31 @@ on the first distribution."""
                         # if event.type == MOUSEMOTION:
                         #     self.selected = 0
                         if event.type == MOUSEBUTTONUP:
-
-                            if self.stage == 0:            # 스테이지 A 선택 + Play
-                                stage = stageA.stageA(self.screen, 2, self.key, self.config, self.soundFX)
+                            if self.stage == 0:  # 스테이지 A 선택 + Play
+                                stage = stageA.stage_A(
+                                    self.screen, 2, self.key, self.config, self.soundFX
+                                )
                                 win = stage.start_single_play()
                                 if win != 0:
                                     return
-                            elif self.stage == 1:          # 스테이지 B 선택 + Play
-                                stage = stage_B(self.screen, 4, self.key, self.config, self.soundFX)
+                            elif self.stage == 1:  # 스테이지 B 선택 + Play
+                                stage = stageB.stage_B(
+                                    self.screen, 4, self.key, self.config, self.soundFX
+                                )
                                 win = stage.start_single_play()
                                 if win != 0:
                                     return
-                            elif self.stage == 2:          # 스테이지 C 선택 + Play
-                                stage = stageC.stageC(self.screen, 3, self.key, self.config, self.soundFX)
+                            elif self.stage == 2:  # 스테이지 C 선택 + Play
+                                stage = stageC.stage_C(
+                                    self.screen, 3, self.key, self.config, self.soundFX
+                                )
                                 win = stage.start_single_play()
                                 if win != 0:
-                                    return  
-                            elif self.stage == 3:          # 스테이지 D 선택 + Play
-                                stage = stageD.stageD(self.screen, 2, self.key, self.config, self.soundFX)
+                                    return
+                            elif self.stage == 3:  # 스테이지 D 선택 + Play
+                                stage = stageD.stage_D(
+                                    self.screen, 2, self.key, self.config, self.soundFX
+                                )
                                 win = stage.start_single_play()
                                 if win != 0:
                                     return
