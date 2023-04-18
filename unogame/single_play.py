@@ -292,7 +292,10 @@ class Game:
                             screen, font, self.config, self.keys, self.soundFX
                         )
                         value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
-
+                        for card in self.card_list:
+                            card.change_path(self.config)
+                        self.me.update_hand(screen)
+                        self.now_card_surf = self.now_card.image
                         if value == "out":
                             return
                 # 치트키
@@ -323,6 +326,26 @@ class Game:
                         self.current_time = 10
                         if not self.is_get:
                             self.draw_from_center(self.turn_list[self.turn_index].hand)
+                        if self.is_color_change:
+                            self.is_color_change = False
+                            var = random.randint(0, 3)
+                            if self.config["color"]["default"] == str(2):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/normalMode/change/{self.change_color_list[var][3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config["color"]["default"] == str(1):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/YB/change/{self.change_color_list[var][3]}_change.png"
+                                ).convert_alpha()
+                            elif self.config["color"]["default"] == str(0):
+                                self.now_card_surf = pygame.image.load(
+                                    f"resources/images/card/RG/change/{self.change_color_list[var][3]}_change.png"
+                                ).convert_alpha()
+
+                            self.now_card_surf = pygame.transform.scale(
+                                self.now_card_surf, (50, 70)
+                            )
+                            self.now_card.color = self.change_color_list[var][3]
                         self.pass_turn()
                         break
                     self.current_time -= 1
@@ -546,7 +569,7 @@ class Game:
                                 ).convert_alpha()
                             elif self.config["color"]["default"] == str(1):
                                 self.now_card_surf = pygame.image.load(
-                                    f"resources/images/card/YG/change/{color_list[3]}_change.png"
+                                    f"resources/images/card/YB/change/{color_list[3]}_change.png"
                                 ).convert_alpha()
                             elif self.config["color"]["default"] == str(0):
                                 self.now_card_surf = pygame.image.load(
@@ -879,6 +902,13 @@ class Game:
                 screen.blit(self.alpha_surface, (0, 0))
                 for color_list in self.change_color_list:
                     screen.blit(color_list[0], color_list[1])
+                    temp_rect = pygame.Rect(
+                        color_list[1].x - 1,
+                        color_list[1].y - 1,
+                        color_list[1].width + 2,
+                        color_list[1].height + 2,
+                    )
+                    pygame.draw.rect(screen, (0, 0, 0), temp_rect, 3)
 
             self.uno_button.draw(screen)
             # if self.is_get:
@@ -988,7 +1018,7 @@ class Game:
         self.now_button.rect.y = self.deck_rect.centery - 50
 
         self.skill_active_button.rect.x = self.screen_width // 8 + 50
-        self.skill_active_button.rect.y = self.screen_height // 8
+        self.skill_active_button.rect.y = 30
         self.ok_button.rect.x = self.screen_width // 2
         self.ok_button.rect.y = self.screen_height // 2 + 100
 
@@ -1027,15 +1057,14 @@ class Game:
         for color, pos, color_string in zip(
             [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)],
             [
-                (self.CENTER_X_POS - 25, self.CENTER_Y_POS - 25),
-                (self.CENTER_X_POS + 25, self.CENTER_Y_POS - 25),
-                (self.CENTER_X_POS - 25, self.CENTER_Y_POS + 25),
-                (self.CENTER_X_POS + 25, self.CENTER_Y_POS + 25),
+                (self.CENTER_X_POS - 32, self.CENTER_Y_POS - 32),
+                (self.CENTER_X_POS + 32, self.CENTER_Y_POS - 32),
+                (self.CENTER_X_POS - 32, self.CENTER_Y_POS + 32),
+                (self.CENTER_X_POS + 32, self.CENTER_Y_POS + 32),
             ],
             ["red", "green", "blue", "yellow"],
         ):
-            surf = pygame.Surface((50, 50))
-            surf.fill(color_string)
+            surf = Game.font.render(color_string, False, (64, 64, 64))
             rect = surf.get_rect(center=pos)
             self.change_color_list.append([surf, rect, color, color_string])
 
@@ -1114,23 +1143,31 @@ class Game:
     #         card.rect.y = card.initial_y
 
     def generate_deck(self):
-        # print("generate_deck")
         for color, number in itertools.product(Card.colors, Card.numbers):
-            self.deck.append(Card(color, number, None, False, self.config))
-            self.card_list.append(Card(color, number, None, False, self.config))
+            temp_card = Card(color, number, None, False, self.config)
+            self.deck.append(temp_card)
+            self.card_list.append(temp_card)
 
             if number != 0:
-                self.deck.append(Card(color, number, None, False, self.config))
-
+                temp_card = Card(color, number, None, False, self.config)
+                self.deck.append(temp_card)
+                self.card_list.append(temp_card)
         # 색깔별로 기술 카드를 담음
         for color, skill in itertools.product(Card.colors, Card.skills):
             for _ in range(2):
-                self.deck.append(Card(color, None, skill, False, self.config))
+                temp_card = Card(color, None, skill, False, self.config)
+                self.deck.append(temp_card)
+                self.card_list.append(temp_card)
 
         # all, all4 카드 추가
         for _ in range(4):
-            self.deck.append(Card(None, None, "all4", True, self.config))
-            self.deck.append(Card(None, None, "all", True, self.config))
+            temp_card = Card(None, None, "all4", True, self.config)
+            self.deck.append(temp_card)
+            self.card_list.append(temp_card)
+
+            temp_card = Card(None, None, "all4", True, self.config)
+            self.deck.append(temp_card)
+            self.card_list.append(temp_card)
 
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
@@ -1276,7 +1313,7 @@ class Game:
             ).convert_alpha()
         elif self.config["color"]["default"] == str(1):
             self.now_card_surf = pygame.image.load(
-                f"resources/images/card/YG/change/{self.now_card.color}_change.png"
+                f"resources/images/card/YB/change/{self.now_card.color}_change.png"
             ).convert_alpha()
         elif self.config["color"]["default"] == str(0):
             self.now_card_surf = pygame.image.load(
