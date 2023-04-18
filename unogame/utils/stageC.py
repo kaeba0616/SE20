@@ -1,21 +1,24 @@
 from single_play import Game
 import pygame, random
 
-class stageC(Game):
+
+class stage_C(Game):
     def __init__(self, screen, player_number, keys, config, soundFX):
         super().__init__(screen, player_number, keys, config, soundFX)
+
+        print("STAGE C")
         self.turnCounter = 0
-    
+
     def pass_turn(self):
         self.turnCounter += 1
         if self.turnCounter == 5:
             self.turnCounter = 0
             self.colRandomize()
         return super().pass_turn()
-    
+
     def colRandomize(self):
         colors = ["red", "blue", "green", "yellow"]
-        changeToCol = colors[random.randrange(0,4)]
+        changeToCol = colors[random.randrange(0, 4)]
 
         self.now_card.color = changeToCol
         self.now_card_surf = pygame.image.load(
