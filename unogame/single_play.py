@@ -630,7 +630,7 @@ class Game:
                             # print(pos)
                             # 1. 낼 수 있는 카드를 낸다
 
-                            if (key == self.keys["RETURN"] and pos is None) or (
+                            if (key == self.keys["RETURN"]) or (
                                 self.check_collide(pos) and key is None
                             ):
                                 if self.now_select in self.me.hand:
