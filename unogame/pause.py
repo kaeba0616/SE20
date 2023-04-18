@@ -1,18 +1,18 @@
 import pygame, configparser
 import sys
 from pygame.locals import *
-from utils import *
+from utils import menu , settings, sound 
 
 
 
-class Pause:
+class PauseClass:
 
     def __init__(self, screen, font, config, key, soundFX):
         self.screen = screen                                                        # 게임의 스크린
         self.font = font                                                            # 폰트
         self.title_font = pygame.font.SysFont(None, 72)
         self.key_font = pygame.font.SysFont(None, 48)
-        self.items = ['Resume', 'Settings', 'Exit']
+        self.items = ['Resume', 'Settings', 'Return to menu']
         self.title_text = self.title_font.render("PAUSE", True, (255, 255, 255))
         self.keys = key
         self.selected = 0
@@ -66,10 +66,7 @@ class Pause:
                             setting = settings.Setting(self.keys, self.font, self.screen, self.soundFX, self.config)
                             num = setting.run()
                         elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로  // 어려워서 그냥 종료로 함..
-                            pygame.quit()
-                            sys.exit()
-                            # menu_select = menu.Menu(self.keys, self.font, self.screen)
-                            # num = menu_select.run()
+                            return "out"
                     elif event.key == self.keys["ESCAPE"]:                          # 게임 계속 진행하기
                         return
 
@@ -92,11 +89,8 @@ class Pause:
                                 elif self.selected == 1:                                    # Settings 선택 -> 설정 화면으로
                                     setting = settings.Setting(self.keys, self.font, self.screen, self.soundFX, self.config)
                                     num = setting.run()
-                                elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로  // 어려워서 그냥 종료로 함..
-                                    pygame.quit()
-                                    sys.exit()
-                                    # menu_select = menu.Menu(self.keys, self.font, self.screen)
-                                    # num = menu_select.run()
+                                elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로
+                                    return "out"
             
             # 화면 채우기
             self.draw()
