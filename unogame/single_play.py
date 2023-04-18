@@ -253,6 +253,7 @@ class Game:
 
         self.AI_timer = pygame.USEREVENT + 5
         self.is_computer_turn = False
+        self.AI_timer_on = False
 
         self.uno_timer = pygame.USEREVENT + 2
         self.is_uno = False
@@ -678,7 +679,15 @@ class Game:
 
                     ## lms
                     if self.turn_list[self.turn_index].type == "AI":
-                        self.computer_turn()
+                        if self.is_computer_turn:
+                            self.computer_turn()
+                            self.is_computer_turn = False
+                            self.next_screen(screen)
+                        if not self.AI_timer_on and not self.is_computer_turn:
+                            pygame.time.set_timer(self.AI_timer, 2000)
+                            self.AI_timer_on = True
+                        print("AI timer set")
+
                         # for card in self.turn_list[self.turn_index].hand:
                         #     if self.check_condition(card):
                         #         self.com_card.append(card)
