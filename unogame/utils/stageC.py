@@ -14,6 +14,7 @@ class stage_C(Game):
         if self.turnCounter == 5:
             self.turnCounter = 0
             self.colRandomize()
+            print("color change event!!!(stageC)")
         return super().pass_turn()
 
     def colRandomize(self):
