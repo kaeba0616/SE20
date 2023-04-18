@@ -566,8 +566,6 @@ class Game:
                     key = None
 
                     if self.turn_list[self.turn_index].type == "Human":
-                        ## error point
-
                         if (
                             event.type == pygame.MOUSEBUTTONDOWN
                             or event.type == pygame.KEYDOWN
@@ -826,10 +824,21 @@ class Game:
         if len(self.deck) == 0:
             print("덱이 없어서 계산을 합니다")
             win_condition = True
-            for player in self.turn_list:
-                for card in player.hand:
-                    if self.check_condition(card):
-                        win_condition = False
+
+            ## back up code
+            # for player in self.turn_list:
+            #     for card in player.hand:
+            #         if self.check_condition(card):
+            #             win_condition = False
+            ## back up code
+
+            ## test
+            for hand in self.turn_list[self.turn_index].hand:
+                if self.check_condition(hand):
+                    win_condition = False
+                    break
+
+            ##
 
             if win_condition:
                 less_point = self.calculation_point(self.me.hand)
@@ -837,9 +846,9 @@ class Game:
                     if less_point >= self.calculation_point(player.hand):
                         less_point = self.calculation_point(player.hand)
                         self.win_button.text = f"Player {player.number + 1} win !!"
+                    self.who = player
                 self.game_active = False
                 self.is_win = True
-
                 self.pause_event_handling()
 
     def next_screen(self, screen):
