@@ -21,7 +21,7 @@ class Card:
             if number is not None:  # 숫자카드
                 file_path = f"resources/images/card/normalMode/{number}/{self.color}_{number}.png"
             elif (
-                color is not None and number is None and skill is not None
+                color is not None and number is None and skill is not None and self.skill not in ["all", "all4"]
             ):  # 색깔있는 스킬카드
                 file_path = (
                     f"resources/images/card/normalMode/{skill}/{self.color}_{skill}.png"
@@ -42,7 +42,7 @@ class Card:
                     f"resources/images/card/RG/{number}/{self.color}_{number}.png"
                 )
             elif (
-                color is not None and number is None and skill is not None
+                color is not None and number is None and skill is not None and self.skill not in ["all", "all4"]
             ):  # 색깔있는 스킬카드
                 file_path = f"resources/images/card/RG/{skill}/{self.color}_{skill}.png"
             elif color is None:
@@ -59,7 +59,7 @@ class Card:
                     f"resources/images/card/YB/{number}/{self.color}_{number}.png"
                 )
             elif (
-                color is not None and number is None and skill is not None
+                color is not None and number is None and skill is not None and self.skill not in ["all", "all4"]
             ):  # 색깔있는 스킬카드
                 file_path = f"resources/images/card/YB/{skill}/{self.color}_{skill}.png"
             elif color is None:
@@ -96,6 +96,7 @@ class Card:
                 self.color is not None
                 and self.number is None
                 and self.skill is not None
+                and self.skill not in ["all", "all4"]
             ):  # 색깔있는 스킬카드
                 self.file_path = f"resources/images/card/normalMode/{self.skill}/{self.color}_{self.skill}.png"
             elif self.color is None:
@@ -117,6 +118,7 @@ class Card:
                 self.color is not None
                 and self.number is None
                 and self.skill is not None
+                and self.skill not in ["all", "all4"]
             ):  # 색깔있는 스킬카드
                 self.file_path = f"resources/images/card/RG/{self.skill}/{self.color}_{self.skill}.png"
             elif self.color is None:
@@ -136,6 +138,7 @@ class Card:
                 self.color is not None
                 and self.number is None
                 and self.skill is not None
+                and self.skill not in ["all", "all4"]
             ):  # 색깔있는 스킬카드
                 self.file_path = f"resources/images/card/YB/{self.skill}/{self.color}_{self.skill}.png"
             elif self.color is None:
