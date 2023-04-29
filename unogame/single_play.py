@@ -18,6 +18,7 @@ from models.event import *
 class Game:
     pygame.font.init()
     font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", 36)
+    clock = pygame.time.Clock()
 
     def __init__(self, screen, player_number, keys, config, soundFX):
         self.start_count = 1
@@ -191,8 +192,11 @@ class Game:
         ).convert_alpha()
         self.move_surf = pygame.transform.scale(self.move_surf, (50, 70))
         self.move_rect = self.move_surf.get_rect(
-            center=(self.screen_width, self.screen_height)
+            center=self.deck_rect.center
         )
+        self.moving = False
+        self.moving_start_time = 0
+        self.velocity = 0
 
         self.card_list = []
 
@@ -246,10 +250,6 @@ class Game:
             0,
         )
 
-        self.AI_timer = pygame.USEREVENT + 5
-        self.is_computer_turn = False
-        self.AI_timer_on = False
-
         self.uno_timer = pygame.USEREVENT + 2
         self.is_uno = False
 
@@ -257,13 +257,18 @@ class Game:
         self.is_skill_active = False
 
         self.block_timer = pygame.USEREVENT + 4
-        #
+
+        self.AI_timer = pygame.USEREVENT + 5
+        self.is_computer_turn = False
+        self.AI_timer_on = False
+
+        self.move_timer = pygame.USEREVENT + 6
+
         self.event = Event(self)
 
     def start_single_play(self):
         pygame.init()
         screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        clock = pygame.time.Clock()
 
         while self.run:
             screen.fill((50, 200, 50))
@@ -275,160 +280,16 @@ class Game:
                 self.time_button.draw(screen)
 
             for event in pygame.event.get():
-                self.event.event_loop(event, self)
+                if self.event.event_loop(event, self) == "out":
+                    return
+
             # event loop 종료
 
             self.next_screen(screen)
             pygame.display.update()
 
             # Limit the frame rate
-            clock.tick(60)
-
-    def computer_turn(self):
-        self.com_card = []
-
-        for card in self.turn_list[self.turn_index].hand:
-            if self.check_condition(card):
-                self.com_card.append(card)
-        if len(self.com_card) == 0:
-            self.draw_from_center(self.turn_list[self.turn_index].hand)
-            self.pass_turn()
-        else:
-            self.now_card = self.com_card[0]
-            self.now_card_surf = self.now_card.image
-            self.turn_list[self.turn_index].hand.remove(self.now_card)
-            self.remain.append(self.now_card)
-            if self.now_card.skill is not None:
-                # edit by sth
-                # self.skill_active(self.now_card.skill)
-                self.skill_active(self.com_card[0])
-            if self.now_card.skill not in [
-                # "change",
-                "block",
-                # "all",
-            ]:
-                self.pass_turn()
-
-    def deck_none(self):
-        if len(self.deck) == 0:
-            print("덱이 없어서 계산을 합니다")
-            win_condition = True
-            ## test
-            for hand in self.turn_list[self.turn_index].hand:
-                if self.check_condition(hand):
-                    win_condition = False
-                    break
-
-            if win_condition:
-                less_point = self.calculation_point(self.me.hand)
-                for player in self.turn_list:
-                    if less_point >= self.calculation_point(player.hand):
-                        less_point = self.calculation_point(player.hand)
-                        self.win_button.text = f"Player {player.number + 1} win !!"
-                    self.who = player
-                self.game_active = False
-                self.is_win = True
-                self.pause_event_handling()
-
-    def next_screen(self, screen):
-
-        if self.game_active:
-            ##
-            if len(self.deck):
-                screen.blit(self.deck_surf, self.deck_rect)
-            screen.blit(self.now_card_surf, self.now_card_rect)
-
-            # 누구의 턴인지 보여주는 부분
-            if self.turn_list[self.turn_index] == self.me:
-                self.now_turn_button.text = f"my turn"
-            else:
-                self.now_turn_button.text = f"PLAYER {self.turn_list[self.turn_index].number + 1}'s turn"
-            self.now_turn_button.draw(screen)
-
-            # 손패를 그려주는 부분
-            self.me.draw_hand(screen)
-
-            if self.is_color_change:
-                screen.blit(self.alpha_surface, (0, 0))
-                for color_list in self.change_color_list:
-                    screen.blit(color_list[0], color_list[1])
-                    temp_rect = pygame.Rect(
-                        color_list[1].x - 1,
-                        color_list[1].y - 1,
-                        color_list[1].width + 2,
-                        color_list[1].height + 2,
-                    )
-                    pygame.draw.rect(screen, (0, 0, 0), temp_rect, 3)
-
-            self.uno_button.draw(screen)
-            if (
-                self.now_select and self.me.turn == self.turn_index
-            ) or self.now_select == self.uno_button:
-                pygame.draw.rect(screen, (0, 0, 0), self.now_select, 3)
-
-            pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
-            for i in range(0, self.player_number):
-                self.info_list[i].draw(screen, self.player_number, i)
-
-            if self.now_card.color is not None:
-                pixel = self.now_card_surf.get_at(
-                    (
-                        self.now_card_surf.get_width() // 2,
-                        self.now_card_surf.get_height() - 1,
-                    )
-                )
-
-                self.now_button.surface.fill(pixel)
-            else:
-                self.now_button.surface.fill((80, 80, 80))
-
-            self.now_button.draw(screen)
-
-            if self.is_skill_active:
-                self.skill_active_button.draw(screen)
-        else:
-            screen.fill("green")
-            # 게임이 종료되었을 때 덱 초기화
-            for player in self.turn_list:
-                player.hand.clear()
-            self.deck.clear()
-            self.remain.clear()
-
-            if self.is_win:
-                time.sleep(1)
-                self.win_button.draw(screen)
-                screen.blit(self.retry_surf, self.retry_rect)
-            else:
-                self.start_button.draw(screen)
-                pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
-                for i in range(0, len(self.info_list)):
-                    self.info_list[i].draw(screen, self.player_number, i)
-
-            if self.edit_name:
-                screen.blit(self.alpha_surface, (0, 0))
-                rect = pygame.Rect(
-                    self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
-                )
-                pygame.draw.rect(screen, (255, 255, 255), rect)
-                name_surf = Game.font.render(
-                    "Enter Name(maximum 8)", False, (64, 64, 64)
-                )
-                name_rect = name_surf.get_rect(
-                    center=(self.screen_width // 2, self.screen_height // 2 - 20)
-                )
-                input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
-                input_rect = input_surf.get_rect(
-                    center=(self.screen_width // 2, self.screen_height // 2 + 50)
-                )
-                self.ok_button.rect.center = (
-                    self.screen_width // 2,
-                    self.screen_height // 2 + 100,
-                )
-                screen.blit(name_surf, name_rect)
-                screen.blit(input_surf, input_rect)
-                self.ok_button.draw(screen)
-
-            pygame.display.update()
+            Game.clock.tick(60)
 
     def make_screen(self):
         self.screen_width = self.screen.get_width()
@@ -502,6 +363,164 @@ class Game:
         for i, component in enumerate(self.info_list):
             component.rect.x = self.lobby_background.x
             component.rect.y = self.lobby_background.y + 100 * i
+
+    def next_screen(self, screen):
+
+        if self.game_active:
+            ##
+            if len(self.deck):
+                screen.blit(self.deck_surf, self.deck_rect)
+            screen.blit(self.now_card_surf, self.now_card_rect)
+
+            # 누구의 턴인지 보여주는 부분
+            if self.turn_list[self.turn_index] == self.me:
+                self.now_turn_button.text = f"my turn"
+            else:
+                self.now_turn_button.text = f"PLAYER {self.turn_list[self.turn_index].number + 1}'s turn"
+            self.now_turn_button.draw(screen)
+
+            # 손패를 그려주는 부분
+            self.me.draw_hand(screen)
+
+            if self.is_color_change:
+                screen.blit(self.alpha_surface, (0, 0))
+                for color_list in self.change_color_list:
+                    screen.blit(color_list[0], color_list[1])
+                    temp_rect = pygame.Rect(
+                        color_list[1].x - 1,
+                        color_list[1].y - 1,
+                        color_list[1].width + 2,
+                        color_list[1].height + 2,
+                    )
+                    pygame.draw.rect(screen, (0, 0, 0), temp_rect, 3)
+
+            self.uno_button.draw(screen)
+            if (
+                self.now_select and self.me.turn == self.turn_index
+            ) or self.now_select == self.uno_button:
+                pygame.draw.rect(screen, (0, 0, 0), self.now_select, 3)
+
+            pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
+            for i in range(0, self.player_number):
+                self.info_list[i].draw(screen, self.player_number, i)
+
+            if self.now_card.color is not None:
+                pixel = self.now_card_surf.get_at(
+                    (
+                        self.now_card_surf.get_width() // 2,
+                        self.now_card_surf.get_height() - 1,
+                    )
+                )
+
+                self.now_button.surface.fill(pixel)
+            else:
+                self.now_button.surface.fill((80, 80, 80))
+
+            self.now_button.draw(screen)
+
+            if self.is_skill_active:
+                self.skill_active_button.draw(screen)
+
+            if self.current_time == 8 and not self.moving:
+                pygame.time.set_timer(self.move_timer, 3000)
+                self.moving = True
+                self.moving_start_time = pygame.time.get_ticks()
+
+            if self.moving:
+                c_time = pygame.time.get_ticks()
+                self.card_move(self.deck_rect.center, (500, 650), c_time, 6000)
+                self.screen.blit(self.move_surf, self.move_rect)
+
+
+        else:
+            screen.fill("green")
+            # 게임이 종료되었을 때 덱 초기화
+            for player in self.turn_list:
+                player.hand.clear()
+            self.deck.clear()
+            self.remain.clear()
+
+            if self.is_win:
+                time.sleep(1)
+                self.win_button.draw(screen)
+                screen.blit(self.retry_surf, self.retry_rect)
+            else:
+                self.start_button.draw(screen)
+                pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
+                for i in range(0, len(self.info_list)):
+                    self.info_list[i].draw(screen, self.player_number, i)
+
+            if self.edit_name:
+                screen.blit(self.alpha_surface, (0, 0))
+                rect = pygame.Rect(
+                    self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
+                )
+                pygame.draw.rect(screen, (255, 255, 255), rect)
+                name_surf = Game.font.render(
+                    "Enter Name(maximum 8)", False, (64, 64, 64)
+                )
+                name_rect = name_surf.get_rect(
+                    center=(self.screen_width // 2, self.screen_height // 2 - 20)
+                )
+                input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
+                input_rect = input_surf.get_rect(
+                    center=(self.screen_width // 2, self.screen_height // 2 + 50)
+                )
+                self.ok_button.rect.center = (
+                    self.screen_width // 2,
+                    self.screen_height // 2 + 100,
+                )
+                screen.blit(name_surf, name_rect)
+                screen.blit(input_surf, input_rect)
+                self.ok_button.draw(screen)
+
+            pygame.display.update()
+
+    def computer_turn(self):
+        self.com_card = []
+
+        for card in self.turn_list[self.turn_index].hand:
+            if self.check_condition(card):
+                self.com_card.append(card)
+        if len(self.com_card) == 0:
+            self.draw_from_center(self.turn_list[self.turn_index].hand)
+            self.pass_turn()
+        else:
+            self.now_card = self.com_card[0]
+            self.now_card_surf = self.now_card.image
+            self.turn_list[self.turn_index].hand.remove(self.now_card)
+            self.remain.append(self.now_card)
+            if self.now_card.skill is not None:
+                # edit by sth
+                # self.skill_active(self.now_card.skill)
+                self.skill_active(self.com_card[0])
+            if self.now_card.skill not in [
+                # "change",
+                "block",
+                # "all",
+            ]:
+                self.pass_turn()
+
+    def deck_none(self):
+        if len(self.deck) == 0:
+            print("덱이 없어서 계산을 합니다")
+            win_condition = True
+            ## test
+            for hand in self.turn_list[self.turn_index].hand:
+                if self.check_condition(hand):
+                    win_condition = False
+                    break
+
+            if win_condition:
+                less_point = self.calculation_point(self.me.hand)
+                for player in self.turn_list:
+                    if less_point >= self.calculation_point(player.hand):
+                        less_point = self.calculation_point(player.hand)
+                        self.win_button.text = f"Player {player.number + 1} win !!"
+                    self.who = player
+                self.game_active = False
+                self.is_win = True
+                self.pause_event_handling()
 
     def block_turn(self):
         self.turn_index = (self.turn_index + 1) % len(self.turn_list)
@@ -721,6 +740,8 @@ class Game:
     def press_uno(self):
         if self.me.uno == "active" and self.is_uno:
             self.me.uno = "success"
+            print("uno success")
+        print("uno failed")
 
     def calculation_point(self, input_hand):
         point = 0
@@ -758,8 +779,14 @@ class Game:
         while self.edit_name:
             screen.blit(self.alpha_surface, (0, 0))
 
-    def card_move(self, start, end, card, clock):
-        temp = Card(None, None, None, False)
-        if card is not None:
-            temp = card
-        temp.rect.x += 100 * clock.get_time() / 1000
+    def card_move(self, start, end, current_time, duration):
+
+        elapsed_time = current_time - self.moving_start_time
+        print(elapsed_time)
+        progress = min(1, elapsed_time / duration)
+        eased_progress = (progress-1) ** 3 + 1
+
+        self.move_rect.centerx = start[0] + (end[0] - start[0]) * eased_progress
+        self.move_rect.centery = start[1] + (end[1] - start[1]) * eased_progress
+        # print(self.move_rect.center)
+

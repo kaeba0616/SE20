@@ -88,7 +88,6 @@ class Card:
 
     # def draw_now_select(self, screen):
     def change_path(self, new_config):
-        print(new_config["color"]["default"])
         if new_config["color"]["default"] == str(2):  # 색맹모드 none
             if self.number is not None:  # 숫자카드
                 self.file_path = f"resources/images/card/normalMode/{self.number}/{self.color}_{self.number}.png"

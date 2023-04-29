@@ -35,7 +35,7 @@ class Event:
                 game.me.update_hand(game.screen)
                 game.now_card_surf = game.now_card.image
                 if value == "out":
-                    return
+                    return value
         # 치트키
         #                    if event.key == pygame.K_q and game.game_active:
         #                        game.turn_list[game.turn_index].hand.clear()
@@ -54,6 +54,12 @@ class Event:
                 )
 
         # Timer 재설정 하는 event loop
+
+        if event.type == game.move_timer and game.game_active:
+            game.moving = False
+            game.move_rect.center = game.deck_rect.center
+            game.moving_start_time = 0
+            game.velocity = 0
 
         if event.type == game.AI_timer and game.game_active:
             game.is_computer_turn = True
@@ -340,7 +346,7 @@ class Event:
                                 game.now_card = pop_card
                                 game.now_card_surf = pop_card.image
 
-                        # 2. 가운데에서 카드를 가져온다 > 낼 수 있는 카드가 있다면 낸다
+                        # 2. 가운데에서 카드를 가져온다
                         if (
                                 (key == game.keys["RETURN"] and pos is None)
                                 or (game.check_collide(pos) and key is None)
