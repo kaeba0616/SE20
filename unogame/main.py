@@ -4,6 +4,8 @@ from pygame.locals import *
 from utils import *
 # from single_play import start_single_play
 from single_play import Game
+import urllib.request
+
 
 
 config = configparser.ConfigParser()
@@ -39,6 +41,7 @@ sound.playMusic(1)
 
 # Create the menu
 menu = menu.Menu(key_list, font, screen)
+multiplay = multiMenu.multiPlayMenu(key_list, font, screen)
 setting = settings.Setting(key_list, font, screen, soundFX, config)
 storyModess = storyMode.StoryModes(screen, font, config, key_list, soundFX)
 
@@ -52,17 +55,23 @@ while True:
         soundFX.soundPlay(1)
         game = Game(screen, 2, key_list, config, soundFX)
         selected = game.start_single_play()
+
     elif selected == 1:
+        print("start MultiPlay")
+        selected = multiplay.run()
+
+
+    elif selected == 2:
         soundFX.soundPlay(1)
         screen.fill((0, 0, 0))
         selected = storyModess.run()
 
-    elif selected == 2:
+    elif selected == 3:
         # Open settings menu
         soundFX.soundPlay(1)
         screen.fill((0, 0, 0))
         selected = setting.run()
-    elif selected == 3:
+    elif selected == 4:
         # Exit the program
         soundFX.soundPlay(1)
         pygame.quit()
