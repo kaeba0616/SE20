@@ -1,6 +1,7 @@
 import itertools
 import random
 import sys
+import socket, requests, re
 
 import pygame
 
@@ -47,6 +48,9 @@ class Game:
         self.is_color_change = False
         self.edit_name = False
         self.edit_text = "__________"
+        req = requests.get("http://ipconfig.kr")
+        self.hostIP = re.search(r'IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', req.text)[1]
+
 
         # color change하는 중 배경
         self.alpha_surface = pygame.Surface(
@@ -265,7 +269,7 @@ class Game:
 
         self.block_timer = pygame.USEREVENT + 4
 
-    def start_single_play(self):
+    def start_multi_play(self):
         pygame.init()
         screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         clock = pygame.time.Clock()
@@ -979,6 +983,10 @@ class Game:
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
+                CurrentIPAddress = "Host IP Address: "
+                hostText = self.font.render(CurrentIPAddress + self.hostIP, True, (0, 0, 0))
+                self.screen.blit(hostText, (self.screen.get_width() // 2 - hostText.get_width() // 2, self.screen.get_height() * 0.02))
+
                 self.start_button.draw(screen)
                 pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
                 for i in range(0, len(self.info_list)):
