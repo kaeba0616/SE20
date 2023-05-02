@@ -428,7 +428,7 @@ class Game:
 
             if self.moving:
                 c_time = pygame.time.get_ticks()
-                self.card_move(self.deck_rect.center, (500, 650), c_time, 6000)
+                self.card_move(self.deck_rect.center, self.me.hand[-1].rect.center, c_time, 3000)
                 self.screen.blit(self.move_surf, self.move_rect)
 
 
