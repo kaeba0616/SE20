@@ -5,7 +5,7 @@ import sys
 
 class Menu:
     def __init__(self, keys, font, screen):
-        self.items = ["Single Player Game", "Story Mode", "Settings", "Exit"]
+        self.items = ["Single Player Game", "Multi Player Game","Story Mode", "Settings", "Exit"]
         self.font = font
         self.screen = screen
         self.selected = 0

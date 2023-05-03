@@ -282,7 +282,7 @@ class Game:
             for event in pygame.event.get():
                 if self.event.event_loop(event, self) == "out":
                     return
-
+                  
             # event loop 종료
 
             self.next_screen(screen)
