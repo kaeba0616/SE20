@@ -4,17 +4,17 @@ import random
 import sys
 
 import pygame
+from utils.achievement import achievement as ach
 
 from pause import PauseClass
 import time
-
 
 class Event:
     pygame.init()
 
     def __init__(self, game):
         self.game = game
-
+        self.achive = game.achieve
     def event_loop(self, event, game):
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -30,14 +30,15 @@ class Event:
                 value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
                 for card in game.card_list:
                     card.change_path(game.config)
-                game.me.update_hand(game.screen)
-                game.now_card_surf = game.now_card.image
+                if game.game_active:
+                    game.me.update_hand(game.screen)
+                    game.now_card_surf = game.now_card.image
                 if value == "out":
                     return value
 
             # # 치트키
-            # if event.key == pygame.K_q and game.game_active:
-            #     game.turn_list[game.turn_index].hand.clear()
+            if event.key == pygame.K_q and game.game_active:
+                game.turn_list[game.turn_index].hand.clear()
 
             # if event.key == pygame.K_w and game.game_active:
             #     game.turn_list[2].hand.clear()
@@ -45,11 +46,11 @@ class Event:
 
         if game.is_win and not game.game_active:
             if not game.event_active:
-                pygame.time.delay(1000)
+                pygame.time.delay(500)
                 # print("event_active")
                 game.resume_event_handling()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                return game.who.number
+                return "out"
 
         # Timer 재설정 하는 event loop
 
@@ -378,6 +379,8 @@ class Event:
                     game.who = player
                     if game.who.type == "Human":
                         game.win_button.text = "You win !!"
+
+                        self.achive.singleWin()
                     else:
                         game.win_button.text = f"Player {player.number + 1} win !!"
                     game.pause_event_handling()
