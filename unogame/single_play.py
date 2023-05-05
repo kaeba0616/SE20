@@ -165,6 +165,19 @@ class Game:
             35,
             0,
         )
+
+        self.uno_active_button = Button(
+            self.screen_width / 3 + 240,
+            self.screen_height / 3 + 30,
+            50,
+            30,
+            (255, 255, 255),
+            "Uno!",
+            (64, 64, 64),
+            35,
+            0,
+        )
+
         self.info_list = []
         self.info_list.append(
             Component(
@@ -256,18 +269,20 @@ class Game:
         )
 
         self.uno_timer = pygame.USEREVENT + 2
+        self.uno_active_timer = pygame.USEREVENT + 3
         self.is_uno = False
+        self.uno_pressed = False
 
-        self.skill_active_timer = pygame.USEREVENT + 3
+        self.skill_active_timer = pygame.USEREVENT + 4
         self.is_skill_active = False
 
-        self.block_timer = pygame.USEREVENT + 4
+        self.block_timer = pygame.USEREVENT + 5
 
-        self.AI_timer = pygame.USEREVENT + 5
+        self.AI_timer = pygame.USEREVENT + 6
         self.is_computer_turn = False
         self.AI_timer_on = False
 
-        self.move_timer = pygame.USEREVENT + 6
+        self.move_timer = pygame.USEREVENT + 7
 
         self.event = Event(self)
 
@@ -305,6 +320,9 @@ class Game:
 
         self.uno_button.rect.x = self.deck_rect.centerx + 150
         self.uno_button.rect.y = self.deck_rect.centery + 30
+
+        self.uno_active_button.rect.x = self.deck_rect.centerx + 150
+        self.uno_active_button.rect.y = self.deck_rect.centery + 70
 
         self.retry_rect.centerx = self.screen_width / 2
         self.retry_rect.centery = self.screen_height / 2 + 50
@@ -438,7 +456,8 @@ class Game:
                     self.deck_rect.center, self.me.hand[-1].rect.center, c_time, 3000
                 )
                 self.screen.blit(self.move_surf, self.move_rect)
-
+            if self.uno_pressed:
+                self.uno_active_button.draw(screen)
         else:
             screen.fill("green")
             # 게임이 종료되었을 때 덱 초기화
@@ -737,7 +756,7 @@ class Game:
             self.turn_list[self.turn_index].uno = "unactive"
 
         # 일반카드를 냈을 때도 텍스트가 뜨는 코드 > 바꿔야함
-        pygame.time.set_timer(self.skill_active_timer, 3000)
+        pygame.time.set_timer(self.skill_active_timer, 2000)
 
     def check_collide(self, pos):
         # print("check_collide")
@@ -752,10 +771,21 @@ class Game:
             return False
 
     def press_uno(self):
-        if self.me.uno == "active" and self.is_uno:
-            self.me.uno = "success"
-            print("uno success")
-        print("uno failed")
+        self.uno_pressed = True
+        pygame.time.set_timer(self.uno_active_timer, 1000)
+        if self.is_uno:
+            if self.me.uno == "active":
+                self.me.uno = "success"
+                self.uno_active_button.text = "UNO success"
+                print("uno defence success")
+
+            for player in self.turn_list:
+                if player != self.me and player.uno == "active":
+                    self.draw_card(player.hand)
+                    player.uno = "unactive"
+                    self.uno_active_button.text = "UNO attack success"
+        else:
+            self.uno_active_button.text = "nobody UNO"
 
     def calculation_point(self, input_hand):
         point = 0
@@ -795,7 +825,6 @@ class Game:
 
     def card_move(self, start, end, current_time, duration):
         elapsed_time = current_time - self.moving_start_time
-        print(elapsed_time)
         progress = min(1, elapsed_time / duration)
         eased_progress = (progress - 1) ** 3 + 1
 
