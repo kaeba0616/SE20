@@ -8,16 +8,14 @@ import pygame
 from pause import PauseClass
 import time
 
-class Event:
 
+class Event:
     pygame.init()
 
     def __init__(self, game):
         self.game = game
 
     def event_loop(self, event, game):
-
-
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -36,12 +34,14 @@ class Event:
                 game.now_card_surf = game.now_card.image
                 if value == "out":
                     return value
-        # 치트키
-        #                    if event.key == pygame.K_q and game.game_active:
-        #                        game.turn_list[game.turn_index].hand.clear()
-        #
-        #                    if event.key == pygame.K_w and game.game_active:
-        #                        game.turn_list[2].hand.clear()
+
+            # # 치트키
+            # if event.key == pygame.K_q and game.game_active:
+            #     game.turn_list[game.turn_index].hand.clear()
+
+            # if event.key == pygame.K_w and game.game_active:
+            #     game.turn_list[2].hand.clear()
+            # # 치트키
 
         if game.is_win and not game.game_active:
             if not game.event_active:
@@ -49,9 +49,7 @@ class Event:
                 # print("event_active")
                 game.resume_event_handling()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                return (
-                    game.who.number
-                )
+                return game.who.number
 
         # Timer 재설정 하는 event loop
 
@@ -96,22 +94,18 @@ class Event:
             game.current_time -= 1
 
         if (
-                event.type == game.skill_active_timer
-                and game.game_active
-                and not game.is_win
+            event.type == game.skill_active_timer
+            and game.game_active
+            and not game.is_win
         ):
             game.is_skill_active = False
-        if (
-                event.type == game.block_timer
-                and game.game_active
-                and not game.is_win
-        ):
+        if event.type == game.block_timer and game.game_active and not game.is_win:
             for component in game.info_list:
                 component.is_block = False
         elif (
-                event.type == pygame.MOUSEBUTTONUP
-                and game.start_button.rect.collidepoint(event.pos)
-                and not game.edit_name
+            event.type == pygame.MOUSEBUTTONUP
+            and game.start_button.rect.collidepoint(event.pos)
+            and not game.edit_name
         ):
             if not game.game_active:
                 game.game_active = True
@@ -127,14 +121,14 @@ class Event:
         if event.type == pygame.MOUSEBUTTONDOWN and not game.game_active:
             for i in range(2, len(game.info_list)):
                 if (
-                        game.info_list[i].is_clicked(event.pos)
-                        and game.info_list[i].text != "EMPTY"
+                    game.info_list[i].is_clicked(event.pos)
+                    and game.info_list[i].text != "EMPTY"
                 ):
                     if game.player_number > 2:
                         game.player_number -= 1
                 elif (
-                        game.info_list[i].is_clicked(event.pos)
-                        and game.info_list[i].text == "EMPTY"
+                    game.info_list[i].is_clicked(event.pos)
+                    and game.info_list[i].text == "EMPTY"
                 ):
                     if game.player_number <= 5:
                         game.player_number += 1
@@ -182,9 +176,9 @@ class Event:
         # 카드에 마우스커서를 올렸을 때 애니메이션 > 리팩토링
 
         if (
-                event.type == pygame.MOUSEMOTION
-                and game.game_active
-                and not game.is_color_change
+            event.type == pygame.MOUSEMOTION
+            and game.game_active
+            and not game.is_color_change
         ):
             for card in game.me.hand:
                 if card.rect.collidepoint(event.pos):
@@ -199,18 +193,18 @@ class Event:
                     else:
                         game.now_select = rect
         elif (
-                event.type == pygame.MOUSEMOTION
-                and game.game_active
-                and not game.is_color_change
+            event.type == pygame.MOUSEMOTION
+            and game.game_active
+            and not game.is_color_change
         ):
             if game.uno_button.rect.collidepoint(event.pos):
                 game.now_select = game.uno_button
         # 키보드 입력을 정의
         if (
-                event.type == pygame.KEYDOWN
-                and game.game_active
-                and not game.is_color_change
-                and game.me.type == "Human"
+            event.type == pygame.KEYDOWN
+            and game.game_active
+            and not game.is_color_change
+            and game.me.type == "Human"
         ):
             if event.key == game.keys["RIGHT"]:
                 if game.now_select is None:
@@ -220,14 +214,12 @@ class Event:
                 elif game.now_select == game.uno_button and len(game.deck) != 0:
                     game.now_select = game.deck_rect
 
-                elif (
-                        len(game.me.hand) == game.me.hand.index(game.now_select) + 1
-                ):
+                elif len(game.me.hand) == game.me.hand.index(game.now_select) + 1:
                     game.now_select = game.me.hand[0]
                 else:
                     game.now_select = game.me.hand[
                         game.me.hand.index(game.now_select) + 1
-                        ]
+                    ]
 
             elif event.key == game.keys["LEFT"]:
                 if game.now_select is None:
@@ -243,7 +235,7 @@ class Event:
                 else:
                     game.now_select = game.me.hand[
                         game.me.hand.index(game.now_select) - 1
-                        ]
+                    ]
 
             elif event.key == game.keys["UP"]:
                 if game.now_select is None:
@@ -272,10 +264,10 @@ class Event:
                 ]:
                     game.now_select = game.me.hand[0]
         elif (
-                event.type == pygame.KEYDOWN
-                and game.game_active
-                and not game.is_color_change
-                and game.me.turn != game.turn_index
+            event.type == pygame.KEYDOWN
+            and game.game_active
+            and not game.is_color_change
+            and game.me.turn != game.turn_index
         ):
             if event.key:
                 game.now_select = game.uno_button
@@ -310,10 +302,7 @@ class Event:
             key = None
 
             if game.turn_list[game.turn_index].type == "Human":
-                if (
-                        event.type == pygame.MOUSEBUTTONDOWN
-                        or event.type == pygame.KEYDOWN
-                ):
+                if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
                     if event.type == pygame.KEYDOWN:
                         key = event.key
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -324,14 +313,12 @@ class Event:
                     # 1. 낼 수 있는 카드를 낸다
 
                     if (key == game.keys["RETURN"]) or (
-                            game.check_collide(pos) and key is None
+                        game.check_collide(pos) and key is None
                     ):
                         if game.now_select in game.me.hand:
                             if game.check_condition(game.now_select):
                                 pop_card = game.now_select
-                                game.turn_list[game.turn_index].hand.remove(
-                                    pop_card
-                                )
+                                game.turn_list[game.turn_index].hand.remove(pop_card)
                                 game.now_select = None
                                 # game.remain.append(pop_card)
                                 if pop_card.skill is not None:
@@ -348,14 +335,12 @@ class Event:
 
                         # 2. 가운데에서 카드를 가져온다
                         if (
-                                (key == game.keys["RETURN"] and pos is None)
-                                or (game.check_collide(pos) and key is None)
-                                and game.now_select == game.deck_rect
-                                and not game.is_get
+                            (key == game.keys["RETURN"] and pos is None)
+                            or (game.check_collide(pos) and key is None)
+                            and game.now_select == game.deck_rect
+                            and not game.is_get
                         ):
-                            game.draw_from_center(
-                                game.turn_list[game.turn_index].hand
-                            )
+                            game.draw_from_center(game.turn_list[game.turn_index].hand)
                             game.now_select = None
                             game.pass_turn()
                             game.next_screen(game.screen)
@@ -378,10 +363,10 @@ class Event:
 
             # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
             if (
-                    (key == game.keys["RETURN"] and pos is None)
-                    or (game.check_collide(pos) and key is None)
-                    and game.now_select == game.uno_button
-                    and game.is_uno
+                (key == game.keys["RETURN"] and pos is None)
+                or (game.check_collide(pos) and key is None)
+                and game.now_select == game.uno_button
+                and game.is_uno
             ):
                 game.press_uno()
             # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
@@ -391,8 +376,10 @@ class Event:
                     game.is_win = True
 
                     game.who = player
-
-                    game.win_button.text = f"Player {player.number + 1} win !!"
+                    if game.who.type == "Human":
+                        game.win_button.text = "You win !!"
+                    else:
+                        game.win_button.text = f"Player {player.number + 1} win !!"
                     game.pause_event_handling()
 
             # # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리

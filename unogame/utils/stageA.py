@@ -4,7 +4,6 @@ from models.card import Card
 from models.button import Button
 from models.Human import Human
 from models.AI import AI
-import pygame
 
 
 class stage_A(Game):
@@ -140,7 +139,7 @@ class stage_A(Game):
                 # self.skill_active(self.now_card.skill)
                 self.skill_active(self.com_card[0])
 
-            if self.now_card.skill is "change":
+            if self.now_card.skill == "change":
                 self.computer_turn()
 
             if self.now_card.skill not in [
@@ -149,3 +148,6 @@ class stage_A(Game):
                 # "all",
             ]:
                 self.pass_turn()
+
+    def checkAchieve(self):
+        self.achieve.stageAClear()
