@@ -29,3 +29,6 @@ class stage_C(Game):
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
+
+    def checkAchieve(self):
+        self.achieve.stageCClear()

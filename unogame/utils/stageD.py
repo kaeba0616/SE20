@@ -15,3 +15,6 @@ class stage_D(Game):
 
         for i in range(startCards):
             self.draw_card(player.hand)
+
+    def checkAchieve(self):
+        self.achieve.stageDClear()

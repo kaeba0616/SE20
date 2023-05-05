@@ -125,3 +125,6 @@ class stage_B(Game):
 
         self.is_skill_active = True
         pygame.time.set_timer(self.skill_active_timer, 3000)
+
+    def checkAchieve(self):
+        self.achieve.stageBClear()

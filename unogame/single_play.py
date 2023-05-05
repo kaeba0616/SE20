@@ -15,12 +15,19 @@ import time
 
 from models.event import *
 
+from utils.achievement import achievement
+
+
 class Game:
     pygame.font.init()
     font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", 36)
     clock = pygame.time.Clock()
 
     def __init__(self, screen, player_number, keys, config, soundFX):
+        # lms
+        self.achieve = achievement(screen)
+        # lms
+
         self.start_count = 1
 
         self.screen_width = screen.get_width()
@@ -191,9 +198,7 @@ class Game:
             "resources/images/card/normalMode/backcard.png"
         ).convert_alpha()
         self.move_surf = pygame.transform.scale(self.move_surf, (50, 70))
-        self.move_rect = self.move_surf.get_rect(
-            center=self.deck_rect.center
-        )
+        self.move_rect = self.move_surf.get_rect(center=self.deck_rect.center)
         self.moving = False
         self.moving_start_time = 0
         self.velocity = 0
@@ -365,7 +370,6 @@ class Game:
             component.rect.y = self.lobby_background.y + 100 * i
 
     def next_screen(self, screen):
-
         if self.game_active:
             ##
             if len(self.deck):
@@ -376,7 +380,9 @@ class Game:
             if self.turn_list[self.turn_index] == self.me:
                 self.now_turn_button.text = f"my turn"
             else:
-                self.now_turn_button.text = f"PLAYER {self.turn_list[self.turn_index].number + 1}'s turn"
+                self.now_turn_button.text = (
+                    f"PLAYER {self.turn_list[self.turn_index].number + 1}'s turn"
+                )
             self.now_turn_button.draw(screen)
 
             # 손패를 그려주는 부분
@@ -428,9 +434,10 @@ class Game:
 
             if self.moving:
                 c_time = pygame.time.get_ticks()
-                self.card_move(self.deck_rect.center, self.me.hand[-1].rect.center, c_time, 3000)
+                self.card_move(
+                    self.deck_rect.center, self.me.hand[-1].rect.center, c_time, 3000
+                )
                 self.screen.blit(self.move_surf, self.move_rect)
-
 
         else:
             screen.fill("green")
@@ -516,10 +523,19 @@ class Game:
                 for player in self.turn_list:
                     if less_point >= self.calculation_point(player.hand):
                         less_point = self.calculation_point(player.hand)
-                        self.win_button.text = f"Player {player.number + 1} win !!"
+
+                        # self.win_button.text = f"Player {player.number + 1} win !!"
                     self.who = player
+                # lms
+                if self.who.type == "Human":
+                    self.win_button.text = f"You win !!"
+                else:
+                    self.win_button.text = f"Player {self.who.number + 1} win !!"
+                # lms
+
                 self.game_active = False
                 self.is_win = True
+
                 self.pause_event_handling()
 
     def block_turn(self):
@@ -623,7 +639,6 @@ class Game:
             self.draw_card(player.hand)
 
     def check_condition(self, input_card):
-
         now = self.now_card
 
         if input_card.is_wild or now.is_wild:
@@ -709,7 +724,6 @@ class Game:
         )
 
     def pass_turn(self):
-
         self.turn_index += 1
         if self.turn_index == len(self.turn_list):
             self.turn_index = 0
@@ -780,13 +794,14 @@ class Game:
             screen.blit(self.alpha_surface, (0, 0))
 
     def card_move(self, start, end, current_time, duration):
-
         elapsed_time = current_time - self.moving_start_time
         print(elapsed_time)
         progress = min(1, elapsed_time / duration)
-        eased_progress = (progress-1) ** 3 + 1
+        eased_progress = (progress - 1) ** 3 + 1
 
         self.move_rect.centerx = start[0] + (end[0] - start[0]) * eased_progress
         self.move_rect.centery = start[1] + (end[1] - start[1]) * eased_progress
         # print(self.move_rect.center)
 
+    def checkAchieve(self):
+        self.achieve.singleWin()
