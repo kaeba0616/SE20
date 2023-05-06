@@ -17,7 +17,7 @@ class StoryModes:
         self.font = font                                                            # 폰트
         self.soundFX = soundFX
 
-        self.stages = ["Stage1", "Stage2", "Stage3", "Stage4"]                      # stage 이름
+        self.stages = ["StageA", "StageB", "StageC", "StageD"]                      # stage 이름
         self.back = ["Go back"]                                                     # Go back 버튼 이름
         self.current_stage = 0                                                      # 현재 커서의 가로 위치
         self.current_UpDown = 0                                                     # 현재 커서의 세로 위치
@@ -153,7 +153,7 @@ on the first distribution.""")
                 elif event.type == pygame.KEYDOWN:
                     if event.key == self.key["LEFT"] or event.key == self.key["RIGHT"]:
                         selected += 1
-                    selected = selected % 2
+                        selected = selected % 2
                     if event.key == self.key["RETURN"] and selected == 0:
                         print("Play click!")
                         

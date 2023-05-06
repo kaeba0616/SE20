@@ -1,7 +1,7 @@
 import pygame, configparser
 import sys
 from pygame.locals import *
-from utils import menu , settings, sound 
+from utils import menu , settings, sound, achieveMenu
 
 
 
@@ -12,7 +12,7 @@ class PauseClass:
         self.font = font                                                            # 폰트
         self.title_font = pygame.font.SysFont(None, 72)
         self.key_font = pygame.font.SysFont(None, 48)
-        self.items = ['Resume', 'Settings', 'Return to menu']
+        self.items = ['Resume', 'Settings', 'Achievement','Return to menu']
         self.title_text = self.title_font.render("PAUSE", True, (255, 255, 255))
         self.keys = key
         self.selected = 0
@@ -65,7 +65,11 @@ class PauseClass:
                         elif self.selected == 1:                                    # Settings 선택 -> 설정 화면으로
                             setting = settings.Setting(self.keys, self.font, self.screen, self.soundFX, self.config)
                             num = setting.run()
-                        elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로  // 어려워서 그냥 종료로 함..
+                        elif self.selected == 2:
+                            print("achieve")
+                            achieve = achieveMenu.achieveMenu(self.keys, self.font, self.screen, self.config, self.soundFX)
+                            num = achieve.run()
+                        elif self.selected == 3:                                    # Return to menu 선택 -> 메뉴 화면으로
                             return "out"
                     elif event.key == self.keys["ESCAPE"]:                          # 게임 계속 진행하기
                         return
@@ -89,7 +93,10 @@ class PauseClass:
                                 elif self.selected == 1:                                    # Settings 선택 -> 설정 화면으로
                                     setting = settings.Setting(self.keys, self.font, self.screen, self.soundFX, self.config)
                                     num = setting.run()
-                                elif self.selected == 2:                                    # Return to menu 선택 -> 메뉴 화면으로
+                                elif self.selected == 2:
+                                    print("achieve")
+                                    achieve = achieveMenu.achieveMenu(self.keys, self.font, self.screen, self.config, self.soundFX)
+                                elif self.selected == 3:                                    # Return to menu 선택 -> 메뉴 화면으로
                                     return "out"
             
             # 화면 채우기

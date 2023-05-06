@@ -103,6 +103,7 @@ class multiPlayMenu:
                             print(self.text)                                    # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
                             self.text = ''                                      # Todo: 비밀번호가 있으면 입력
                         elif self.selected == 1:
+                            self.text = ''
                             self.option = 'menu'
                     elif event.key == pygame.K_BACKSPACE:
                         self.text = self.text[:-1]
@@ -159,6 +160,7 @@ class multiPlayMenu:
                                     print(self.text)                            # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
                                     self.text = ''
                                 elif i == 1:
+                                    self.text = ''
                                     self.option = 'menu'
 
             # Draw the menu

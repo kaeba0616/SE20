@@ -44,6 +44,7 @@ menu = menu.Menu(key_list, font, screen)
 multiplay = multiMenu.multiPlayMenu(key_list, font, screen, config, soundFX)
 setting = settings.Setting(key_list, font, screen, soundFX, config)
 storyModess = storyMode.StoryModes(screen, font, config, key_list, soundFX)
+achieve = achieveMenu.achieveMenu(key_list, font, screen, config, soundFX)
 
 # Main loop
 while True:
@@ -67,11 +68,14 @@ while True:
         selected = storyModess.run()
 
     elif selected == 3:
+        selected = achieve.run()
+
+    elif selected == 4:
         # Open settings menu
         soundFX.soundPlay(1)
         screen.fill((0, 0, 0))
         selected = setting.run()
-    elif selected == 4:
+    elif selected == 5:
         # Exit the program
         soundFX.soundPlay(1)
         pygame.quit()
