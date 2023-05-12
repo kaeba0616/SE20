@@ -14,216 +14,73 @@ class StoryModes:
 
     def __init__(self, screen, font, config, key, soundFX):
         self.screen = screen                                                        # 게임의 스크린
-        self.font = font                                                            # 폰트
         self.soundFX = soundFX
-
-        self.stages = ["StageA", "StageB", "StageC", "StageD"]                      # stage 이름
-        self.back = ["Go back"]                                                     # Go back 버튼 이름
         self.current_stage = 0                                                      # 현재 커서의 가로 위치
-        self.current_UpDown = 0                                                     # 현재 커서의 세로 위치
-        self.text_color = (255, 255, 255)                                           # 텍스트 색깔
-        self.note = []
-        # self.note = ["Stage 1 description", "Stage 2 description", "Stage 3 description", "Stage 4 description"]    # 적 설명
-        self.items = ['Play', 'Back']                                               # 스테이지 선택 시 play or back
-        self.WIDTH = self.screen.get_width()
-        self.HEIGHT = self.screen.get_height()
         self.config = config
+        self.stages = ['stageA', 'stageB', 'stageC', 'stageD']
         self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])),
-                            bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])),
-                            True]                                                   # stage 클리어 변수 설정
+                            bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4']))]
+        self.stage_open = [bool(int(self.config['open']['stage1'])), bool(int(self.config['open']['stage2'])),
+                            bool(int(self.config['open']['stage3'])), bool(int(self.config['open']['stage4']))]
         self.key = key
-        self.window_size = int(self.config['window']['default'])
-        self.background = [pygame.image.load('./images/storymode/stageA.png'), pygame.image.load('./images/storymode/stageB.png'),
-                           pygame.image.load('./images/storymode/stageC.png'), pygame.image.load('./images/storymode/stageD.png')]
+        self.window = int(self.config['window']['default'])
+        self.visible = 'main'
 
-        self.screen.blit(self.background[0], (0, 0))
+        # 이미지
+        self.background = [pygame.image.load('./resources/images/storymode/stageA.png'), pygame.image.load('./resources/images/storymode/stageB.png'),
+                           pygame.image.load('./resources/images/storymode/stageC.png'), pygame.image.load('./resources/images/storymode/stageD.png')]
+        self.memo = [pygame.image.load('./resources/images/storymode/memoA.png'), pygame.image.load('./resources/images/storymode/memoB.png'),
+                    pygame.image.load('./resources/images/storymode/memoC.png'), pygame.image.load('./resources/images/storymode/memoD.png')]
+        self.check = pygame.image.load('./resources/images/storymode/check.png')
+        self.game_start = pygame.image.load('./resources/images/storymode/gamestart.png')
+
+
+        self.ratio = 1
+        
+        self.latestClear = 0                                # 제일 마지막으로 깬 단계
+        self.x0, self.x1, self.x2, self.x3 = 125, 292, 570, 846
+        self.y0, self.y1, self.y2, self.y3 = 188, 350, 198, 260
+        self.radius = 40
+        self.x_pos_list = [self.x0 * self.ratio, self.x1 * self.ratio, self.x2 * self.ratio, self.x3 * self.ratio]
+        self.y_pos_list = [self.y0 * self.ratio, self.y1 * self.ratio, self.y2 * self.ratio, self.y3 * self.ratio]
+
+        self.x4, self.y4 = 28, 666
+        self.x5, self.y5 = 107, 473
+
+        self.memo_x, self.memo_y = 652, 501
+        self.start_x, self.start_y = 215, 530
+        for i in range(4):
+            if self.stage_clear[i] == False:
+                self.latestClear = i
+                break
+
+
+        self.screen.blit(self.background[self.latestClear], (0, 0))
 
     def draw(self):
-        self.screen.blit(self.background[0], (0, 0))
-        # 스토리 모드 지도 구현
-        x_pos_list = [(self.screen.get_width() // 5) * i for i in range(1, 5)]             # 동그라미를 1/5, 2/5, ... 에 위치하게 함
-        y_pos = self.screen.get_height() // 2 - (self.screen.get_height() // 7)
-        for i, stage in enumerate(self.stages):
-            # 스테이지 안깬거는 회색, 깬거는 흰색
-            pygame.draw.circle(self.screen, (255, 255, 255) if self.stage_clear[i] == True else (100, 100, 100), (x_pos_list[i], y_pos), 30)
-            stage_name = self.font.render(self.stages[i], True, (255, 255, 255))
-            # self.font.render("Go back", True, (255, 255, 255) if self.stage_clear[i] == True else (100, 100, 100))
 
-            # 현재 위치면 빨간색으로
-            if self.current_stage == i and self.current_UpDown == 0:
-                pygame.draw.circle(self.screen, (255, 0, 0), (x_pos_list[i], y_pos), 30)
+        # 배경화면
+        for i in range(4):
+            if self.stage_clear[i] == False:
+                self.latestClear = i
+                break
+            elif self.stage_clear[3] == True:
+                self.latestClear = 3
+                
+        self.screen.blit(self.background[self.latestClear], (0, 0))
 
-            elif self.current_stage == i and self.current_UpDown == 1:
-                 pygame.draw.circle(self.screen, (255, 255, 255), (x_pos_list[i], y_pos), 30)
-            self.screen.blit(
-                stage_name,
-                (
-                (self.screen.get_width() // 5) * (i+1) - stage_name.get_width() // 2,
-                y_pos + self.screen.get_height() // 10
-                )
-            )
-        font = self.font.render("Go back", True, (255, 255, 255) if self.current_UpDown == 0 else (255, 0, 0))
-        self.screen.blit(font, (self.screen.get_width() // 2 - font.get_width() // 2, self.screen.get_height() * 3 // 4))
+        # 체크 표시
+        for i in range(4):
+            if self.stage_clear[i] == True:
+                
+                self.screen.blit(self.check, (self.x_pos_list[i] - self.check.get_width() // 2, self.y_pos_list[i] - self.check.get_height() // 2.3))
 
-    def description(self, num, selected):
-        self.screen.blit(self.background[0], (0, 0))
-
-        # 맵 선택시 나오는 play or back
-        for i, item in enumerate(self.items):
-            text = self.font.render(
-                item, True, (255, 255, 255) if i != selected else (255, 0, 0)
-            )
-            if i == 0:
-                self.screen.blit(
-                    text, 
-                    (self.screen.get_width() * 0.4 - text.get_width() // 2,
-                    self.screen.get_height() * 0.75 - text.get_height() // 2)
-                )
-            else:
-                self.screen.blit(
-                    text, (
-                    self.screen.get_width() * 0.6 - text.get_width() // 2,
-                    self.screen.get_height() * 0.75 - text.get_height() // 2
-                    )
-                )
-
-        if int(self.config['window']['default']) == 1:
-            new_font = pygame.font.SysFont(None, 30)
-            set_y = 30
-        elif int(self.config['window']['default']) == 2:
-            new_font = pygame.font.SysFont(None, 48)
-            set_y = 48
-        elif int(self.config['window']['default']) == 3:
-            new_font = pygame.font.SysFont(None, 60)
-            set_y = 60
-
-
-        # 맵 선택시 나오는 설명
-        lines = self.note[num].splitlines()
-        for i, l in enumerate(lines):
-            self.screen.blit(new_font.render(l, True, (255, 255, 255)),
-                             (
-            self.screen.get_width() // 2 - new_font.render(l, True, (255, 255, 255)).get_width() // 2,
-            self.screen.get_height() * 0.2 - new_font.render(l, True, (255, 255, 255)).get_height() // 2 + set_y * i
-                )
-            )
-
-
-    def description_draw(self, num):
-        clock = pygame.time.Clock()
-        running = True
-        selected = 0
-        text1 = self.font.render("Play", True, (255, 255, 255))
-        text2 = self.font.render("Back", True, (255, 255, 255))
-
-        text1_rect = text1.get_rect()
-        text2_rect = text2.get_rect()
-        text1_rect.topleft = (self.screen.get_width() * 0.4 - text1.get_width() // 2,
-                    self.screen.get_height() * 0.75 - text1.get_height() // 2)
-        text2_rect.topleft = (self.screen.get_width() * 0.6 - text2.get_width() // 2,
-                    self.screen.get_height() * 0.75 - text2.get_height() // 2)
-        while running:
-            self.description(num, selected)
-            for event in pygame.event.get():
-                pos = pygame.mouse.get_pos()
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == self.key["LEFT"] or event.key == self.key["RIGHT"]:
-                        selected += 1
-                        selected = selected % 2
-                    if event.key == self.key["RETURN"] and selected == 0:
-                        print("Play click!")
-                        
-                        print(num)
-                        if num == 0:            # 스테이지 A 선택 + Play
-                            stage = stageA.stage_A(self.screen, 2, self.key, self.config, self.soundFX)
-                            win = stage.start_single_play()
-                            if win != 0:
-                                return
-                        elif num == 1:          # 스테이지 B 선택 + Play
-                            stage = stageB.stage_B(self.screen, 4, self.key, self.config, self.soundFX)
-                            win = stage.start_single_play()
-                            if win != 0:
-                                return
-
-                        elif num == 2:          # 스테이지 C 선택 + Play
-                            stage = stageC.stage_C(self.screen, 3, self.key, self.config, self.soundFX)
-                            win = stage.start_single_play()
-                            if win != 0:
-                                return
-                        elif num == 3:          # 스테이지 D 선택 + Play
-                            stage = stageD.stage_D(self.screen, 2, self.key, self.config, self.soundFX)
-                            win = stage.start_single_play()
-                            if win != 0:
-                                return
-
-                        # 승리 시, 다음 스테이지를 열게함
-                        self.config['clear'][f'stage{num + 2}'] = str(1)
-                        with open('setting_data.ini', 'w') as f:
-                            self.config.write(f)
-                        self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
-                        return
-                    
-
-                    elif event.key == self.key["RETURN"] and selected == 1:
-                        print("Back click!")
-                        return
-                    
-
-                elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
-                    if text1_rect.collidepoint(pos):
-                        if event.type == MOUSEMOTION:
-                            selected = 0
-                        if event.type == MOUSEBUTTONUP:
-                            if num == 0:            # 스테이지 A 선택 + Play
-                                stage = stageA.stage_A(self.screen, 2, self.key, self.config, self.soundFX)
-                                win = stage.start_single_play()
-                                if win != 0:
-                                    return
-                            elif num == 1:          # 스테이지 B 선택 + Play
-                                stage = stageB.stage_B(self.screen, 4, self.key, self.config, self.soundFX)
-                                win = stage.start_single_play()
-                                if win != 0:
-                                    return
-
-                            elif num == 2:          # 스테이지 C 선택 + Play
-                                stage = stageC.stage_C(self.screen, 3, self.key, self.config, self.soundFX)
-                                win = stage.start_single_play()
-                                if win != 0:
-                                    return
-                            elif num == 3:          # 스테이지 D 선택 + Play
-                                stage = stageD.stage_D(self.screen, 2, self.key, self.config, self.soundFX)
-                                win = stage.start_single_play()
-                                if win != 0:
-                                    return
-                            
-                            self.config['clear'][f'stage{num + 2}'] = str(1)
-                            with open('setting_data.ini', 'w') as f:
-                                self.config.write(f)
-                            self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4'])), True]
-                            return
-                            '''
-                            Todo
-                            대전하기 만들기
-                            '''
-                    elif text2_rect.collidepoint(pos):
-                        if event.type == MOUSEMOTION:
-                            selected = 1
-                        if event.type == MOUSEBUTTONUP:
-                            print(f"Back click!")
-                            return
-                            '''
-                            Todo
-                            대전하기 만들기
-                            '''
-
-            # Update the screen
-            pygame.display.update()
-
-            # Limit the frame rate
-            clock.tick(60) 
+        # 게임 시작, 메모 표시
+        if self.visible != 'main':   # self.current_stage
+            
+            self.screen.blit(self.memo[self.visible], (self.memo_x - self.memo[self.visible].get_width() // 2, self.memo_y - self.memo[self.visible].get_height() // 2))
+            
+            self.screen.blit(self.game_start, (self.start_x - self.game_start.get_width() // 2, self.start_y - self.game_start.get_height() // 2))
 
 
 
@@ -232,66 +89,86 @@ class StoryModes:
         clock = pygame.time.Clock()
         running = True
         while running:
+            # self.ratio = self.screen.get_height() / self.background[self.latestClear].get_height()
+
+            # self.x0, self.x1, self.x2, self.x3, self.x4, self.radius, self.x5, self.memo_x, self.start_x = [x * self.ratio for x in [self.x0, self.x1, self.x2, self.x3, self.x4, self.radius, self.x5, self.memo_x, self.start_x]]
+
+            self.x_pos_list = [self.x0, self.x1, self.x2, self.x3]
+            # self.y0, self.y1, self.y2, self.y3, self.y4, self.y5, self.memo_y, self.start_y = [x * self.ratio for x in [self.y0, self.y1, self.y2, self.y3, self.y4, self.y5, self.memo_y, self.start_y]]
+
+            self.y_pos_list = [self.y0, self.y1, self.y2, self.y3]
             # 이벤트 처리
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == self.key["LEFT"]:
-                        next = (self.current_stage - 1) % len(self.stages)
-                        while self.stage_clear[next] == False:
-                            next = (next - 1) % len(self.stages)
-                        self.current_stage = next
-                                
-                    elif event.key == self.key["RIGHT"]:
-                        next = (self.current_stage + 1) % len(self.stages)
-                        while self.stage_clear[next] == False:
-                            next = (next + 1) % len(self.stages)
-                        self.current_stage = next
-                    
-                    elif event.key == self.key["UP"] or event.key == self.key["DOWN"]:
-                        if self.current_UpDown == 0:
-                            self.current_UpDown = 1
-                        else:
-                            self.current_UpDown = 0
-
-                    elif event.key == pygame.K_ESCAPE:
+                    if event.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-                    elif event.key == self.key["RETURN"]:
-                        
-                        if self.current_UpDown == 1:
-                            print(f"Go Back click!")
-                            self.screen.fill((0, 0, 0))
-                            return 0
-                        else:
-                            print(f"{self.stages[self.current_stage]} click!")
-                            self.description_draw(self.current_stage)
-
 
                 elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
-                    text = self.font.render("Go back", True, (255, 255, 255))
-                    text_rect = text.get_rect()
-                    text_rect.topleft = (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() * 3 // 4)
-                    for i, stage in enumerate(self.stages):
-                        circle_rect = pygame.Rect((self.screen.get_width() // 5) * (i+1) - 30, self.screen.get_height() // 2 - (self.screen.get_height() // 7) - 30, 60, 60)
-                        if circle_rect.collidepoint(pos) and self.stage_clear[i]:
+                    back_rect = pygame.Rect(self.x4, self.y4, 100, 50)
+                    if back_rect.collidepoint(pos):
+                        if event.type == MOUSEBUTTONUP:
+                            print("Go Back click!")
+                            self.visible = 'main'
+                            return 0
+                    for i in range(4):
+                        circle_rect = pygame.Rect(self.x_pos_list[i] - self.radius, self.y_pos_list[i] - self.radius, self.radius * 2, self.radius * 2)
+                        if circle_rect.collidepoint(pos) and self.stage_open[i]:
                             if event.type == MOUSEMOTION:
-                                self.current_UpDown = 0
                                 self.current_stage = i
                             elif event.type == MOUSEBUTTONUP:
                                 print(f"{self.stages[self.current_stage]} click!")
-                                self.description_draw(self.current_stage)
-                        elif text_rect.collidepoint(pos):
-                            if event.type == MOUSEMOTION:
-                                self.current_UpDown = 1
-                            elif event.type == MOUSEBUTTONUP:
-                                print("Go Back click!")
-                                if self.current_UpDown == 1:
-                                    self.screen.fill((0, 0, 0))
-                                    return 0
+                                self.visible = self.current_stage
+                    
+                    if self.visible != 'main':
+                        start_rect = pygame.Rect(self.x5, self.y5, 216, 114)
+                        if start_rect.collidepoint(pos):
+                            if event.type == MOUSEBUTTONUP:
+                                print(f"{self.stages[self.current_stage]} start!")
+                                if self.current_stage == 0:             # 스테이지 A 선택 + Play
+                                    print("임의로 게임 clear")
+                                    # stage = stageA.stage_A(self.screen, 2, self.key, self.config, self.soundFX)
+                                    # win = stage.start_single_play()
+                                    # if win != 0:
+                                    #     return
+                                    
+                                elif self.current_stage == 1:          # 스테이지 B 선택 + Play
+                                    print("임의로 게임 clear")
+                                    # stage = stageB.stage_B(self.screen, 4, self.key, self.config, self.soundFX)
+                                    # win = stage.start_single_play()
+                                    # if win != 0:
+                                    #     return
+
+                                elif self.current_stage == 2:          # 스테이지 C 선택 + Play
+                                    print("임의로 게임 clear")
+                                    # stage = stageC.stage_C(self.screen, 3, self.key, self.config, self.soundFX)
+                                    # win = stage.start_single_play()
+                                    # if win != 0:
+                                    #     return
+
+                                elif self.current_stage == 3:          # 스테이지 D 선택 + Play
+                                    print("임의로 게임 clear")
+                                    # stage = stageD.stage_D(self.screen, 2, self.key, self.config, self.soundFX)
+                                    # win = stage.start_single_play()
+                                    # if win != 0:
+                                    #     return
+                                
+                                self.config['clear'][f'stage{self.current_stage + 1}'] = '1'
+                                self.config['open'][f'stage{self.current_stage + 2}'] = '1'
+                                with open('setting_data.ini', 'w') as f:
+                                    self.config.write(f)
+                                self.stage_clear = [bool(int(self.config['clear']['stage1'])), bool(int(self.config['clear']['stage2'])), bool(int(self.config['clear']['stage3'])), bool(int(self.config['clear']['stage4']))]
+                                self.stage_open = [bool(int(self.config['open']['stage1'])), bool(int(self.config['open']['stage2'])), bool(int(self.config['open']['stage3'])), bool(int(self.config['open']['stage4']))]
+                                
+                                self.visible = 'main'
+                                return
+
+
+                        
             
             
             # 화면 채우기
