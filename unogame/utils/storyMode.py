@@ -33,34 +33,13 @@ class StoryModes:
                             True]                                                   # stage 클리어 변수 설정
         self.key = key
         self.window_size = int(self.config['window']['default'])
+        self.background = [pygame.image.load('./images/storymode/stageA.png'), pygame.image.load('./images/storymode/stageB.png'),
+                           pygame.image.load('./images/storymode/stageC.png'), pygame.image.load('./images/storymode/stageD.png')]
 
-        self.note.append("""In this stage, on the first distribution,
-the opponent player will receive
-the skill card with a 50% higher
-probability. Use a combo that allows
-the opponent player to play two to
-three or more cards at once by properly
-combining skill cards such as reverse
-progression and jump.""")
-        self.note.append("""In this stage, you play against
-3 opponent players and distribute
-all cards to the players in equal numbers
-except for the first card.""")
-        self.note.append("""In this stage, you will play
-against 2 opponent players, and
-the color of the card you can play
-every 5 turns will be randomly changed.""")
-        self.note.append("""In this stage, you play
-against the opposition player, and
-the opposition starts with three cards
-on the first distribution.""")
-        
-        
-        
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.background[0], (0, 0))
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.background[0], (0, 0))
         # 스토리 모드 지도 구현
         x_pos_list = [(self.screen.get_width() // 5) * i for i in range(1, 5)]             # 동그라미를 1/5, 2/5, ... 에 위치하게 함
         y_pos = self.screen.get_height() // 2 - (self.screen.get_height() // 7)
@@ -87,7 +66,7 @@ on the first distribution.""")
         self.screen.blit(font, (self.screen.get_width() // 2 - font.get_width() // 2, self.screen.get_height() * 3 // 4))
 
     def description(self, num, selected):
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.background[0], (0, 0))
 
         # 맵 선택시 나오는 play or back
         for i, item in enumerate(self.items):
