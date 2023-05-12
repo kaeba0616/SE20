@@ -25,7 +25,7 @@ class Game:
 
     def __init__(self, screen, player_number, keys, config, soundFX):
         # lms
-        self.achieve = achievement(screen)
+        self.achieve = achievement(screen, config)
         # lms
 
         self.start_count = 1
@@ -276,21 +276,24 @@ class Game:
         screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         while self.run:
-            screen.fill((50, 200, 50))
+            self.screen.fill((50, 200, 50))
             self.make_screen()
             # event loop
 
             if self.game_active:
                 self.time_button.text = f"TIME : {self.current_time}"
-                self.time_button.draw(screen)
-
+                self.time_button.draw(self.screen)
+    
             for event in pygame.event.get():
+                #print(event)
                 if self.event.event_loop(event, self) == "out":
                     return
-                  
+                if(not self.event_active):
+                    pygame.event.clear()
+                    break
             # event loop 종료
 
-            self.next_screen(screen)
+            self.next_screen(self.screen)
             pygame.display.update()
 
             # Limit the frame rate
@@ -370,6 +373,9 @@ class Game:
             component.rect.y = self.lobby_background.y + 100 * i
 
     def next_screen(self, screen):
+        #print("next screen")
+        #texttt = self.font.render("self.message", True, (255, 255, 255))
+        #self.screen.blit(texttt, (50, 50))
         if self.game_active:
             ##
             if len(self.deck):
@@ -448,7 +454,9 @@ class Game:
             self.remain.clear()
 
             if self.is_win:
-                time.sleep(1)
+                #print("win")
+                #time.sleep(1)
+                self.achieve.update(screen)
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
@@ -752,10 +760,11 @@ class Game:
             return False
 
     def press_uno(self):
+        print("uno pressed")
         if self.me.uno == "active" and self.is_uno:
             self.me.uno = "success"
             print("uno success")
-        print("uno failed")
+        else: print("uno failed")
 
     def calculation_point(self, input_hand):
         point = 0
@@ -795,7 +804,7 @@ class Game:
 
     def card_move(self, start, end, current_time, duration):
         elapsed_time = current_time - self.moving_start_time
-        print(elapsed_time)
+        #print(elapsed_time)
         progress = min(1, elapsed_time / duration)
         eased_progress = (progress - 1) ** 3 + 1
 

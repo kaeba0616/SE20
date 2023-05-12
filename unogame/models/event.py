@@ -14,7 +14,8 @@ class Event:
 
     def __init__(self, game):
         self.game = game
-        self.achive = game.achieve
+        self.achieve = game.achieve
+        self.config = game.config
     def event_loop(self, event, game):
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -47,6 +48,7 @@ class Event:
         if game.is_win and not game.game_active:
             if not game.event_active:
                 pygame.time.delay(500)
+                pygame.event.clear()
                 # print("event_active")
                 game.resume_event_handling()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -164,6 +166,7 @@ class Event:
                 pygame.time.set_timer(game.uno_timer, 2000, 1)
                 player.uno = "active"
                 game.is_uno = True
+                print("uno available!")
                 break
         if event.type == game.uno_timer and game.game_active:
             for player in game.turn_list:
@@ -367,7 +370,7 @@ class Event:
                 (key == game.keys["RETURN"] and pos is None)
                 or (game.check_collide(pos) and key is None)
                 and game.now_select == game.uno_button
-                and game.is_uno
+                #and game.is_uno
             ):
                 game.press_uno()
             # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
@@ -379,10 +382,12 @@ class Event:
                     game.who = player
                     if game.who.type == "Human":
                         game.win_button.text = "You win !!"
-
-                        self.achive.singleWin()
+                        if(self.config["Achievement"]["singleWin"] != "1"):
+                            self.achieve.completeAchieve(0)
+                        #self.achive.singleWin()
                     else:
                         game.win_button.text = f"Player {player.number + 1} win !!"
+                    #game.event_active = False
                     game.pause_event_handling()
 
             # # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
