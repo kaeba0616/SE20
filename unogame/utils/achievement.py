@@ -4,8 +4,7 @@ import pygame
 #config  = configparser.ConfigParser()
 #config.read("../setting_data.ini")
 class achievement:
-    def __init__(self, screen, config):
-        self.screen = screen
+    def __init__(self, config):
         self.message = "Default"
         self.messages = [
             "Achievement Unlocked: Single Win",
@@ -45,6 +44,10 @@ class achievement:
         if self.visible:
             # Draw the achievement message
             text = self.font.render(self.message, True, (255, 255, 255))
+            surface = pygame.Surface((text.get_width(), text.get_height()), pygame.SRCALPHA)
+            surface.fill((0,0,0))
+            surface.set_alpha(128)
+            screen.blit(surface, (self.x, self.y))
             screen.blit(text, (self.x, self.y))
             # Move the message upward
             if self.y > -50 and self.tickCalcular(self.timer_start_time) > 1000:
@@ -58,14 +61,14 @@ class achievement:
     def tickCalcular(self, ticks):
         return pygame.time.get_ticks() - ticks
 
-    def completeAchieve(self, index):
+    def accomplish(self, index):
         self.message = self.messages[index]
         self.config["Achievement"][self.configKeys[index]] = "1"
         with open('setting_data.ini', 'w') as f:
             self.config.write(f)
         self.showMessage()
 
-
+'''
     def singleWin(self):
         self.message = "Achievement Unlocked: Single Win"
         self.config["Achievement"]["singleWin"] = "1"
@@ -126,4 +129,4 @@ class achievement:
     def LuckySeven(self):
         self.message = "Achievement Unlocked: Lucky Seven"
         self.config["Achievement"]["LuckySeven"] = "1"
-        self.showMessage()
+        self.showMessage()'''

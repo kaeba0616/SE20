@@ -25,7 +25,7 @@ class Game:
 
     def __init__(self, screen, player_number, keys, config, soundFX):
         # lms
-        self.achieve = achievement(screen, config)
+        self.achieve = achievement(config)
         # lms
 
         self.start_count = 1
@@ -49,6 +49,12 @@ class Game:
         self.is_color_change = False
         self.edit_name = False
         self.edit_text = "__________"
+
+        # for achievement
+        self.turnCount = 1
+        self.numNeverUsed = True
+        self.skillNeverUsed = True
+        self.otherUno = False
 
         # color change하는 중 배경
         self.alpha_surface = pygame.Surface(
@@ -273,7 +279,7 @@ class Game:
 
     def start_single_play(self):
         pygame.init()
-        screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        #screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         while self.run:
             self.screen.fill((50, 200, 50))
@@ -373,9 +379,6 @@ class Game:
             component.rect.y = self.lobby_background.y + 100 * i
 
     def next_screen(self, screen):
-        #print("next screen")
-        #texttt = self.font.render("self.message", True, (255, 255, 255))
-        #self.screen.blit(texttt, (50, 50))
         if self.game_active:
             ##
             if len(self.deck):
@@ -454,9 +457,8 @@ class Game:
             self.remain.clear()
 
             if self.is_win:
-                #print("win")
+                # hy
                 #time.sleep(1)
-                self.achieve.update(screen)
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
@@ -490,6 +492,7 @@ class Game:
                 self.ok_button.draw(screen)
 
             pygame.display.update()
+        self.achieve.update(screen)  # achievement
 
     def computer_turn(self):
         self.com_card = []
@@ -537,6 +540,7 @@ class Game:
                 # lms
                 if self.who.type == "Human":
                     self.win_button.text = f"You win !!"
+                    self.checkAchieve()  # achievement
                 else:
                     self.win_button.text = f"Player {self.who.number + 1} win !!"
                 # lms
@@ -577,12 +581,17 @@ class Game:
         if len(self.deck) != 0:
             pop_card = self.deck.pop()
             input_deck.append(pop_card)
+        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] != "1":   # achievement
+            self.achieve.accomplish(10)
+
 
     def plus(self, input_deck, count):  # deck : list / first, second : card
         for _ in range(count):
             if len(self.deck) != 0:
                 pop_card = self.deck.pop()
                 input_deck.append(pop_card)
+        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] != "1":   # achievement
+            self.achieve.accomplish(10)
 
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
@@ -737,6 +746,7 @@ class Game:
             self.turn_index = 0
         self.is_get = False
         self.current_time = 10
+        if(self.turn_list[self.turn_index] == self.me) : self.turnCount += 1   # achievement
         if (
             len(self.turn_list[self.turn_index].hand) == 1
             and self.turn_list[self.turn_index].uno == "active"
@@ -760,11 +770,10 @@ class Game:
             return False
 
     def press_uno(self):
-        print("uno pressed")
         if self.me.uno == "active" and self.is_uno:
             self.me.uno = "success"
             print("uno success")
-        else: print("uno failed")
+        print("uno failed")
 
     def calculation_point(self, input_hand):
         point = 0
@@ -813,4 +822,13 @@ class Game:
         # print(self.move_rect.center)
 
     def checkAchieve(self):
-        self.achieve.singleWin()
+        if self.config["Achievement"]["singleWin"] != "1":
+            self.achieve.accomplish(0)
+        if self.turnCount <= 10 and self.config["Achievement"]["in10turnwin"] != "1":
+            self.achieve.accomplish(6)
+        if self.numNeverUsed and self.config["Achievement"]["onlyskillcardwin"] != "1":
+            self.achieve.accomplish(8)
+        if self.skillNeverUsed and self.config["Achievement"]["onlynumbercardwin"] != "1":
+            self.achieve.accomplish(7)
+        if self.otherUno and self.config["Achievement"]["otherplayerunowin"] != "1":
+            self.achieve.accomplish(9)

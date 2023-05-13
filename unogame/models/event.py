@@ -48,6 +48,7 @@ class Event:
         if game.is_win and not game.game_active:
             if not game.event_active:
                 pygame.time.delay(500)
+                # hy - delay after the game end
                 pygame.event.clear()
                 # print("event_active")
                 game.resume_event_handling()
@@ -166,12 +167,13 @@ class Event:
                 pygame.time.set_timer(game.uno_timer, 2000, 1)
                 player.uno = "active"
                 game.is_uno = True
-                print("uno available!")
                 break
         if event.type == game.uno_timer and game.game_active:
             for player in game.turn_list:
                 if player.uno == "active" and player == game.me:
                     game.draw_card(player.hand)
+                    if(player.type == "Human"):  # achievement
+                        game.otherUno = True
                     player.uno = "unactive"
                 elif player.uno == "active" and player != game.me:
                     player.uno = "success"
@@ -327,6 +329,8 @@ class Event:
                                 # game.remain.append(pop_card)
                                 if pop_card.skill is not None:
                                     game.skill_active(pop_card)
+                                    game.skillNeverUsed = False    # achievement
+                                else: game.numNeverUsed = False    # achievement
                                 if pop_card.skill not in [
                                     "change",
                                     "block",
@@ -370,7 +374,7 @@ class Event:
                 (key == game.keys["RETURN"] and pos is None)
                 or (game.check_collide(pos) and key is None)
                 and game.now_select == game.uno_button
-                #and game.is_uno
+                and game.is_uno
             ):
                 game.press_uno()
             # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
@@ -382,9 +386,7 @@ class Event:
                     game.who = player
                     if game.who.type == "Human":
                         game.win_button.text = "You win !!"
-                        if(self.config["Achievement"]["singleWin"] != "1"):
-                            self.achieve.completeAchieve(0)
-                        #self.achive.singleWin()
+                        game.checkAchieve()    # check achievement condition
                     else:
                         game.win_button.text = f"Player {player.number + 1} win !!"
                     #game.event_active = False
