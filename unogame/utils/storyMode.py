@@ -121,6 +121,18 @@ class StoryModes:
             self.memo_x, self.memo_y = 521.6, 400.8
             self.start_x, self.start_y = 172, 424
             self.screen.blit(self.background_S[self.latestClear], (0, 0))
+            self.x_pos_list = [self.x0, self.x1, self.x2, self.x3]
+            self.y_pos_list = [self.y0, self.y1, self.y2, self.y3]
+            # 체크 표시
+            for i in range(4):
+                if self.stage_clear[i] == True:
+                    self.screen.blit(self.check_S, (self.x_pos_list[i] - self.check_S.get_width() // 2, self.y_pos_list[i] - self.check_S.get_height() // 2.3))
+            # 게임 시작, 메모 표시
+            if self.visible != 'main':
+                self.screen.blit(self.memo_S[self.visible], (self.memo_x - self.memo_S[self.visible].get_width() // 2, self.memo_y - self.memo_S[self.visible].get_height() // 2))
+                self.screen.blit(self.game_start_S, (self.start_x - self.game_start_S.get_width() // 2, self.start_y - self.game_start_S.get_height() // 2))  
+
+
         # middle
         elif self.window == 2:
             self.x0, self.x1, self.x2, self.x3 = 125, 292, 570, 846
@@ -132,6 +144,18 @@ class StoryModes:
             self.memo_x, self.memo_y = 652, 501
             self.start_x, self.start_y = 215, 530
             self.screen.blit(self.background[self.latestClear], (0, 0))
+            self.x_pos_list = [self.x0, self.x1, self.x2, self.x3]
+            self.y_pos_list = [self.y0, self.y1, self.y2, self.y3]
+            # 체크 표시
+            for i in range(4):
+                if self.stage_clear[i] == True:
+                    self.screen.blit(self.check, (self.x_pos_list[i] - self.check.get_width() // 2, self.y_pos_list[i] - self.check.get_height() // 2.3))
+            # 게임 시작, 메모 표시
+            if self.visible != 'main':
+                self.screen.blit(self.memo[self.visible], (self.memo_x - self.memo[self.visible].get_width() // 2, self.memo_y - self.memo[self.visible].get_height() // 2))
+                self.screen.blit(self.game_start, (self.start_x - self.game_start.get_width() // 2, self.start_y - self.game_start.get_height() // 2))  
+
+
         # large
         elif self.window == 3:
             self.x0, self.x1, self.x2, self.x3 = 160.0, 373.76, 729.6, 1082.9
@@ -143,20 +167,24 @@ class StoryModes:
             self.memo_x, self.memo_y = 834.6, 641.3
             self.start_x, self.start_y = 275.2, 678.4
             self.screen.blit(self.background_L[self.latestClear], (0, 0))
+            self.x_pos_list = [self.x0, self.x1, self.x2, self.x3]
+            self.y_pos_list = [self.y0, self.y1, self.y2, self.y3]
+            # 체크 표시
+            for i in range(4):
+                if self.stage_clear[i] == True:
+                    self.screen.blit(self.check_L, (self.x_pos_list[i] - self.check_L.get_width() // 2, self.y_pos_list[i] - self.check_L.get_height() // 2.3))
+            # 게임 시작, 메모 표시
+            if self.visible != 'main':
+                self.screen.blit(self.memo_L[self.visible], (self.memo_x - self.memo_L[self.visible].get_width() // 2, self.memo_y - self.memo_L[self.visible].get_height() // 2))
+                self.screen.blit(self.game_start_L, (self.start_x - self.game_start_L.get_width() // 2, self.start_y - self.game_start_L.get_height() // 2))  
+
 
             
-        self.x_pos_list = [self.x0, self.x1, self.x2, self.x3]
-        self.y_pos_list = [self.y0, self.y1, self.y2, self.y3]
+        
 
-        # 체크 표시
-        for i in range(4):
-            if self.stage_clear[i] == True:
-                self.screen.blit(self.check, (self.x_pos_list[i] - self.check.get_width() // 2, self.y_pos_list[i] - self.check.get_height() // 2.3))
 
-        # 게임 시작, 메모 표시
-        if self.visible != 'main':
-            self.screen.blit(self.memo[self.visible], (self.memo_x - self.memo[self.visible].get_width() // 2, self.memo_y - self.memo[self.visible].get_height() // 2))
-            self.screen.blit(self.game_start, (self.start_x - self.game_start.get_width() // 2, self.start_y - self.game_start.get_height() // 2))
+
+        
 
 
 
