@@ -177,7 +177,17 @@ class Game:
             35,
             0,
         )
-
+        self.turn_button = Button(
+            30,
+            20,
+            50,
+            30,
+            (255, 255, 255),
+            f"turn index : {self.turn_index}",
+            (64, 64, 64),
+            35,
+            0,
+        )
         self.info_list = []
         self.info_list.append(
             Component(
@@ -207,17 +217,8 @@ class Game:
                 )
             )
 
-        self.move_surf = pygame.image.load(
-            "resources/images/card/normalMode/backcard.png"
-        ).convert_alpha()
-        self.move_surf = pygame.transform.scale(self.move_surf, (50, 70))
-        self.move_rect = self.move_surf.get_rect(center=self.deck_rect.center)
-        self.moving = False
-        self.moving_start_time = 0
-        self.velocity = 0
-
+        self.animation_list = []
         self.card_list = []
-
         self.change_color_list = []
         self.CENTER_X_POS = self.screen_width // 10
         self.CENTER_Y_POS = self.screen_height // 5
@@ -281,8 +282,6 @@ class Game:
         self.AI_timer = pygame.USEREVENT + 6
         self.is_computer_turn = False
         self.AI_timer_on = False
-
-        self.move_timer = pygame.USEREVENT + 7
 
         self.event = Event(self)
 
@@ -390,9 +389,7 @@ class Game:
     def next_screen(self, screen):
         if self.game_active:
             ##
-            if len(self.deck):
-                screen.blit(self.deck_surf, self.deck_rect)
-            screen.blit(self.now_card_surf, self.now_card_rect)
+
 
             # 누구의 턴인지 보여주는 부분
             if self.turn_list[self.turn_index] == self.me:
@@ -402,6 +399,17 @@ class Game:
                     f"PLAYER {self.turn_list[self.turn_index].number + 1}'s turn"
                 )
             self.now_turn_button.draw(screen)
+
+
+            c_time = pygame.time.get_ticks()
+            for ani in self.animation_list:
+                for count in range(ani.count):
+                    ani.card_move(ani.move_list[count], c_time + (100 * count), 2000)
+                    screen.blit(ani.move_list[count].surf, ani.move_list[count].rect)
+
+            if len(self.deck):
+                screen.blit(self.deck_surf, self.deck_rect)
+            screen.blit(self.now_card_surf, self.now_card_rect)
 
             # 손패를 그려주는 부분
             self.me.draw_hand(screen)
@@ -445,19 +453,11 @@ class Game:
             if self.is_skill_active:
                 self.skill_active_button.draw(screen)
 
-            if self.current_time == 8 and not self.moving:
-                pygame.time.set_timer(self.move_timer, 3000)
-                self.moving = True
-                self.moving_start_time = pygame.time.get_ticks()
-
-            if self.moving:
-                c_time = pygame.time.get_ticks()
-                self.card_move(
-                    self.deck_rect.center, self.me.hand[-1].rect.center, c_time, 3000
-                )
-                self.screen.blit(self.move_surf, self.move_rect)
             if self.uno_pressed:
                 self.uno_active_button.draw(screen)
+            # test
+            self.turn_button.text = f"turn index : {self.turn_index}"
+            self.turn_button.draw(screen)
         else:
             screen.fill("green")
             # 게임이 종료되었을 때 덱 초기화
@@ -510,12 +510,30 @@ class Game:
                 self.com_card.append(card)
         if len(self.com_card) == 0:
             self.draw_from_center(self.turn_list[self.turn_index].hand)
+
+            self.animation_list.append(Animation(
+                self.deck_rect.center,
+                self.info_list[self.turn_index].rect.center,
+                pygame.time.get_ticks(),
+                1
+            ))
+            pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+
             self.pass_turn()
         else:
             self.now_card = self.com_card[0]
             self.now_card_surf = self.now_card.image
             self.turn_list[self.turn_index].hand.remove(self.now_card)
             self.remain.append(self.now_card)
+
+            self.animation_list.append(Animation(
+                self.info_list[self.turn_index].rect.center,
+                self.now_card_rect.center,
+                pygame.time.get_ticks(),
+                1
+            ))
+            pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+
             if self.now_card.skill is not None:
                 # edit by sth
                 # self.skill_active(self.now_card.skill)
@@ -637,7 +655,7 @@ class Game:
             Human(i, [], i) if i == 0 else AI(i, [], i)
             for i in range(self.player_number)
         ]
-
+        self.info_list = self.info_list[:self.player_number]
         for i, component in enumerate(self.info_list):
             component.player = self.turn_list[i]
             if i == len(self.turn_list) - 1:
@@ -705,9 +723,27 @@ class Game:
         elif pop_card.skill == "plus2":
             self.skill_active_button.text = "plus2 attack active"
             self.plus(self.turn_list[next_player].hand, 2)
+
+            self.animation_list.append(Animation(
+                self.deck_rect.center,
+                self.info_list[next_player].rect.center,
+                pygame.time.get_ticks(),
+                2
+            ))
+            pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+
         elif pop_card.skill == "plus4" or pop_card.skill == "all4":
             self.skill_active_button.text = "plus4 attack active"
             self.plus(self.turn_list[next_player].hand, 4)
+
+            self.animation_list.append(Animation(
+                self.deck_rect.center,
+                self.info_list[next_player].rect.center,
+                pygame.time.get_ticks(),
+                4
+            ))
+            pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+
         self.is_skill_active = True
 
     def change_color_ai(self):
@@ -765,8 +801,6 @@ class Game:
                 return True
         if self.deck_rect.collidepoint(pos):
             return True
-        elif self.uno_button.rect.collidepoint(pos):
-            return True
         else:
             return False
 
@@ -823,14 +857,6 @@ class Game:
         while self.edit_name:
             screen.blit(self.alpha_surface, (0, 0))
 
-    def card_move(self, start, end, current_time, duration):
-        elapsed_time = current_time - self.moving_start_time
-        progress = min(1, elapsed_time / duration)
-        eased_progress = (progress - 1) ** 3 + 1
-
-        self.move_rect.centerx = start[0] + (end[0] - start[0]) * eased_progress
-        self.move_rect.centery = start[1] + (end[1] - start[1]) * eased_progress
-        # print(self.move_rect.center)
 
     def checkAchieve(self):
         self.achieve.singleWin()

@@ -9,6 +9,7 @@ from utils.achievement import achievement as ach
 from pause import PauseClass
 import time
 
+from unogame.models.animation import Animation
 class Event:
     pygame.init()
 
@@ -53,14 +54,10 @@ class Event:
                 return "out"
 
         # Timer 재설정 하는 event loop
-
-        elif event.type == game.move_timer and game.game_active:
-            game.moving = False
-            game.move_rect.center = game.deck_rect.center
-            game.moving_start_time = 0
-            game.velocity = 0
-
-        elif event.type == game.AI_timer and game.game_active:
+        for ani in game.animation_list:
+            if event.type == ani.timer and game.game_active:
+                game.animation_list.remove(ani)
+        if event.type == game.AI_timer and game.game_active:
             game.is_computer_turn = True
             game.AI_timer_on = False
             pygame.time.set_timer(game.AI_timer, 0)
@@ -70,6 +67,15 @@ class Event:
                 game.current_time = 10
                 if not game.is_get:
                     game.draw_from_center(game.turn_list[game.turn_index].hand)
+
+                    game.animation_list.append(Animation(
+                        game.deck_rect.center,
+                        game.me.hand[0].rect.center,
+                        pygame.time.get_ticks(),
+                        1
+                    ))
+                    pygame.time.set_timer(game.animation_list[-1].timer, 2000)
+
                 if game.is_color_change:
                     game.is_color_change = False
                     var = random.randint(0, 3)
@@ -317,6 +323,16 @@ class Event:
         if game.game_active and not game.is_color_change:
             pos = (0, 0)
             key = None
+            # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
+            if event.type == pygame.KEYDOWN:
+                if event.key == game.keys["RETURN"] and game.now_select == game.uno_button:
+                    print("uno_button active")
+                    game.press_uno()
+            elif(event.type == pygame.MOUSEBUTTONDOWN
+                    and game.uno_button.rect.collidepoint(event.pos)
+                    and game.now_select == game.uno_button):
+                print("uno_button active")
+                game.press_uno()
 
             if game.turn_list[game.turn_index].type == "Human":
                 if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
@@ -337,7 +353,6 @@ class Event:
                                 pop_card = game.now_select
                                 game.turn_list[game.turn_index].hand.remove(pop_card)
                                 game.now_select = None
-                                # game.remain.append(pop_card)
                                 if pop_card.skill is not None:
                                     game.skill_active(pop_card)
                                 if pop_card.skill not in [
@@ -347,6 +362,14 @@ class Event:
                                 ]:
                                     game.pass_turn()
 
+                                game.animation_list.append(Animation(
+                                    game.me.hand[0].rect.center,
+                                    game.now_card_rect.center,
+                                    pygame.time.get_ticks(),
+                                    1
+                                ))
+                                pygame.time.set_timer(game.animation_list[-1].timer, 2000)
+
                                 game.now_card = pop_card
                                 game.now_card_surf = pop_card.image
 
@@ -354,12 +377,23 @@ class Event:
                         if (
                             (key == game.keys["RETURN"] and game.now_select == game.deck_rect)
                             or (game.check_collide(pos) and key is None and game.now_select == game.deck_rect)
-                            and not game.is_get
+                            and game.turn_index == game.me.turn
                         ):
+
                             game.draw_from_center(game.turn_list[game.turn_index].hand)
+
+                            game.animation_list.append(Animation(
+                                game.deck_rect.center,
+                                game.me.hand[0].rect.center,
+                                pygame.time.get_ticks(),
+                                1
+                            ))
+                            pygame.time.set_timer(game.animation_list[-1].timer, 2000)
+
                             game.now_select = None
                             game.pass_turn()
                             game.next_screen(game.screen)
+
             # 4. 컴퓨터의 알고리즘 수행
 
             ## lms
@@ -369,7 +403,7 @@ class Event:
                     game.is_computer_turn = False
                     # game.next_screen(screen)
                 elif not game.AI_timer_on and not game.is_computer_turn:
-                    pygame.time.set_timer(game.AI_timer, 2000)
+                    pygame.time.set_timer(game.AI_timer, 3000)
                     game.AI_timer_on = True
             if game.start_count:
                 game.next_screen(game.screen)
@@ -377,16 +411,7 @@ class Event:
 
             ## lms
 
-            # 5. 카드가 1장만 남았을 경우 UNO 버튼을 눌러야 한다.
-            if (
-                (key == game.keys["RETURN"] and game.now_select == game.uno_button)
-                or (event.type == pygame.MOUSEBUTTONDOWN
-                    and game.check_collide(pos)
-                    and key is None
-                    and game.now_select == game.uno_button)
-            ):
-                print("uno_button active")
-                game.press_uno()
+
             # 6. 누군가의 덱이 모두 사라지면 그 사람의 승리 > 승리 화면 전환 > 메인 화면 전환
             for player in game.turn_list:
                 if len(player.hand) == 0:
