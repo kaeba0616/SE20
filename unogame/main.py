@@ -31,7 +31,7 @@ if config["window"]["default"] == "1":
 elif config["window"]["default"] == "2":
     screen = pygame.display.set_mode((1000, 750))
 elif config["window"]["default"] == "3":
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode((1280, 960))
 
 
 font = pygame.font.SysFont(None, 48)
