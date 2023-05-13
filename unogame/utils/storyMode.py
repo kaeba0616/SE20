@@ -178,16 +178,6 @@ class StoryModes:
                 self.screen.blit(self.memo_L[self.visible], (self.memo_x - self.memo_L[self.visible].get_width() // 2, self.memo_y - self.memo_L[self.visible].get_height() // 2))
                 self.screen.blit(self.game_start_L, (self.start_x - self.game_start_L.get_width() // 2, self.start_y - self.game_start_L.get_height() // 2))  
 
-
-            
-        
-
-
-
-        
-
-
-
     def run(self):
         # 메인 루프
         clock = pygame.time.Clock()

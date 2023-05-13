@@ -96,6 +96,7 @@ class PauseClass:
                                 elif self.selected == 2:
                                     print("achieve")
                                     achieve = achieveMenu.achieveMenu(self.keys, self.font, self.screen, self.config, self.soundFX)
+                                    num = achieve.run()
                                 elif self.selected == 3:                                    # Return to menu 선택 -> 메뉴 화면으로
                                     return "out"
             
