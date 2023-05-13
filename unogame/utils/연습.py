@@ -1,51 +1,48 @@
 import pygame
-import pickle
-import socket
 
-# Create a Pygame surface object
-surface = pygame.Surface((100, 100))
-surface.fill((255, 0, 0))
+pygame.init()
 
-# Create a list of integers
-int_list = ['1, 2, 3, 4, 5', '가나다라', 'hi']
+screen_width = 640
+screen_height = 480
+scroll_amount = 20
 
-# Pack the surface and integer list into a tuple
-data = (int_list)
+font = pygame.font.SysFont('Arial', 20)
+text_color = (255, 255, 255)
 
-# Serialize the data using pickle
-serialized_data = pickle.dumps(data)
+screen = pygame.display.set_mode((screen_width, screen_height))
 
-# Create a socket object and connect to the server
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, 10) 
-client_socket.connect(('203.246.85.194', 11002))
+num_rows = 100
+row_height = 30
+row_spacing = 10
 
-# Send the serialized data over the socket
-client_socket.sendall(serialized_data)
-print('sended')
+scroll_y = 0
 
-# Close the socket
-client_socket.close()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                # 마우스 휠을 위로 굴릴 때
+                scroll_y += scroll_amount
+            elif event.button == 5:
+                # 마우스 휠을 아래로 굴릴 때
+                scroll_y -= scroll_amount
 
+    screen.fill((0, 0, 0))
 
+    # 스크롤 위치에 따라 숫자 위치 변경
+    for i in range(num_rows):
+        y = i * (row_height + row_spacing) - scroll_y
+        if y + row_height < 0:
+            continue
+        if y > screen_height:
+            break
+        text = font.render(str(i), True, text_color)
+        text_rect = text.get_rect()
+        text_rect.left = 10
+        text_rect.top = y
+        screen.blit(text, text_rect)
 
-# import pygame
-# import datetime
-
-# pygame.init()
-
-# screen = pygame.display.set_mode((640, 480))
-
-# while True:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             pygame.quit()
-#             exit()
-#         elif event.type == pygame.KEYDOWN:
-#             if event.key == pygame.K_RETURN:
-#                 current_date = datetime.date.today()
-#                 print(current_date)
-
-#     screen.fill((255, 255, 255))
-#     pygame.display.flip()
-
+    pygame.display.flip()

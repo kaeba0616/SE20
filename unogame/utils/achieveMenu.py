@@ -4,10 +4,8 @@ import sys
 
 class achieveMenu:
     def __init__(self, keys, font, screen, config, soundFX):
-        self.items = ["Single Win", "Stage A Clear", "Stage B Clear", "Stage C Clear", "Stage D Clear",
-                      "All Story Clear", "In 10 Truns Win", "Only NumberCard Win", "Only SkillCard Win", "Other Player UNO Win",
-                      "Grab Over 15 Cards", "Lucky Three"]          # 12개
         self.font = font
+        self.font = pygame.font.SysFont(None, 80)
         self.descriptionFont = pygame.font.SysFont(None, 20)
         self.screen = screen
         self.keys = keys
@@ -15,9 +13,9 @@ class achieveMenu:
         self.visible = [False, 255]
         self.config = config
         self.soundFX = soundFX
-        self.currentXY = [2, 0]
-        self.num = 0
         self.current = 0
+        self.achieveImage = [pygame.image.load('./resources/images/achievement/noAchieve.png'), pygame.image.load('./resources/images/achievement/achieve.png')]
+        self.updown = [pygame.image.load('./resources/images/achievement/up.png'), pygame.image.load('./resources/images/achievement/down.png')]
         self.achieve_clear = [bool(int(self.config['Achievement']['singleclear'])), bool(int(self.config['Achievement']['stageaclear'])),
                             bool(int(self.config['Achievement']['stagebclear'])), bool(int(self.config['Achievement']['stagecclear'])),
                             bool(int(self.config['Achievement']['stagedclear'])), bool(int(self.config['Achievement']['stageallclear'])),
@@ -32,34 +30,33 @@ class achieveMenu:
                              self.config['date']['onlyskillcardwin'], self.config['date']['otherplayerunowin'],
                              self.config['date']['grabover15card'], self.config['date']['luckythree'],
         ]
-        self.note = []
-        self.note.append('''Single
-Win''')
-        self.note.append('''Stage A
-Clear''')
-        self.note.append('''Stage B
-Clear''')
-        self.note.append('''Stage C
-Clear''')
-        self.note.append('''Stage D
-Clear''')
-        self.note.append('''All Story
-Clear''')
-        self.note.append('''In 10 turns
-Win''')
-        self.note.append('''Only
-Number Card
-Win''')
-        self.note.append('''Only
-Skill Card
-Win''')
-        self.note.append('''Other Player
-UNO Win''')
-        self.note.append('''Grab Over
-15 Cards''')
-        self.note.append('''Lucky
-Three''')
-        
+        # 클리어 / 클리어 날짜 큐
+        self.queue_clear = [bool(int(self.config['Achievement']['singleclear'])), bool(int(self.config['Achievement']['stageaclear'])),
+                            bool(int(self.config['Achievement']['stagebclear'])),]
+        self.queue_clear_next = [bool(int(self.config['Achievement']['stagecclear'])),
+                            bool(int(self.config['Achievement']['stagedclear'])), bool(int(self.config['Achievement']['stageallclear'])),
+                            bool(int(self.config['Achievement']['in10turnwin'])), bool(int(self.config['Achievement']['onlynumbercardwin'])),
+                            bool(int(self.config['Achievement']['onlyskillcardwin'])), bool(int(self.config['Achievement']['otherplayerunowin'])),
+                            bool(int(self.config['Achievement']['grabover15card'])), bool(int(self.config['Achievement']['luckythree'])),]
+        self.queue_date = [self.config['date']['singleclear'], self.config['date']['stageaclear'],
+                             self.config['date']['stagebclear'],]
+        self.queue_date_next = [self.config['date']['stagecclear'],
+                             self.config['date']['stagedclear'], self.config['date']['stageallclear'],
+                             self.config['date']['in10turnwin'], self.config['date']['onlynumbercardwin'],
+                             self.config['date']['onlyskillcardwin'], self.config['date']['otherplayerunowin'],
+                             self.config['date']['grabover15card'], self.config['date']['luckythree'],]
+
+        # 글씨
+        self.items = ["Single Win", "Stage A Clear", "Stage B Clear", "Stage C Clear", "Stage D Clear",
+                      "All Story Clear", "In 10 Truns Win", "Only NumberCard Win", "Only SkillCard Win", "Other Player UNO Win",
+                      "Grab Over 15 Cards", "Lucky Three"]          # 12개
+        self.queue_items = ["Single Win", "Stage A Clear", "Stage B Clear",]
+        self.queue_items_next = [ "Stage C Clear", "Stage D Clear","All Story Clear", "In 10 Truns Win", "Only NumberCard Win", "Only SkillCard Win", "Other Player UNO Win",
+                      "Grab Over 15 Cards", "Lucky Three",]
+        self.queue_description = ['You must win the Single Player.', 'You must win Stage A.', 'You must win Stage B.',]
+        self.queue_description_next = ['You must win Stage C.', 'You must win Stage D.', 'You must win All Stages.',
+                            'You must win in 10 turns.', 'You must win using only the Number Card.', 'You must win using only the Skill Card.',
+                            'You must win after another player declares UNO.', 'You must grab more than 15 cards.', 'You must give three consecutive attack cards.',]
         self.description = ['You must win the Single Player.', 'You must win Stage A.', 'You must win Stage B.',
                             'You must win Stage C.', 'You must win Stage D.', 'You must win All Stages.',
                             'You must win in 10 turns.', 'You must win using only the Number Card.', 'You must win using only the Skill Card.',
@@ -73,88 +70,44 @@ Three''')
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
 
-        if self.num == 0:
-            x_pos_list = [(screenW // 7) * i for i in range(1, 7)]                          # 동그라미를 가로로 1/7, 2/7, ... 에 위치하게 함
-            y_pos_list = [(screenH // 3) * i - (screenH // 7) for i in range(1, 3)]         # 동그라미를 세로로 1/3, 2/3에 위치하게 함
+        #     if int(self.config['window']['default']) == 1:
+        #         new_font = pygame.font.SysFont(None, 15)
+        #         set_y = 15
+        #     elif int(self.config['window']['default']) == 2:
+        #         new_font = pygame.font.SysFont(None, 20)
+        #         set_y = 20
+        #     elif int(self.config['window']['default']) == 3:
+        #         new_font = pygame.font.SysFont(None, 60)
+        #         set_y = 60
+        
+        # 업적 이미지
+        for i in range(3):
+            self.screen.blit(self.achieveImage[0] if not self.queue_clear[i] else self.achieveImage[1], (screenW // 100, screenH // 4 * i + 30))
 
-            if int(self.config['window']['default']) == 1:
-                new_font = pygame.font.SysFont(None, 15)
-                set_y = 15
-            elif int(self.config['window']['default']) == 2:
-                new_font = pygame.font.SysFont(None, 20)
-                set_y = 20
-            elif int(self.config['window']['default']) == 3:
-                new_font = pygame.font.SysFont(None, 60)
-                set_y = 60
+        # BACK
+        font = self.font.render("Back", True, (255, 255, 255) if self.current == 0 else (255, 0, 0))
+        self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.3 // 4))
 
-            for i, name in enumerate(self.items):
-                # 업적 안깬거는 회색, 깬거는 흰색
-                pygame.draw.circle(self.screen, (255, 255, 255) if self.achieve_clear[i] == True else (100, 100, 100),
-                                (x_pos_list[i % 6],
-                                    y_pos_list[i // 6]), 20)
+        # 화살표
+        self.screen.blit(self.updown[0], (910, 30))
+        self.screen.blit(self.updown[1], (910, screenH // 3 * 1.8))
 
-                if i == (self.currentXY[1] * 6 + self.currentXY[0]):
-                    pygame.draw.circle(self.screen, (255, 0, 0), (x_pos_list[i % 6], y_pos_list[i // 6]), 20)
+        # 업적 이름
+        for i in range(3):
+            text = pygame.font.SysFont(None, 50).render(self.queue_items[i] + ': ' + self.queue_date[i] if self.queue_clear[i] else self.queue_items[i], True, (255, 255, 20) if self.queue_clear[i] else (250, 250, 250))
+            self.screen.blit(text, (screenW // 6, screenH // 4 * i + 60))
 
-                
-                # 맵 선택시 나오는 설명
-                lines = self.note[i].splitlines()
-                for j, l in enumerate(lines):
-                    self.screen.blit(new_font.render(l, True, (255, 255, 255)),
-                        (
-                        x_pos_list[i % 6] - new_font.render(l, True, (255, 255, 255)).get_width() // 2,
-                        y_pos_list[i // 6] + screenH // 20 + set_y * j
-                        )
-                    )
-            font = self.font.render("Go back", True, (255, 255, 255) if self.currentXY[1] != 2 else (255, 0, 0))         # self.current가 0이면 흰, 1이면 빨
-            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.5 // 4))
+        # 업적 소개
+        for i in range(3):
+            text = pygame.font.SysFont(None, 30).render(self.queue_description[i], True, (250, 250, 250))
+            self.screen.blit(text, (screenW // 6, screenH // 4 * i + 120))
 
-        else:
-            if int(self.config['window']['default']) == 1:
-                new_font = pygame.font.SysFont(None, 30)
-                set_y = 30
-            elif int(self.config['window']['default']) == 2:
-                new_font = pygame.font.SysFont(None, 48)
-                set_y = 48
-            elif int(self.config['window']['default']) == 3:
-                new_font = pygame.font.SysFont(None, 60)
-                set_y = 60
-
-            text = new_font.render(self.description[self.num - 1], True, (255, 255, 255))
-            self.screen.blit(text, (screenW // 2 - text.get_width() // 2,
-            screenH * 0.3 - text.get_height() // 2)
-            )
-
-            outText = pygame.font.SysFont(None, set_y // 2).render('Click with your mouse or press any key to go back.', True, (255, 255, 255))
-            self.screen.blit(outText, (screenW // 2 - outText.get_width() // 2,
-                                       screenH * 0.8 - outText.get_height() // 2))
-
-            if self.achieve_clear[self.num - 1]:
-                text = new_font.render('Achievement Unlocked', True, (0, 0, 255))
-                self.screen.blit(text, (screenW // 2 - text.get_width() // 2,
-                screenH * 0.3 - text.get_height() // 2 + set_y * 2)
-                )
-
-                date = new_font.render(self.achieve_date[self.num - 1], True, (255, 255, 255))
-                self.screen.blit(date, (screenW // 2 - text.get_width() // 2,
-                screenH * 0.3 - text.get_height() // 2 + set_y * 2 + set_y)
-                )
-            
-            else:
-                text = new_font.render('Achievement Locked', True, (255, 0, 0))
-                self.screen.blit(text, (screenW // 2 - text.get_width() // 2,
-                screenH * 0.3 - text.get_height() // 2 + set_y * 2)
-                )
-            
         
 
     def run(self):
         clock = pygame.time.Clock()
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
-
-        x_pos_list = [(screenW // 7) * i for i in range(1, 7)]                          # 동그라미를 가로로 1/5, 2/5, ... 에 위치하게 함
-        y_pos_list = [(screenH // 3) * i - (screenH // 7) for i in range(1, 3)]         # 동그라미를 세로로 1/4, 2/4, 3/4에 위치하게 함
 
         while True:
             # Handle events
@@ -163,50 +116,55 @@ Three''')
                     pygame.quit()
                     sys.exit()
                 elif event.type == KEYDOWN and self.num == 0:
-                    if event.key == self.keys["UP"]:
-                        self.currentXY[1] = (self.currentXY[1] - 1) % 3
-                    elif event.key == self.keys["DOWN"]:
-                        self.currentXY[1] = (self.currentXY[1] + 1) % 3
-                    elif event.key == self.keys["LEFT"]:
-                        self.currentXY[0] = (self.currentXY[0] - 1) % 6
-                    elif event.key == self.keys["RIGHT"]:
-                        self.currentXY[0] = (self.currentXY[0] + 1) % 6
-                    elif event.key == self.keys["RETURN"]:
-                        if self.currentXY[1] == 2:
-                            return self.currentXY[1]
-                        else:
-                            self.num = (self.currentXY[1] * 6 + self.currentXY[0]) + 1
-                    elif event.key == self.keys["ESCAPE"]:
+                    if event.key == self.keys["ESCAPE"]:
                         pygame.quit()
                         sys.exit()
+
                 
-                elif event.type == KEYDOWN and self.num != 0:
-                    self.num = 0
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 4 and self.queue_items[0] != 'Single Win':
+                        # 마우스 휠을 위로 굴릴 때
+                        self.queue_items_next.insert(0, self.queue_items.pop())
+                        self.queue_items.insert(0, self.queue_items_next.pop())
+
+                        self.queue_description_next.insert(0, self.queue_description.pop())
+                        self.queue_description.insert(0, self.queue_description_next.pop())
+
+                        self.queue_clear_next.insert(0, self.queue_clear.pop())
+                        self.queue_clear.insert(0, self.queue_clear_next.pop())
+
+                        self.queue_date_next.insert(0, self.queue_date.pop())
+                        self.queue_date.insert(0, self.queue_date_next.pop())
+
+                    elif event.button == 5 and self.queue_items[2] != 'Lucky Three':
+                        # 마우스 휠을 아래로 굴릴 때
+                        self.queue_items_next.append(self.queue_items.pop(0))
+                        self.queue_items.append(self.queue_items_next.pop(0))
+
+                        self.queue_description_next.append(self.queue_description.pop(0))
+                        self.queue_description.append(self.queue_description_next.pop(0))
+
+                        self.queue_clear_next.append(self.queue_clear.pop(0))
+                        self.queue_clear.append(self.queue_clear_next.pop(0))
+
+                        self.queue_date_next.append(self.queue_date.pop(0))
+                        self.queue_date.append(self.queue_date_next.pop(0))
 
                 elif event.type == MOUSEMOTION or MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
-                    text = self.font.render("Go back", True, (255, 255, 255))
+                    text = self.font.render("Back", True, (255, 255, 255))
                     text_rect = text.get_rect()
-                    text_rect.topleft = (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() * 3.5 // 4)
-                    if event.type == MOUSEBUTTONUP and self.num != 0:
-                        self.num = 0
-                    for i, item in enumerate(self.items):
-                        circle_rect = pygame.Rect(x_pos_list[i % 6] - 20, y_pos_list[i // 6] - 20, 40, 40)
-                        if circle_rect.collidepoint(pos):
-                            if event.type == MOUSEMOTION:
-                                self.currentXY[0] = i % 6
-                                self.currentXY[1] = i // 6
-                            elif event.type == MOUSEBUTTONUP:
-                                print(f"{self.items[i]} click!")
-                                self.num = (self.currentXY[1] * 6 + self.currentXY[0]) + 1
-                        if text_rect.collidepoint(pos):
-                            if event.type == MOUSEMOTION:
-                                self.currentXY[1] = 2
-                            if event.type == MOUSEBUTTONUP:
-                                print("Go Back click!")
-                                if self.currentXY[1] == 2:
-                                    self.screen.fill((0, 0, 0))
-                                    return 0
+                    text_rect.topleft = (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() * 3.3 // 4)
+                    if text_rect.collidepoint(pos):
+                        if event.type == MOUSEMOTION:
+                            self.current = 1
+                        if event.type == MOUSEBUTTONUP:
+                            print("Go Back click!")
+                            if self.current == 1:
+                                self.screen.fill((0, 0, 0))
+                                self.current = 0
+                                return 0
+                
             # Draw the menu
             self.draw()
             # Update the screen

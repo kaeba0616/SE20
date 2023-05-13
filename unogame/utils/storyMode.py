@@ -26,13 +26,21 @@ class StoryModes:
         self.window = int(self.config['window']['default'])
         self.visible = 'main'
 
-        # 이미지
+        # 노멀 사이즈 이미지
         self.background = [pygame.image.load('./resources/images/storymode/stageA.png'), pygame.image.load('./resources/images/storymode/stageB.png'),
                            pygame.image.load('./resources/images/storymode/stageC.png'), pygame.image.load('./resources/images/storymode/stageD.png')]
         self.memo = [pygame.image.load('./resources/images/storymode/memoA.png'), pygame.image.load('./resources/images/storymode/memoB.png'),
                     pygame.image.load('./resources/images/storymode/memoC.png'), pygame.image.load('./resources/images/storymode/memoD.png')]
         self.check = pygame.image.load('./resources/images/storymode/check.png')
         self.game_start = pygame.image.load('./resources/images/storymode/gamestart.png')
+
+        # 스몰 사이즈 이미지
+        self.background_S = [pygame.image.load('./resources/images/storymode/stageA_S.png'), pygame.image.load('./resources/images/storymode/stageB_S.png'),
+                           pygame.image.load('./resources/images/storymode/stageC_S.png'), pygame.image.load('./resources/images/storymode/stageD_S.png')]
+        self.memo_S = [pygame.image.load('./resources/images/storymode/memoA_S.png'), pygame.image.load('./resources/images/storymode/memoB_S.png'),
+                    pygame.image.load('./resources/images/storymode/memoC_S.png'), pygame.image.load('./resources/images/storymode/memoD_S.png')]
+        self.check_S = pygame.image.load('./resources/images/storymode/check_S.png')
+        self.game_start_S = pygame.image.load('./resources/images/storymode/gamestart_S.png')
 
 
         self.ratio = 1
