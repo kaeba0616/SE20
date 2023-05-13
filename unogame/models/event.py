@@ -138,7 +138,7 @@ class Event:
             if game.info_list[0].is_clicked(event.pos):
                 game.edit_name = True
 
-        if event.type == pygame.KEYDOWN and game.edit_name:
+        elif event.type == pygame.KEYDOWN and game.edit_name:
             if game.edit_text == "__________":
                 game.edit_text = ""
 
@@ -153,7 +153,7 @@ class Event:
                 if len(game.edit_text) < 8:
                     game.edit_text += pygame.key.name(event.key)
 
-        if event.type == pygame.MOUSEBUTTONDOWN and game.edit_name:
+        elif event.type == pygame.MOUSEBUTTONDOWN and game.edit_name:
             if game.ok_button.is_clicked(event.pos):
                 game.info_list[0].text = game.edit_text
                 if game.edit_text == "__________" or game.edit_text == "":
@@ -161,7 +161,7 @@ class Event:
                     game.edit_text = "__________"
                 game.edit_name = False
 
-        if event.type == pygame.KEYDOWN and game.edit_name:
+        elif event.type == pygame.KEYDOWN and game.edit_name and not game.game_active:
             if event.key == game.keys["RETURN"]:
                 game.info_list[0].text = game.edit_text
                 if game.edit_text == "__________" or game.edit_text == "":

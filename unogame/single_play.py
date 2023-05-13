@@ -436,7 +436,7 @@ class Game:
 
             pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
             for i in range(0, self.player_number):
-                self.info_list[i].draw(screen, self.player_number, i)
+                self.info_list[i].draw(screen, self.player_number, i, self.game_active)
 
             if self.now_card.color is not None:
                 pixel = self.now_card_surf.get_at(
@@ -476,7 +476,7 @@ class Game:
                 self.start_button.draw(screen)
                 pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
                 for i in range(0, len(self.info_list)):
-                    self.info_list[i].draw(screen, self.player_number, i)
+                    self.info_list[i].draw(screen, self.player_number, i, self.game_active)
 
             if self.edit_name:
                 screen.blit(self.alpha_surface, (0, 0))
@@ -590,7 +590,10 @@ class Game:
             player.turn = self.turn_list.index(player)
         for component in self.info_list:
             if component.player == self.me:
-                component.text = self.edit_text
+                if self.edit_text == "__________":
+                    component.text = "PLAYER 1(ME)"
+                else:
+                    component.text = self.edit_text
                 print(f"text : {self.edit_text}")
         self.turn_index = self.turn_list.index(temp_player)
 
