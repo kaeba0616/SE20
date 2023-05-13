@@ -386,6 +386,8 @@ class Game:
             component.rect.x = self.lobby_background.x
             component.rect.y = self.lobby_background.y + 100 * i
 
+        if self.me is not None:
+            self.me.update_hand(self.screen)
     def next_screen(self, screen):
         if self.game_active:
             ##
@@ -582,11 +584,14 @@ class Game:
 
     def reverse_turn(self):
         temp_player = self.turn_list[self.turn_index]
-
+        self.info_list.reverse()
         self.turn_list.reverse()
         for player in self.turn_list:
             player.turn = self.turn_list.index(player)
-
+        for component in self.info_list:
+            if component.player == self.me:
+                component.text = self.edit_text
+                print(f"text : {self.edit_text}")
         self.turn_index = self.turn_list.index(temp_player)
 
         ## lms
@@ -661,9 +666,9 @@ class Game:
             if i == len(self.turn_list) - 1:
                 break
 
-            for player in self.turn_list:
-                if player.type == "Human":
-                    self.me = player
+        for player in self.turn_list:
+            if player.type == "Human":
+                self.me = player
 
     def draw_from_center(self, input_deck):
         # print("draw_from_center")
@@ -672,7 +677,7 @@ class Game:
         self.turn_list[self.turn_index].uno = "unactive"
 
     def player_card_setting(self, player):
-        for i in range(7):
+        for i in range(25):
             self.draw_card(player.hand)
 
     def check_condition(self, input_card):

@@ -205,6 +205,7 @@ class Event:
             for card in game.me.hand:
                 if card.rect.collidepoint(event.pos):
                     game.now_select = card
+                    break
             for rect in [
                 game.deck_rect,
                 game.uno_button.rect,

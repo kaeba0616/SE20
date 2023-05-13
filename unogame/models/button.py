@@ -35,6 +35,12 @@ class Component:
         self.font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", font_size)
         self.player = player
         self.is_block = False
+
+        surf = pygame.image.load(
+            "resources/images/card/normalMode/backcard.png"
+        ).convert_alpha()
+        surf = pygame.transform.scale(surf, (15, 20))
+
     def draw(self, screen, player_number, index):
         if index == 0:
             pass
@@ -50,16 +56,13 @@ class Component:
         text_surface = self.font.render(self.text, True, self.text_color)
         text_x = self.rect.x + 5
         text_y = self.rect.y + 5
+
         if self.player is not None:
             for i in range(len(self.player.hand)):
-                surf = pygame.image.load(
-                    "resources/images/card/normalMode/backcard.png"
-                ).convert_alpha()
-                surf = pygame.transform.scale(surf, (15, 20))
-                rect = surf.get_rect(
+                rect = Component.surf.get_rect(
                     midleft=(self.rect.x + 5 + 10 * i, self.rect.y + 50)
                 )
-                screen.blit(surf, rect)
+                screen.blit(Component.surf, rect)
             text_surface = self.font.render(
                 self.text + f" : {len(self.player.hand)}",
                 False,
