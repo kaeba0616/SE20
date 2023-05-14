@@ -347,7 +347,7 @@ class Setting:
         elif option == 2:
             self.screen = pygame.display.set_mode((1000, 750))
         elif option == 3:
-            self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            self.screen = pygame.display.set_mode((1280, 960))
         self.config['window']['default'] = str(option)
     
     def configKeys(self, option):
