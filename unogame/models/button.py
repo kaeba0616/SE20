@@ -35,31 +35,35 @@ class Component:
         self.font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", font_size)
         self.player = player
         self.is_block = False
-    def draw(self, screen, player_number, index):
-        if index == 0:
-            pass
-        elif index < player_number:
-            self.text = f"PLAYER {index+1}"
-            self.color = (255, 255, 255)
-            self.text_color = (64, 64, 64)
-        else:
-            self.text = "EMPTY"
-            self.color = (64, 64, 64)
-            self.text_color = (255, 255, 255)
+
+        self.surf = pygame.image.load(
+            "resources/images/card/normalMode/backcard.png"
+        ).convert_alpha()
+        self.surf = pygame.transform.scale(self.surf, (15, 20))
+
+    def draw(self, screen, player_number, index, game_active):
+        if not game_active:
+            if index == 0:
+                pass
+            elif index < player_number:
+                self.text = f"PLAYER {index + 1}"
+                self.color = (255, 255, 255)
+                self.text_color = (64, 64, 64)
+            else:
+                self.text = "EMPTY"
+                self.color = (64, 64, 64)
+                self.text_color = (255, 255, 255)
         pygame.draw.rect(screen, self.color, self.rect)
         text_surface = self.font.render(self.text, True, self.text_color)
         text_x = self.rect.x + 5
         text_y = self.rect.y + 5
+
         if self.player is not None:
             for i in range(len(self.player.hand)):
-                surf = pygame.image.load(
-                    "resources/images/card/normalMode/backcard.png"
-                ).convert_alpha()
-                surf = pygame.transform.scale(surf, (15, 20))
-                rect = surf.get_rect(
+                rect = self.surf.get_rect(
                     midleft=(self.rect.x + 5 + 10 * i, self.rect.y + 50)
                 )
-                screen.blit(surf, rect)
+                screen.blit(self.surf, rect)
             text_surface = self.font.render(
                 self.text + f" : {len(self.player.hand)}",
                 False,

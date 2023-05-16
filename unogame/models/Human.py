@@ -46,7 +46,6 @@ class Human(Player):
                     pass
 
     def draw_hand(self, screen):
-        self.update_hand(screen)
         for card in self.hand:
             if len(self.hand) > 20:
                 screen.blit(card.small_image_surface, card.rect)
