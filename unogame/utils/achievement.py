@@ -30,6 +30,7 @@ class achievement:
         #config.read("../setting_data.ini")
         self.config = config
         self.configKeys = list(self.config["Achievement"].keys())
+        self.dateKeys = list(self.config["date"].keys())
         self.font = pygame.font.SysFont(None, 48)
 
     def showMessage(self):
@@ -64,70 +65,8 @@ class achievement:
     def accomplish(self, index):
         self.message = self.messages[index]
         date = str(datetime.date.today())
-        self.config["Achievement"][self.configKeys[index]] = date
+        self.config["date"][self.dateKeys[index]] = date
+        self.config["Achievement"][self.configKeys[index]] = "1"
         with open('setting_data.ini', 'w') as f:
             self.config.write(f)
         self.showMessage()
-
-'''
-    def singleWin(self):
-        self.message = "Achievement Unlocked: Single Win"
-        self.config["Achievement"]["singleWin"] = "1"
-        with open('setting_data.ini', 'w') as f:
-            self.config.write(f)
-        self.showMessage()
-
-    def stageAClear(self):
-        self.message = "Achievement Unlocked: Stage A Clear"
-        self.config["Achievement"]["stageAClear"] = "1"
-        self.showMessage()
-
-    def stageBClear(self):
-        self.message = "Achievement Unlocked: Stage B Clear"
-        self.config["Achievement"]["stageBClear"] = "1"
-        self.showMessage()
-
-    def stageCClear(self):
-        self.message = "Achievement Unlocked: Stage C Clear"
-        self.config["Achievement"]["stageCClear"] = "1"
-        self.showMessage()
-
-    def stageDClear(self):
-        self.message = "Achievement Unlocked: Stage D Clear"
-        self.config["Achievement"]["stageDClear"] = "1"
-        self.showMessage()
-
-    def storyAllClear(self):
-        self.message = "Achievement Unlocked: Story All Clear"
-        self.config["Achievement"]["storyAllClear"] = "1"
-        self.showMessage()
-
-    def In10TurnWin(self):
-        self.message = "Achievement Unlocked: In 10 Turn Win"
-        self.config["Achievement"]["In10TurnWin"] = "1"
-        self.showMessage()
-
-    def OnlyNumberCardWin(self):
-        self.message = "Achievement Unlocked: Only Number Card Win"
-        self.config["Achievement"]["OnlyNumberCardWin"] = "1"
-        self.showMessage()
-
-    def OnlySkillCardWin(self):
-        self.message = "Achievement Unlocked: Only Skill Card Win"
-        self.config["Achievement"]["OnlySkillCardWin"] = "1"
-        self.showMessage()
-
-    def OtherPlayerUNOWin(self):
-        self.message = "Achievement Unlocked: Other Player UNO Win"
-        self.config["Achievement"]["OtherPlayerUNOWin"] = "1"
-        self.showMessage()
-
-    def GrabOver15Card(self):
-        self.message = "Achievement Unlocked: Grab Over 15 Card"
-        self.config["Achievement"]["GrabOver15Card"] = "1"
-        self.showMessage()
-
-    def LuckySeven(self):
-        self.message = "Achievement Unlocked: Lucky Seven"
-        self.config["Achievement"]["LuckySeven"] = "1"
-        self.showMessage()'''
