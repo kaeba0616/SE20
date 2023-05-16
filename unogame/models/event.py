@@ -15,7 +15,8 @@ class Event:
 
     def __init__(self, game):
         self.game = game
-        self.achive = game.achieve
+        self.achieve = game.achieve
+        self.config = game.config
     def event_loop(self, event, game):
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -47,7 +48,9 @@ class Event:
 
         elif game.is_win and not game.game_active:
             if not game.event_active:
-                # pygame.time.delay(500)
+                pygame.time.delay(500)
+                # hy - delay after the game end
+                pygame.event.clear()
                 # print("event_active")
                 game.resume_event_handling()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -181,6 +184,8 @@ class Event:
                 # 인간이면 2초가 지났을 때 무조건 우노 실패
                 if player.uno == "active" and player.type == "Human":
                     game.draw_card(player.hand)
+                    if(player.type == "Human"):  # achievement
+                        game.otherUno = True
                     player.uno = "unactive"
                     game.uno_active_button.text = "defence failed"
                     game.uno_pressed = True
@@ -356,12 +361,21 @@ class Event:
                                 game.now_select = None
                                 if pop_card.skill is not None:
                                     game.skill_active(pop_card)
+                                    game.skillNeverUsed = False    # achievement
+                                else: game.numNeverUsed = False    # achievement
                                 if pop_card.skill not in [
                                     "change",
                                     "block",
                                     "all",
                                 ]:
                                     game.pass_turn()
+                                # achievement
+                                if pop_card.skill in ["plus2", "plus4", "all4"]:
+                                    game.luckyThree += 1
+                                    print(game.luckyThree)
+                                else: game.luckyThree = 0
+                                if game.luckyThree == 3:
+                                    game.achieve.accomplish(11)
 
                                 game.animation_list.append(Animation(
                                     game.me.hand[0].rect.center,
@@ -422,10 +436,10 @@ class Event:
                     game.who = player
                     if game.who.type == "Human":
                         game.win_button.text = "You win !!"
-
-                        # self.achive.singleWin()
+                        game.checkAchieve()    # check achievement condition
                     else:
                         game.win_button.text = f"Player {player.number + 1} win !!"
+                    #game.event_active = False
                     game.pause_event_handling()
 
             # # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리

@@ -25,7 +25,7 @@ class Game:
 
     def __init__(self, screen, player_number, keys, config, soundFX):
         # lms
-        self.achieve = achievement(screen)
+        self.achieve = achievement(config)
         # lms
 
         self.start_count = 1
@@ -49,6 +49,13 @@ class Game:
         self.is_color_change = False
         self.edit_name = False
         self.edit_text = "__________"
+
+        # for achievement
+        self.turnCount = 1
+        self.numNeverUsed = True
+        self.skillNeverUsed = True
+        self.otherUno = False
+        self.luckyThree = 0
 
         # color change하는 중 배경
         self.alpha_surface = pygame.Surface(
@@ -287,24 +294,27 @@ class Game:
 
     def start_single_play(self):
         pygame.init()
-        screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        #screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         while self.run:
-            screen.fill((50, 200, 50))
+            self.screen.fill((50, 200, 50))
             self.make_screen()
             # event loop
 
             if self.game_active:
                 self.time_button.text = f"TIME : {self.current_time}"
-                self.time_button.draw(screen)
-
+                self.time_button.draw(self.screen)
+    
             for event in pygame.event.get():
+                #print(event)
                 if self.event.event_loop(event, self) == "out":
                     return
-                  
+                if(not self.event_active):
+                    pygame.event.clear()
+                    break
             # event loop 종료
 
-            self.next_screen(screen)
+            self.next_screen(self.screen)
             pygame.display.update()
 
             # Limit the frame rate
@@ -469,7 +479,8 @@ class Game:
             self.remain.clear()
 
             if self.is_win:
-                time.sleep(1)
+                # hy
+                #time.sleep(1)
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
@@ -503,6 +514,7 @@ class Game:
                 self.ok_button.draw(screen)
 
             pygame.display.update()
+        self.achieve.update(screen)  # achievement
 
     def computer_turn(self):
         self.com_card = []
@@ -568,6 +580,7 @@ class Game:
                 # lms
                 if self.who.type == "Human":
                     self.win_button.text = f"You win !!"
+                    self.checkAchieve()  # achievement
                 else:
                     self.win_button.text = f"Player {self.who.number + 1} win !!"
                 # lms
@@ -614,12 +627,17 @@ class Game:
         if len(self.deck) != 0:
             pop_card = self.deck.pop()
             input_deck.append(pop_card)
+        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "NULL":   # achievement
+            self.achieve.accomplish(10)
+
 
     def plus(self, input_deck, count):  # deck : list / first, second : card
         for _ in range(count):
             if len(self.deck) != 0:
                 pop_card = self.deck.pop()
                 input_deck.append(pop_card)
+        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "NULL":   # achievement
+            self.achieve.accomplish(10)
 
     def generate_deck(self):
         for color, number in itertools.product(Card.colors, Card.numbers):
@@ -792,6 +810,7 @@ class Game:
             self.turn_index = 0
         self.is_get = False
         self.current_time = 10
+        if(self.turn_list[self.turn_index] == self.me) : self.turnCount += 1   # achievement
         if (
             len(self.turn_list[self.turn_index].hand) == 1
             and self.turn_list[self.turn_index].uno == "active"
@@ -865,6 +884,14 @@ class Game:
         while self.edit_name:
             screen.blit(self.alpha_surface, (0, 0))
 
-
     def checkAchieve(self):
-        self.achieve.singleWin()
+        if self.config["Achievement"]["singleWin"] == "NULL":
+            self.achieve.accomplish(0)
+        if self.turnCount <= 10 and self.config["Achievement"]["in10turnwin"] == "NULL":
+            self.achieve.accomplish(6)
+        if self.numNeverUsed and self.config["Achievement"]["onlyskillcardwin"] == "NULL":
+            self.achieve.accomplish(8)
+        if self.skillNeverUsed and self.config["Achievement"]["onlynumbercardwin"] == "NULL":
+            self.achieve.accomplish(7)
+        if self.otherUno and self.config["Achievement"]["otherplayerunowin"] == "NULL":
+            self.achieve.accomplish(9)
