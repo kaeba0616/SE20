@@ -1,4 +1,4 @@
-import configparser
+import datetime
 import pygame
 
 #config  = configparser.ConfigParser()
@@ -18,7 +18,7 @@ class achievement:
             "Achievement Unlocked: Only Skill Card Win",
             "Achievement Unlocked: Other Player UNO Win",
             "Achievement Unlocked: Grab Over 15 Card",
-            "Achievement Unlocked: Lucky Seven"
+            "Achievement Unlocked: Lucky Three"
         ]
         self.visible = False
         self.timer_started = False
@@ -63,7 +63,8 @@ class achievement:
 
     def accomplish(self, index):
         self.message = self.messages[index]
-        self.config["Achievement"][self.configKeys[index]] = "1"
+        date = str(datetime.date.today())
+        self.config["Achievement"][self.configKeys[index]] = date
         with open('setting_data.ini', 'w') as f:
             self.config.write(f)
         self.showMessage()

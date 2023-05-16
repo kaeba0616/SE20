@@ -337,6 +337,13 @@ class Event:
                                     "all",
                                 ]:
                                     game.pass_turn()
+                                # achievement
+                                if pop_card.skill in ["plus2", "plus4", "all4"]:
+                                    game.luckyThree += 1
+                                    print(game.luckyThree)
+                                else: game.luckyThree = 0
+                                if game.luckyThree == 3:
+                                    game.achieve.accomplish(11)
 
                                 game.now_card = pop_card
                                 game.now_card_surf = pop_card.image
