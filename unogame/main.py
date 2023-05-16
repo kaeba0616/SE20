@@ -40,7 +40,7 @@ soundFX.soundIni(config)
 sound.playMusic(1)
 
 # Create the menu
-menu = menu.Menu(key_list, font, screen)
+menu = menu.Menu(key_list, font, screen, config)
 #multiplay = multiMenu.multiPlayMenu(key_list, font, screen, config, soundFX)
 setting = settings.Setting(key_list, font, screen, soundFX, config)
 storyModess = storyMode.StoryModes(screen, font, config, key_list, soundFX)

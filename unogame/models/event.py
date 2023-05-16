@@ -9,7 +9,7 @@ from utils.achievement import achievement as ach
 from pause import PauseClass
 import time
 
-from unogame.models.animation import Animation
+from models.animation import Animation
 class Event:
     pygame.init()
 
