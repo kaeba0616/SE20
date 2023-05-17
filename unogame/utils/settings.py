@@ -8,7 +8,7 @@ class Setting:
     def __init__(self, keys, font, screen, sounds, config):
         self.items = [
                       ["Window Size", "Key Configuration", "Color Blindness Mode", "Set Volume", "Reset Settings"],
-                      ["800 x 600", "size 2", "Fullscreen"],
+                      ["800 x 600", "1000 x 750", "1280 x 960"],
                       list(keys.items()),
                       ["Deuteranopia(Red-Green)", "Tritanopia(Blue-Yellow)", "None"],
                       ["Music Volume", "", "Sound Volume", ""]

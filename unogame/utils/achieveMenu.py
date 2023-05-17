@@ -92,12 +92,12 @@ class achieveMenu:
             self.screen.blit(self.updown_S[1], (710, screenH // 3.4 * 2.35))
             # 업적 이름
             for i in range(4):
-                text = pygame.font.SysFont(None, 35).render(self.queue_items[i] + ': ' + self.queue_date[i] if self.queue_clear[i] else self.queue_items[i], True, (255, 255, 20) if self.queue_clear[i] else (250, 250, 250))
+                text = pygame.font.SysFont(None, 40).render(self.queue_items[i] + ': ' + self.queue_date[i] if self.queue_clear[i] else self.queue_items[i], True, (255, 255, 20) if self.queue_clear[i] else (250, 250, 250))
                 self.screen.blit(text, (screenW // 5, screenH // 5 * i + 60))
             # 업적 소개
             for i in range(4):
-                text = pygame.font.SysFont(None, 25).render(self.queue_description[i], True, (250, 250, 250))
-                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 90))
+                text = pygame.font.SysFont(None, 30).render(self.queue_description[i], True, (250, 250, 250))
+                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 105))
         elif self.window == 2:
             # 업적 이미지
             for i in range(4):
@@ -132,8 +132,8 @@ class achieveMenu:
                 self.screen.blit(text, (screenW // 5, screenH // 5 * i + 70))
             # 업적 소개
             for i in range(4):
-                text = pygame.font.SysFont(None, 35).render(self.queue_description[i], True, (250, 250, 250))
-                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 120))
+                text = pygame.font.SysFont(None, 48).render(self.queue_description[i], True, (250, 250, 250))
+                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 140))
         
 
         
