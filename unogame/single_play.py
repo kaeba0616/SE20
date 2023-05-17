@@ -627,7 +627,7 @@ class Game:
         if len(self.deck) != 0:
             pop_card = self.deck.pop()
             input_deck.append(pop_card)
-        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "NULL":   # achievement
+        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)
 
 
@@ -636,7 +636,7 @@ class Game:
             if len(self.deck) != 0:
                 pop_card = self.deck.pop()
                 input_deck.append(pop_card)
-        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "NULL":   # achievement
+        if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)
 
     def generate_deck(self):
@@ -698,7 +698,7 @@ class Game:
         self.turn_list[self.turn_index].uno = "unactive"
 
     def player_card_setting(self, player):
-        for i in range(25):
+        for i in range(7):
             self.draw_card(player.hand)
 
     def check_condition(self, input_card):
@@ -885,13 +885,13 @@ class Game:
             screen.blit(self.alpha_surface, (0, 0))
 
     def checkAchieve(self):
-        if self.config["Achievement"]["singleWin"] == "NULL":
+        if self.config["Achievement"]["singleclear"] == "0":
             self.achieve.accomplish(0)
-        if self.turnCount <= 10 and self.config["Achievement"]["in10turnwin"] == "NULL":
+        if self.turnCount <= 10 and self.config["Achievement"]["in10turnwin"] == "0":
             self.achieve.accomplish(6)
-        if self.numNeverUsed and self.config["Achievement"]["onlyskillcardwin"] == "NULL":
+        if self.numNeverUsed and self.config["Achievement"]["onlyskillcardwin"] == "0":
             self.achieve.accomplish(8)
-        if self.skillNeverUsed and self.config["Achievement"]["onlynumbercardwin"] == "NULL":
+        if self.skillNeverUsed and self.config["Achievement"]["onlynumbercardwin"] == "0":
             self.achieve.accomplish(7)
-        if self.otherUno and self.config["Achievement"]["otherplayerunowin"] == "NULL":
+        if self.otherUno and self.config["Achievement"]["otherplayerunowin"] == "0":
             self.achieve.accomplish(9)

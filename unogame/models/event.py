@@ -1,21 +1,17 @@
 import pygame
-import itertools
 import random
 import sys
 
 import pygame
-from utils.achievement import achievement as ach
 
 from pause import PauseClass
-import time
 
-from unogame.models.animation import Animation
+from models.animation import Animation
 class Event:
     pygame.init()
 
     def __init__(self, game):
         self.game = game
-        self.achieve = game.achieve
         self.config = game.config
     def event_loop(self, event, game):
         if event.type == pygame.QUIT:
