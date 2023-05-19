@@ -5,7 +5,7 @@ from utils import *
 # from single_play import start_single_play
 from single_play import Game
 import urllib.request
-
+from utils.multiMenu import multiPlayMenu
 
 
 config = configparser.ConfigParser()
@@ -54,12 +54,12 @@ while True:
         # Start single player game
         print("Start Game")  # Replace with your game code
         soundFX.soundPlay(1)
-        game = Game(screen, 2, key_list, config, soundFX)
+        game = Game(screen, 1, key_list, config, soundFX)
         selected = game.start_single_play()
 
     elif selected == 1:
         print("start MultiPlay")
-        #selected = multiplay.run()
+        selected = multiPlayMenu.run()
 
 
     elif selected == 2:

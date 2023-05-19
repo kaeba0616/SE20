@@ -7,6 +7,7 @@ import pygame
 from pause import PauseClass
 
 from models.animation import Animation
+from models.AI import AI
 class Event:
     pygame.init()
 
@@ -113,6 +114,9 @@ class Event:
             and not game.edit_name
         ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name):
             if not game.game_active:
+                if game.player_number == 1:
+                    game.player_number += 1
+                    game.info_list[1].is_empty = False
                 game.game_active = True
                 game.is_win = False
                 game.generate_deck()
@@ -121,19 +125,26 @@ class Event:
                     game.turn_index += 1
                 game.turn_index = 0
         elif event.type == pygame.MOUSEBUTTONDOWN and not game.game_active:
-            for i in range(2, len(game.info_list)):
+            for i in range(1, len(game.info_list)):
                 if (
                     game.info_list[i].ban_player(event.pos)
-                    and game.info_list[i].text != "EMPTY"
+                    and not game.info_list[i].is_empty
                 ):
-                    if game.player_number > 2:
+                    if game.player_number > 1:
                         game.player_number -= 1
+                        game.info_list[i].is_empty = True
                 elif (
                     game.info_list[i].is_clicked(event.pos)
-                    and game.info_list[i].text == "EMPTY"
+                    and game.info_list[i].is_empty
                 ):
                     if game.player_number <= 5:
                         game.player_number += 1
+                        game.info_list[i].is_empty = False
+                        game.info_list[i].is_choose = True
+                elif not game.info_list[i].is_empty and game.info_list[i].is_choose and game.info_list[i].change_clicked(event.pos):
+                    game.info_list[i].is_choose = False
+                    print(game.info_list[i].choose_AI_type(event.pos, i))
+
             if game.info_list[0].is_clicked(event.pos):
                 game.edit_name = True
 

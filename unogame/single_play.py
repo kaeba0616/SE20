@@ -209,6 +209,8 @@ class Game:
                 None,
             )
         )
+        self.info_list[0].is_empty = False
+        self.info_list[0].player= Human(0, [], 0)
         for i in range(1, 6):
             self.info_list.append(
                 Component(
@@ -446,7 +448,7 @@ class Game:
 
             pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
             for i in range(0, self.player_number):
-                self.info_list[i].draw(screen, self.player_number, i, self.game_active)
+                self.info_list[i].draw(screen, self.game_active)
 
             if self.now_card.color is not None:
                 pixel = self.now_card_surf.get_at(
@@ -487,7 +489,7 @@ class Game:
                 self.start_button.draw(screen)
                 pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
                 for i in range(0, len(self.info_list)):
-                    self.info_list[i].draw(screen, self.player_number, i, self.game_active)
+                    self.info_list[i].draw(screen, self.game_active)
 
             if self.edit_name:
                 screen.blit(self.alpha_surface, (0, 0))
@@ -676,17 +678,20 @@ class Game:
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
+        empty_list = []
+        for i in range(0,len(self.info_list)):
+            if self.info_list[i].is_empty:
+                empty_list.append(self.info_list[i])
+        for i in range(0,len(empty_list)):
+            self.info_list.remove(empty_list[i])
+        for i in range(1, len(self.info_list)):
+            if self.info_list[i].player is None:
+                self.info_list[i].player = AI(i, [], i)
+                self.info_list[i].is_choose = False
+            self.info_list[i].player.turn = i
+            self.info_list[i].player.number = i
 
-        self.turn_list = [
-            Human(i, [], i) if i == 0 else AI(i, [], i)
-            for i in range(self.player_number)
-        ]
-        self.info_list = self.info_list[:self.player_number]
-        for i, component in enumerate(self.info_list):
-            component.player = self.turn_list[i]
-            if i == len(self.turn_list) - 1:
-                break
-
+        self.turn_list = [component.player for component in self.info_list]
         for player in self.turn_list:
             if player.type == "Human":
                 self.me = player
@@ -698,7 +703,7 @@ class Game:
         self.turn_list[self.turn_index].uno = "unactive"
 
     def player_card_setting(self, player):
-        for i in range(7):
+        for i in range(25):
             self.draw_card(player.hand)
 
     def check_condition(self, input_card):
