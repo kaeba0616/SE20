@@ -547,8 +547,8 @@ class Game:
         else:
             self.now_card = self.com_card[0]
             self.now_card_surf = self.now_card.image
-            self.turn_list[self.turn_index].hand.remove(self.now_card)
             self.remain.append(self.now_card)
+            self.turn_list[self.turn_index].hand.remove(self.now_card)   
 
             self.animation_list.append(Animation(
                 self.info_list[self.turn_index].rect.center,
@@ -575,11 +575,12 @@ class Game:
             win_condition = True
             ## test
             for hand in self.turn_list[self.turn_index].hand:
-                if self.check_condition(hand):
+                if self.check_condition(hand) and self.turn_list[self.turn_index].type != "Human":
                     win_condition = False
+                    print("AI available")
                     break
 
-            if win_condition:
+            if win_condition or self.is_win:
                 less_point = self.calculation_point(self.me.hand)
                 for player in self.turn_list:
                     if less_point >= self.calculation_point(player.hand):
@@ -632,13 +633,21 @@ class Game:
         self.is_color_change = True
 
     def draw_card(self, input_deck):
-        if len(input_deck) == 0 and input_deck == self.deck:
-            return
+        #if len(input_deck) == 0 and input_deck == self.deck:
+        #    return
         if len(self.deck) != 0:
             pop_card = self.deck.pop()
             input_deck.append(pop_card)
+        else:
+            canRefill = self.refillCard()
+            if canRefill:
+                pop_card = self.deck.pop()
+                input_deck.append(pop_card)
+            else:
+                print("Lack of Remain - plus")
+                self.is_win = True
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
-            self.achieve.accomplish(10)
+            self.achieve.accomplish(10)  
 
 
     def plus(self, input_deck, count):  # deck : list / first, second : card
@@ -646,6 +655,15 @@ class Game:
             if len(self.deck) != 0:
                 pop_card = self.deck.pop()
                 input_deck.append(pop_card)
+            else:
+                canRefill = self.refillCard()
+                if canRefill:
+                    pop_card = self.deck.pop()
+                    input_deck.append(pop_card)
+                else:
+                    print("Lack of Remain - plus")
+                    self.is_win = True
+
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)
 
@@ -668,7 +686,7 @@ class Game:
 
         # all, all4 카드 추가
         for _ in range(4):
-            temp_card = Card(None, None, "all4", True, self.config)
+            temp_card = Card(None, None, "all", True, self.config)
             self.deck.append(temp_card)
             self.card_list.append(temp_card)
 
@@ -679,7 +697,7 @@ class Game:
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
 
-        self.remain.append(pop_card)  # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
+        # self.remain.append(pop_card)  # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
         self.turn_index = 0
         self.now_card = pop_card  # pop_card(바닥에 있는 카드)가 현재 카드임
         self.now_card_surf = pop_card.image  # 현재 카드 객체화
@@ -905,3 +923,19 @@ class Game:
             self.achieve.accomplish(7)
         if self.otherUno and self.config["Achievement"]["otherplayerunowin"] == "0":
             self.achieve.accomplish(9)
+    
+    def refillCard(self):
+        print("refill Card called")
+        if len(self.remain) == 0: return False
+        random.shuffle(self.remain)
+        while len(self.remain) != 0:
+            card = self.remain.pop()
+            self.deck.append(card)
+        
+        self.animation_list.append(Animation(
+            self.now_card_rect.center,
+            self.deck_rect.center,
+            pygame.time.get_ticks(),
+            4
+        ))
+        return True
