@@ -35,12 +35,17 @@ class Component:
         self.font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", font_size)
         self.player = player
         self.is_block = False
-
+        self.is_choose = True
         self.surf = pygame.image.load(
             "resources/images/card/normalMode/backcard.png"
         ).convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (15, 20))
+        self.close_button = Button(x+width-20,y,20,20,(255,255,255),"X",(64,64,64),20,0)
 
+        self.a_button = Button(x,y,width/2,height/2,(255,255,255),"A",(64,64,64),20,0)
+        self.b_button = Button(x+(width/2),y,width/2,height/2,(255,255,255),"B",(64,64,64),20,0)
+        self.c_button = Button(x,y+(height/2),width/2,height/2,(255,255,255),"C",(64,64,64),20,0)
+        self.d_button = Button(x+(width/2),y+(height/2),width/2,height/2,(255,255,255),"D",(64,64,64),20,0)
     def draw(self, screen, player_number, index, game_active):
         if not game_active:
             if index == 0:
@@ -69,11 +74,30 @@ class Component:
                 False,
                 self.text_color,
             )
-        screen.blit(text_surface, (text_x, text_y))
-
+        if self.is_choose:
+            self.a_button.draw(screen)
+            self.b_button.draw(screen)
+            self.c_button.draw(screen)
+            self.d_button.draw(screen)
+        else:
+            screen.blit(text_surface, (text_x, text_y))
+            self.close_button.draw(screen)
         if self.is_block:
             pygame.draw.line(screen, (255, 0, 0), self.rect.topleft, self.rect.bottomright, 5)
             pygame.draw.line(screen, (255, 0, 0), self.rect.bottomleft, self.rect.topright, 5)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+
+    def ban_player(self, pos):
+        return self.close_button.rect.collidepoint(pos)
+
+    def choose_AI_type(self, pos):
+        if self.a_button.is_clicked(pos):
+            return "a"
+        elif self.b_button.is_clicked(pos):
+            return "b"
+        elif self.c_button.is_clicked(pos):
+            return "c"
+        elif self.d_button.is_clicked(pos):
+            return "d"

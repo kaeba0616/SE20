@@ -123,7 +123,7 @@ class Event:
         elif event.type == pygame.MOUSEBUTTONDOWN and not game.game_active:
             for i in range(2, len(game.info_list)):
                 if (
-                    game.info_list[i].is_clicked(event.pos)
+                    game.info_list[i].ban_player(event.pos)
                     and game.info_list[i].text != "EMPTY"
                 ):
                     if game.player_number > 2:
