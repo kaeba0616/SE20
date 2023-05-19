@@ -376,7 +376,7 @@ class Event:
                                     game.luckyThree += 1
                                     print(game.luckyThree)
                                 else: game.luckyThree = 0
-                                if game.luckyThree == 3:
+                                if game.luckyThree == 3 and self.config['Achievement']['luckyThree'] == '0':
                                     game.achieve.accomplish(11)
 
                                 pygame.time.set_timer(game.animation_list[-1].timer, 2000)
