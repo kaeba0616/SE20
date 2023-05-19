@@ -14,6 +14,8 @@ class achieveMenu:
         self.window = int(self.config['window']['default'])
         self.soundFX = soundFX
         self.current = 0
+        self.backImage = [pygame.image.load('./resources/images/achievement/background_S.png'), pygame.image.load('./resources/images/achievement/background.png'),
+                          pygame.image.load('./resources/images/achievement/background_L.png')]
         self.achieveImage = [pygame.image.load('./resources/images/achievement/noAchieve.png'), pygame.image.load('./resources/images/achievement/achieve.png')]
         self.achieveImage_S = [pygame.image.load('./resources/images/achievement/noAchieve_S.png'), pygame.image.load('./resources/images/achievement/achieve_S.png')]
         self.achieveImage_L = [pygame.image.load('./resources/images/achievement/noAchieve_L.png'), pygame.image.load('./resources/images/achievement/achieve_L.png')]
@@ -66,10 +68,14 @@ class achieveMenu:
                             'You must win after another player declares UNO.', 'You must grab more than 15 cards.', 'You must give three consecutive attack cards.'
                             ]
         # Clear the screen
-        self.screen.fill((0, 0, 0))
+        for i in range(3):
+            if i+1 == int(self.config['window']['default']):
+                self.screen.blit(self.backImage[i], (0, 0))
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        for i in range(3):
+            if i+1 == int(self.config['window']['default']):
+                self.screen.blit(self.backImage[i], (0, 0))
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
         self.window = int(self.config['window']['default'])
@@ -80,25 +86,25 @@ class achieveMenu:
                 self.screen.blit(self.achieveImage_S[0] if not self.queue_clear[i] else self.achieveImage_S[1], (screenW // 20, screenH // 5 * i + 30))
             # BACK
             font = pygame.font.SysFont(None, 60).render("Back", True, (255, 255, 255) if self.current == 0 else (255, 0, 0))
-            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.4 // 4))
+            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.5 // 4))
             # 화살표
             self.screen.blit(self.updown_S[0], (710, 30))
             self.screen.blit(self.updown_S[1], (710, screenH // 3.4 * 2.35))
             # 업적 이름
             for i in range(4):
-                text = pygame.font.SysFont(None, 35).render(self.queue_items[i] + ': ' + self.queue_date[i] if self.queue_clear[i] else self.queue_items[i], True, (255, 255, 20) if self.queue_clear[i] else (250, 250, 250))
+                text = pygame.font.SysFont(None, 40).render(self.queue_items[i] + ': ' + self.queue_date[i] if self.queue_clear[i] else self.queue_items[i], True, (255, 255, 20) if self.queue_clear[i] else (250, 250, 250))
                 self.screen.blit(text, (screenW // 5, screenH // 5 * i + 60))
             # 업적 소개
             for i in range(4):
-                text = pygame.font.SysFont(None, 25).render(self.queue_description[i], True, (250, 250, 250))
-                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 90))
+                text = pygame.font.SysFont(None, 30).render(self.queue_description[i], True, (250, 250, 250))
+                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 105))
         elif self.window == 2:
             # 업적 이미지
             for i in range(4):
                 self.screen.blit(self.achieveImage[0] if not self.queue_clear[i] else self.achieveImage[1], (screenW // 20, screenH // 5 * i + 30))
             # BACK
             font = pygame.font.SysFont(None, 80).render("Back", True, (255, 255, 255) if self.current == 0 else (255, 0, 0))
-            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.4 // 4))
+            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.5 // 4))
             # 화살표
             self.screen.blit(self.updown[0], (890, 30))
             self.screen.blit(self.updown[1], (890, screenH // 3.4 * 2.35))
@@ -116,7 +122,7 @@ class achieveMenu:
                 self.screen.blit(self.achieveImage_L[0] if not self.queue_clear[i] else self.achieveImage_L[1], (screenW // 20, screenH // 5 * i + 30))
             # BACK
             font = pygame.font.SysFont(None, 90).render("Back", True, (255, 255, 255) if self.current == 0 else (255, 0, 0))
-            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.4 // 4))
+            self.screen.blit(font, (screenW // 2 - font.get_width() // 2, screenH * 3.5 // 4))
             # 화살표
             self.screen.blit(self.updown_L[0], (1100, 30))
             self.screen.blit(self.updown_L[1], (1100, screenH // 3.4 * 2.35))
@@ -126,8 +132,8 @@ class achieveMenu:
                 self.screen.blit(text, (screenW // 5, screenH // 5 * i + 70))
             # 업적 소개
             for i in range(4):
-                text = pygame.font.SysFont(None, 35).render(self.queue_description[i], True, (250, 250, 250))
-                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 120))
+                text = pygame.font.SysFont(None, 48).render(self.queue_description[i], True, (250, 250, 250))
+                self.screen.blit(text, (screenW // 5, screenH // 5 * i + 140))
         
 
         
@@ -189,7 +195,7 @@ class achieveMenu:
                         text = pygame.font.SysFont(None, 90).render("Back", True, (255, 255, 255))
 
                     text_rect = text.get_rect()
-                    text_rect.topleft = (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() * 3.4 // 4)
+                    text_rect.topleft = (self.screen.get_width() // 2 - text.get_width() // 2, self.screen.get_height() * 3.5 // 4)
                     if text_rect.collidepoint(pos):
                         if event.type == MOUSEMOTION:
                             self.current = 1

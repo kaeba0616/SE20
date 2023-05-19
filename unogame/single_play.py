@@ -121,6 +121,9 @@ class Game:
             255,
         )
 
+        self.backImage = pygame.image.load('./resources/images/play/play.png')
+
+
         # 로비를 생성하는데 필요한 변수
         self.lobby_background = pygame.Rect(
             self.screen_width - 150, 0, 150, self.screen_height
@@ -297,7 +300,14 @@ class Game:
         #screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         while self.run:
-            self.screen.fill((50, 200, 50))
+            backImage_num = self.config['window']['default']
+            if backImage_num == '1':
+                new_backImage = pygame.transform.scale(self.backImage, (800, 600))
+            elif backImage_num == '2':
+                new_backImage = pygame.transform.scale(self.backImage, (1000, 750))
+            elif backImage_num == '3':
+                new_backImage = pygame.transform.scale(self.backImage, (1280, 960))
+            self.screen.blit(new_backImage, (0, 0))
             self.make_screen()
             # event loop
 
@@ -444,7 +454,7 @@ class Game:
             ) or self.now_select == self.uno_button:
                 pygame.draw.rect(screen, (0, 0, 0), self.now_select, 3)
 
-            pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
+            pygame.draw.rect(screen, (40, 59, 140), self.lobby_background)
             for i in range(0, self.player_number):
                 self.info_list[i].draw(screen, self.player_number, i, self.game_active)
 

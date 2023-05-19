@@ -4,30 +4,32 @@ import sys
 
 
 class Menu:
-    def __init__(self, keys, font, screen):
+    def __init__(self, keys, font, screen, config):
         self.items = ["Single Player Game", "Multi Player Game","Story Mode", "Achievement","Settings", "Exit"]
         self.font = font
         self.screen = screen
         self.selected = 0
         self.title_font = pygame.font.SysFont(None, 72)
-        self.title_text = self.title_font.render("Uno Game", True, (255, 255, 255))
         self.keys = keys
-        self.key_font = pygame.font.SysFont(None, 20)
+        self.key_font = pygame.font.SysFont(None, 30)
         self.visible = [False, 255]
+        self.config = config
+
+        self.backImage = [pygame.image.load('./resources/images/menu/main_S.png'), pygame.image.load('./resources/images/menu/main.png'),
+                          pygame.image.load('./resources/images/menu/main_L.png')]
 
         # Clear the screen
-        self.screen.fill((0, 0, 0))
+        for i in range(3):
+            if i+1 == int(self.config['window']['default']):
+                self.screen.blit(self.backImage[i], (0, 0))
+        
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        for i in range(3):
+            if i+1 == int(self.config['window']['default']):
+                self.screen.blit(self.backImage[i], (0, 0))
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
-
-        # Draw the title
-        self.screen.blit(
-            self.title_text,
-            (screenW // 2 - self.title_text.get_width() // 2, screenH // 6),
-        )
 
         # Draw the menu items
         for i, item in enumerate(self.items):
@@ -35,7 +37,7 @@ class Menu:
                 item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
             )
             self.screen.blit(
-                text, (screenW // 2 - text.get_width() // 2, screenH // 2 + i * 50)
+                text, (screenW * 0.5, screenH // 2 + i * 50)
             )
 
         # Show Keys Event
@@ -44,7 +46,7 @@ class Menu:
                 text = self.key_font.render(
                     f"{name}: {pygame.key.name(key).capitalize()}",
                     True,
-                    (255, 255, 255),
+                    (0, 0, 0),
                 )
                 text.set_alpha(self.visible[1])
                 self.screen.blit(text, (screenW // 16, screenH // 12 + i * 30))
