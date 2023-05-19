@@ -7,7 +7,7 @@ class achievement:
     def __init__(self, config):
         self.message = "Default"
         self.messages = [
-            "Achievement Unlocked: Single Win",
+            "Achievement Unlocked: Single Mode Clear",
             "Achievement Unlocked: Stage A Clear",
             "Achievement Unlocked: Stage D Clear",
             "Achievement Unlocked: Stage C Clear",
@@ -51,7 +51,7 @@ class achievement:
             screen.blit(surface, (self.x, self.y))
             screen.blit(text, (self.x, self.y))
             # Move the message upward
-            if self.y > -50 and self.tickCalcular(self.timer_start_time) > 1000:
+            if self.y > -50 and self.tickCalcular(self.timer_start_time) > 1500:
                 self.y -= 1
             # Check if the timer has expired
             if self.timer_started and self.tickCalcular(self.timer_start_time) > 3000:
