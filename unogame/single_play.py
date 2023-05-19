@@ -122,6 +122,8 @@ class Game:
         )
 
         self.backImage = pygame.image.load('./resources/images/play/play.png')
+        self.backImage2 = pygame.image.load('./resources/images/play/play2.png')
+        self.backImage3 = pygame.image.load('./resources/images/play/before.png')
 
 
         # 로비를 생성하는데 필요한 변수
@@ -159,7 +161,7 @@ class Game:
             30,
             (255, 255, 255),
             "",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -171,7 +173,7 @@ class Game:
             30,
             (255, 255, 255),
             "reverse skill active yellow > green",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -183,7 +185,7 @@ class Game:
             30,
             (255, 255, 255),
             "Uno!",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -194,7 +196,7 @@ class Game:
             30,
             (255, 255, 255),
             f"turn index : {self.turn_index}",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -300,14 +302,18 @@ class Game:
         #screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         while self.run:
-            backImage_num = self.config['window']['default']
-            if backImage_num == '1':
-                new_backImage = pygame.transform.scale(self.backImage, (800, 600))
-            elif backImage_num == '2':
-                new_backImage = pygame.transform.scale(self.backImage, (1000, 750))
-            elif backImage_num == '3':
-                new_backImage = pygame.transform.scale(self.backImage, (1280, 960))
-            self.screen.blit(new_backImage, (0, 0))
+            # backImage_num = self.config['window']['default']
+            # if backImage_num == '1':
+            #     new_backImage = pygame.transform.scale(self.backImage, (800, 600))
+            # elif backImage_num == '2':
+            #     new_backImage = pygame.transform.scale(self.backImage, (1000, 750))
+            # elif backImage_num == '3':
+            #     new_backImage = pygame.transform.scale(self.backImage, (1280, 960))
+            # self.screen.blit(new_backImage, (0, 0))
+            # self.screen.fill((57, 157, 220))
+            self.screen.blit(self.backImage2, (0, 0))
+            
+
             self.make_screen()
             # event loop
 
@@ -452,9 +458,9 @@ class Game:
             if (
                 self.now_select and self.me.turn == self.turn_index
             ) or self.now_select == self.uno_button:
-                pygame.draw.rect(screen, (0, 0, 0), self.now_select, 3)
-
-            pygame.draw.rect(screen, (40, 59, 140), self.lobby_background)
+                pygame.draw.rect(screen, (255, 255, 255), self.now_select, 3)
+                
+            pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
             for i in range(0, self.player_number):
                 self.info_list[i].draw(screen, self.player_number, i, self.game_active)
 
@@ -481,7 +487,7 @@ class Game:
             self.turn_button.text = f"turn index : {self.turn_index}"
             self.turn_button.draw(screen)
         else:
-            screen.fill("green")
+            screen.blit(self.backImage3, (0, 0))
             # 게임이 종료되었을 때 덱 초기화
             for player in self.turn_list:
                 player.hand.clear()
@@ -495,7 +501,7 @@ class Game:
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
                 self.start_button.draw(screen)
-                pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
+                pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
                 for i in range(0, len(self.info_list)):
                     self.info_list[i].draw(screen, self.player_number, i, self.game_active)
 

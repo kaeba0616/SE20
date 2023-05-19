@@ -18,20 +18,21 @@ class PauseClass:
         self.selected = 0
         self.config = config
         self.soundFX = soundFX
-        self.backImage = pygame.image.load('./resources/images/play/pause.png')
+        self.backImage = pygame.image.load('./resources/images/play/play2.png')
 
 
         self.screen.blit(self.backImage, (0, 0))
 
     def draw(self):
-        backImage_num = self.config['window']['default']
-        if backImage_num == '1':
-            new_backImage = pygame.transform.scale(self.backImage, (800, 600))
-        elif backImage_num == '2':
-            new_backImage = pygame.transform.scale(self.backImage, (1000, 750))
-        elif backImage_num == '3':
-            new_backImage = pygame.transform.scale(self.backImage, (1280, 960))
-        self.screen.blit(new_backImage, (0, 0))
+        # backImage_num = self.config['window']['default']
+        # if backImage_num == '1':
+        #     new_backImage = pygame.transform.scale(self.backImage, (800, 600))
+        # elif backImage_num == '2':
+        #     new_backImage = pygame.transform.scale(self.backImage, (1000, 750))
+        # elif backImage_num == '3':
+        #     new_backImage = pygame.transform.scale(self.backImage, (1280, 960))
+        self.screen.blit(self.backImage, (0, 0))
+        # self.screen.fill((68, 86, 213))
 
         # Draw the title
         self.screen.blit(
