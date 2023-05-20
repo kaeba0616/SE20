@@ -88,7 +88,7 @@ class Card:
 
     # def draw_now_select(self, screen):
     def change_path(self, new_config):
-        if new_config["color"]["default"] == str(2):  # 색맹모드 none
+        if new_config["color"]["default"] == '2':  # 색맹모드 none
             if self.number is not None:  # 숫자카드
                 self.file_path = f"resources/images/card/normalMode/{self.number}/{self.color}_{self.number}.png"
             elif (
@@ -110,7 +110,7 @@ class Card:
             else:
                 print("path error")
 
-        elif new_config["color"]["default"] == str(0):  # 색맹모드 RG
+        elif new_config["color"]["default"] == '0':  # 색맹모드 RG
             if self.number is not None:  # 숫자카드
                 self.file_path = f"resources/images/card/RG/{self.number}/{self.color}_{self.number}.png"
             elif (
@@ -130,7 +130,7 @@ class Card:
                         f"resources/images/card/normalMode/plus4/all_plus4.png"
                     )
 
-        elif new_config["color"]["default"] == str(1):
+        elif new_config["color"]["default"] == '1':
             if self.number is not None:  # 숫자카드
                 self.file_path = f"resources/images/card/YB/{self.number}/{self.color}_{self.number}.png"
             elif (
