@@ -1,10 +1,12 @@
 import pygame
 
-
+animation_count = 1
 class Animation:
 
     def __init__(self, start, end, start_time, count):
-        self.timer = pygame.USEREVENT + 100 + pygame.time.get_ticks()
+        global animation_count
+        self.timer = pygame.USEREVENT + 100 + animation_count
+        animation_count += 1
         self.start = start
         self.end = end
         self.start_time = start_time
