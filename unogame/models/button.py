@@ -98,6 +98,7 @@ class Component:
         return self.rect.collidepoint(pos)
 
     def ban_player(self, pos):
+        self.player = None
         return self.close_button.rect.collidepoint(pos)
 
     def change_clicked(self, pos):

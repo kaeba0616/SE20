@@ -79,24 +79,7 @@ class Event:
                 if game.is_color_change:
                     game.is_color_change = False
                     var = random.randint(0, 3)
-                    if game.config["color"]["default"] == str(2):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/normalMode/change/{game.change_color_list[var][3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(1):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/YB/change/{game.change_color_list[var][3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(0):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/RG/change/{game.change_color_list[var][3]}_change.png"
-                        ).convert_alpha()
-
-                    game.now_card_surf = pygame.transform.scale(
-                        game.now_card_surf, (50, 70)
-                    )
-                    game.now_card.color = game.change_color_list[var][3]
-                    game.is_color_change = False
+                    game.change_color(game.change_color_list[var][3])
                 game.pass_turn()
             game.current_time -= 1
 
@@ -106,6 +89,7 @@ class Event:
             and not game.is_win
         ):
             game.is_skill_active = False
+            game.skill_active_button.text = ""
         elif event.type == game.block_timer and game.game_active and not game.is_win:
             for component in game.info_list:
                 component.is_block = False
@@ -312,23 +296,8 @@ class Event:
             for color_list in game.change_color_list:
                 if color_list[1].collidepoint(event.pos):
                     # lsj: 색약모드 change card
-                    if game.config["color"]["default"] == str(2):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(1):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/YB/change/{color_list[3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(0):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/RG/change/{color_list[3]}_change.png"
-                        ).convert_alpha()
-
-                    game.now_card_surf = pygame.transform.scale(
-                        game.now_card_surf, (50, 70)
-                    )
-                    game.now_card.color = color_list[3]
+                    game.change_color(color_list[3])
+                    game.is_skill_active = True
                     game.is_color_change = False
                     game.pass_turn()
 
