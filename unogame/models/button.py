@@ -66,12 +66,15 @@ class Component:
                 pass
             elif self.player.type == "Human":
                 self.text = f"PLAYER {self.player.number + 1} ({self.player.type})"
-                if game_type == "story":
+                if game_type[0:5] == "stage":
                     self.text = "ME"
             elif self.player.type == "AI":
                 self.text = f"PLAYER {self.player.number + 1} ({self.player.type})"
-                if self.player.stage is not None:
+                if self.player.stage == "NORMAL":
+                    self.text = f"PLAYER {self.player.number + 1} ({self.player.type})"
+                else:
                     self.text = f"PLAYER {self.player.number + 1} ({self.player.type}_{self.player.stage})"
+
             self.color = white
             self.text_color = gray
         elif self.is_choose:
@@ -89,7 +92,7 @@ class Component:
         if self.player is not None and game_active:
             for i in range(len(self.player.hand)):
                 rect = self.surf.get_rect(
-                    midleft=(self.rect.x + 5 + 10 * i, self.rect.y + 50)
+                    midleft=(self.rect.x + 5 + 10 * (i % 14), self.rect.y + 30 + 8 * (i//14))
                 )
                 screen.blit(self.surf, rect)
 
@@ -111,14 +114,6 @@ class Component:
         if self.is_block:
             pygame.draw.line(screen, (255, 0, 0), self.rect.topleft, self.rect.bottomright, 5)
             pygame.draw.line(screen, (255, 0, 0), self.rect.bottomleft, self.rect.topright, 5)
-
-    def story_mode_draw(self, screen, game_active):
-        game_type = "story"
-        self.draw(screen, game_active, game_type)
-
-    def single_mode_draw(self, screen, game_active):
-        game_type = "single"
-        self.draw(screen, game_active, game_type)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
@@ -151,5 +146,5 @@ class Component:
             return "D"
         elif self.normal_button.is_clicked(pos):
             self.player = AI(index, [], index)
-            self.player.stage = None
+            self.player.stage = "NORMAL"
             return "normal"

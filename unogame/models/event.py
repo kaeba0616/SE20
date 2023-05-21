@@ -102,6 +102,29 @@ class Event:
             and game.start_button.rect.collidepoint(event.pos)
             and not game.edit_name
         ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name):
+            # 수정중
+            if game.game_type == "stageA":
+                game.info_list[1].is_empty = False
+                game.info_list[1].player = AI(1, [], 1)
+                game.info_list[1].player.stage = "A"
+            elif game.game_type == "stageB":
+                for i in range(1,4):
+                    game.info_list[i].is_empty = False
+                    game.info_list[i].player = AI(i, [], i)
+                    game.info_list[i].player.stage = "B"
+                    game.player_number += 1
+                game.info_list[0].player.stage = "B"
+            elif game.game_type == "stageC":
+                for i in range(1,3):
+                    game.info_list[i].is_empty = False
+                    game.info_list[i].player = AI(i, [], i)
+                    game.info_list[i].player.stage = "C"
+                    game.player_number += 1
+
+            elif game.game_type == "stageD":
+                    game.info_list[1].is_empty = False
+                    game.info_list[1].player = AI(1, [], 1)
+                    game.info_list[1].player.stage = "D"
 
             if not game.game_active:
                 if game.player_number == 1:
@@ -110,11 +133,8 @@ class Event:
                 game.game_active = True
                 game.is_win = False
                 game.generate_deck()
-                for player in game.turn_list:
-                    game.player_card_setting(player)
-                    game.turn_index += 1
-                game.turn_index = 0
-
+                game.player_card_setting()
+                game.skill_active(game.now_card)
         elif event.type == pygame.KEYDOWN and game.edit_name:
 
             if game.edit_text == "__________":
@@ -156,7 +176,7 @@ class Event:
                     game.edit_text = "__________"
                 game.edit_name = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN and not game.game_active:
+        if event.type == pygame.MOUSEBUTTONDOWN and not game.game_active and game.game_type[0:5] != "stage":
             for i in range(1, len(game.info_list)):
                 if (
                         game.info_list[i].close_button.is_clicked(event.pos)

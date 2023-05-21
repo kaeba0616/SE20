@@ -5,17 +5,17 @@ class Human(Player):
     def __init__(self, number, hand, turn):
         super().__init__(number, hand, turn)
         self.type = "Human"
-
+        self.stage = "Human"
     def update_hand(self, screen):
         if len(self.hand) <= 10:
             for i, card in enumerate(self.hand):
-                card.rect = card.large_image_surface.get_rect(center=(0, 0))
+                card.rect = card.large_image_surface.get_rect(center=(-300, -300))
                 card.rect.x = 20 + (card.width + 5) * i
                 card.rect.y = screen.get_height() - 120
                 card.initial_y = card.rect.y
         elif 10 < len(self.hand) <= 20:
             for i, card in enumerate(self.hand):
-                card.rect = card.large_image_surface.get_rect(center=(0, 0))
+                card.rect = card.large_image_surface.get_rect(center=(-300, -300))
                 if i <= 9:
                     card.rect.x = 20 + (card.width + 5) * i
                     card.rect.y = screen.get_height() - 200
@@ -27,7 +27,7 @@ class Human(Player):
 
         elif 20 < len(self.hand) <= 35:
             for i, card in enumerate(self.hand):
-                card.rect = card.small_image_surface.get_rect(center=(0, 0))
+                card.rect = card.small_image_surface.get_rect(center=(-300, -300))
                 if i <= 9:
                     card.rect.x = 20 + (card.width // 2 + 5) * i
                     card.rect.y = screen.get_height() - 200
