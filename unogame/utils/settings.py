@@ -8,7 +8,7 @@ class Setting:
     def __init__(self, keys, font, screen, sounds, config):
         self.items = [
                       ["Window Size", "Key Configuration", "Color Blindness Mode", "Set Volume", "Reset Settings"],
-                      ["800 x 600", "size 2", "Fullscreen"],
+                      ["800 x 600", "1000 x 750", "1280 x 960"],
                       list(keys.items()),
                       ["Deuteranopia(Red-Green)", "Tritanopia(Blue-Yellow)", "None"],
                       ["Music Volume", "", "Sound Volume", ""]
@@ -23,16 +23,23 @@ class Setting:
         self.option = 0 
         self.sounds = sounds
         self.visible = [False, 255]
+        self.backImage = [pygame.image.load('./resources/images/menu/setting.png'), pygame.image.load('./resources/images/menu/setting_L.png')]
 
         # load data
         self.config = config
         
         # Clear the screen
-        self.screen.fill((0, 0, 0))
+        if self.config['window']['default'] == '3':
+            self.screen.blit(self.backImage[1], (0, 0))
+        else:
+            self.screen.blit(self.backImage[0], (0, 0))
 
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        if self.config['window']['default'] == '3':
+            self.screen.blit(self.backImage[1], (0, 0))
+        else:
+            self.screen.blit(self.backImage[0], (0, 0))
         self.title_text = self.title_font.render(self.titles[self.option], True, (255, 255, 255))
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
@@ -326,10 +333,16 @@ class Setting:
                             if self.option == 0 and self.selected == len(self.items[self.option]): # 메인 화면의 Save 버튼을 눌렀을 때
                                 with open('setting_data.ini', 'w') as f: # ini 파일에 저장
                                     self.config.write(f)
-                                self.screen.fill((0, 0, 0))
+                                    if self.config['window']['default'] == '3':
+                                        self.screen.blit(self.backImage[1], (0, 0))
+                                    else:
+                                        self.screen.blit(self.backImage[0], (0, 0))
                                 return 0
                             else: # 다른 setting 화면의 Save 버튼을 눌렀을 때
-                                self.screen.fill((0, 0, 0))
+                                if self.config['window']['default'] == '3':
+                                    self.screen.blit(self.backImage[1], (0, 0))
+                                else:
+                                    self.screen.blit(self.backImage[0], (0, 0))
                                 self.option = 0
 
             # Draw the menu

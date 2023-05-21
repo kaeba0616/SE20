@@ -371,6 +371,12 @@ class Event:
                     ):
                         if game.now_select in game.me.hand:
                             if game.check_condition(game.now_select):
+                                game.animation_list.append(Animation(
+                                    game.me.hand[0].rect.center,
+                                    game.now_card_rect.center,
+                                    pygame.time.get_ticks(),
+                                    1
+                                ))
                                 pop_card = game.now_select
                                 game.turn_list[game.turn_index].hand.remove(pop_card)
                                 game.now_select = None
@@ -389,17 +395,12 @@ class Event:
                                     game.luckyThree += 1
                                     print(game.luckyThree)
                                 else: game.luckyThree = 0
-                                if game.luckyThree == 3:
+                                if game.luckyThree == 3 and self.config['Achievement']['luckythree'] == '0':
                                     game.achieve.accomplish(11)
 
-                                game.animation_list.append(Animation(
-                                    game.me.hand[0].rect.center,
-                                    game.now_card_rect.center,
-                                    pygame.time.get_ticks(),
-                                    1
-                                ))
                                 pygame.time.set_timer(game.animation_list[-1].timer, 2000)
 
+                                game.remain.append(game.now_card)
                                 game.now_card = pop_card
                                 game.now_card_surf = pop_card.image
 
@@ -458,4 +459,6 @@ class Event:
                     game.pause_event_handling()
 
             # # 7. 뽑을 수 있는 카드가 없고, 모든 플레이어가 현재 낼 수 있는 카드가 없으면 카드가 가장 적은 사람이 승리
+            if(len(game.deck) == 0):
+                game.refillCard()
             game.deck_none()

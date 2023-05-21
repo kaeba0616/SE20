@@ -12,44 +12,61 @@ class multiPlayMenu:
         self.screen = screen
         self.selected = 0
         self.keys = keys
-        self.key_font = pygame.font.SysFont(None, 76)
+        self.config = config
+        self.key_font = pygame.font.SysFont(None, 60)
         self.visible = [False, 255]
+        self.backImage = [pygame.image.load('./resources/images/menu/multi_S.png'), pygame.image.load('./resources/images/menu/multi.png'),
+                          pygame.image.load('./resources/images/menu/multi_L.png')]
+        self.window = self.config['window']['default']
         req = requests.get("http://ipconfig.kr")
         self.hostIP = re.search(r'IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', req.text)[1]
-        self.config = config
         self.soundFX = soundFX
         self.option = 'menu'                     # option = 0이면 선택창, option = 1이면 client menu
         self.text = ''
         self.cursorAct = False
-        self.currentCursor = pygame.mouse.get_cursor()
+        self.x, self.y, self.z = 48, 80, 60             # 글씨 크기 모음
         
 
         # Clear the screen
         self.screen.fill((0, 0, 0))
 
     def draw(self):
-        self.screen.fill((0, 0, 0))
+        self.window = self.config['window']['default']
+        if self.window == '1':
+            self.screen.blit(self.backImage[0], (0, 0))
+            self.x, self.y, self.z = 38, 64, 48
+        elif self.window == '2':
+            self.screen.blit(self.backImage[1], (0, 0))
+            self.x, self.y, self.z = 48, 80, 60
+        else:
+            self.screen.blit(self.backImage[2], (0, 0))
+            self.x, self.y, self.z = 61, 102, 77
         screenW = self.screen.get_width()
         screenH = self.screen.get_height()
         if self.option == 'menu':
             CurrentIPAddress = "Current IP Address: "
-            hostText = self.font.render(CurrentIPAddress + self.hostIP, True, (255, 255, 255))
-            self.screen.blit(hostText, (screenW // 2 - hostText.get_width() // 2, screenH * 0.02))
+            hostText = pygame.font.SysFont(None, self.x).render(CurrentIPAddress + self.hostIP, True, (255, 255, 255))
+            self.screen.blit(hostText, (screenW - hostText.get_width() - screenW // 100, screenH // 100))
+
+            
+            multi = "Multi Player Game"
+            multiText = pygame.font.SysFont(None, self.y).render(multi, True, (0, 0, 0))
+            self.screen.blit(multiText, (screenW // 6, screenH // 3.5))
 
             # Draw the menu items
             for i, item in enumerate(self.items):
-                text = self.key_font.render(
+                text = pygame.font.SysFont(None, self.z).render(
                     item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
                 )
                 self.screen.blit(
-                    text, (screenW // 2 - text.get_width() // 2, screenH // 3.5 + i * screenH // 6)
+                    text, (screenW // 6, screenH // 3 + 150 + i * (self.z + 10))
                 )
         elif self.option == 'client':
             input_box = pygame.Rect(0, 0, self.screen.get_width() // 1.5, self.screen.get_height() // 10)
-            input_box.center = (self.screen.get_width() // 2, self.screen.get_height() // 3)
+            input_box.center = (self.screen.get_width() // 2, self.screen.get_height() // 2.5)
             optionFont = pygame.font.SysFont(None, screenW // 10)
-            pygame.draw.rect(self.screen, (255, 255, 255), input_box, 2)
-            text_surface = optionFont.render(self.text, True, (255, 255, 255))
+            pygame.draw.rect(self.screen, (0, 0, 0), input_box, 2)
+            text_surface = optionFont.render(self.text, True, (0, 0, 0))
             self.screen.blit(text_surface, (input_box.x + 5, input_box.y + 5))
 
             # Draw the menu items
@@ -58,7 +75,7 @@ class multiPlayMenu:
                     item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
                 )
                 self.screen.blit(
-                    text, (screenW // 3 * (i + 1) - text.get_width() // 2, screenH * 0.75)
+                    text, (screenW // 3 * (i + 1) - text.get_width() // 2, screenH * 0.6)
                 )
         
 
@@ -81,7 +98,7 @@ class multiPlayMenu:
                     elif event.key == self.keys["RETURN"]:
                         if self.selected == 0:
                             self.option = 'menu'
-                            game = Game(self.screen, 1, self.keys, self.config, self.soundFX)
+                            game = Game(self.screen, 1, self.keys, self.config, self.soundFX)           # 멀프 방만들기 삽입
                             game.start_multi_play()
                         elif self.selected == 1:
                             self.option = 'client'
@@ -118,10 +135,10 @@ class multiPlayMenu:
                 elif (event.type == MOUSEMOTION or MOUSEBUTTONUP) and self.option == 'menu':
                     pos = pygame.mouse.get_pos()
                     for i, item in enumerate(self.items):
-                        text = self.font.render(item, True, (255, 255, 255))
+                        text = pygame.font.SysFont(None, self.z).render(item, True, (255, 255, 255))
                         rect = text.get_rect()
                         rect.topleft = (
-                            screenW // 2 - text.get_width() // 2, screenH // 3.5 + i * screenH // 6
+                            screenW // 6, screenH // 3 + 150 + i * (self.z + 10)
                         )
                         if rect.collidepoint(pos):
                             if event.type == MOUSEMOTION:
@@ -130,7 +147,7 @@ class multiPlayMenu:
                                 if i == 0:
                                     self.option = 'menu'
                                     game = Game(self.screen, 1, self.keys, self.config, self.soundFX)
-                                    game.start_multi_play()
+                                    game.start_multi_play()                                     # 멀프 방만들기 삽입
                                 elif i == 1:
                                     self.option = 'client'
                                 elif i == 2:
@@ -139,18 +156,14 @@ class multiPlayMenu:
                                 
                 elif (event.type == MOUSEMOTION or MOUSEBUTTONUP) and self.option == 'client':
                     input_box = pygame.Rect(0, 0, self.screen.get_width() // 1.5, self.screen.get_height() // 10)
-                    input_box.center = (self.screen.get_width() // 2, self.screen.get_height() // 3)
+                    input_box.center = (self.screen.get_width() // 2, self.screen.get_height() // 2.5)
                     pos = pygame.mouse.get_pos()
-                    if input_box.collidepoint(pos):
-                        pygame.mouse.set_cursor(*pygame.cursors.broken_x)
-                    else:
-                        pygame.mouse.set_cursor(*self.currentCursor)
 
                     for i, item in enumerate(self.items2):
                         text = self.font.render(item, True, (255, 255, 255))
                         rect = text.get_rect()
                         rect.topleft = (
-                            screenW // 3 * (i + 1) - text.get_width() // 2, screenH * 0.75
+                            screenW // 3 * (i + 1) - text.get_width() // 2, screenH * 0.6
                         )
                         if rect.collidepoint(pos):
                             if event.type == MOUSEMOTION:

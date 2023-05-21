@@ -40,8 +40,8 @@ soundFX.soundIni(config)
 sound.playMusic(1)
 
 # Create the menu
-menu = menu.Menu(key_list, font, screen)
-#multiplay = multiMenu.multiPlayMenu(key_list, font, screen, config, soundFX)
+menu = menu.Menu(key_list, font, screen, config)
+multiplay = multiMenu.multiPlayMenu(key_list, font, screen, config, soundFX)
 setting = settings.Setting(key_list, font, screen, soundFX, config)
 storyModess = storyMode.StoryModes(screen, font, config, key_list, soundFX)
 achieve = achieveMenu.achieveMenu(key_list, font, screen, config, soundFX)
@@ -59,7 +59,7 @@ while True:
 
     elif selected == 1:
         print("start MultiPlay")
-        selected = multiPlayMenu.run()
+        selected = multiplay.run()
 
 
     elif selected == 2:

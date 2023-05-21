@@ -124,6 +124,11 @@ class Game:
             255,
         )
 
+        self.backImage = pygame.image.load('./resources/images/play/play.png')
+        self.backImage2 = pygame.image.load('./resources/images/play/play2.png')
+        self.backImage3 = pygame.image.load('./resources/images/play/before.png')
+
+
         # 로비를 생성하는데 필요한 변수
         self.lobby_background = pygame.Rect(
             self.screen_width - 150, 0, 150, self.screen_height
@@ -159,7 +164,7 @@ class Game:
             30,
             (255, 255, 255),
             "",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -171,7 +176,7 @@ class Game:
             30,
             (255, 255, 255),
             "reverse skill active yellow > green",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -183,7 +188,7 @@ class Game:
             30,
             (255, 255, 255),
             "Uno!",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -194,7 +199,7 @@ class Game:
             30,
             (255, 255, 255),
             f"turn index : {self.turn_index}",
-            (64, 64, 64),
+            (255, 255, 255),
             35,
             0,
         )
@@ -276,7 +281,7 @@ class Game:
             40,
             (255, 255, 255),
             "Player 1 win !!",
-            (64, 64, 64),
+            (255, 255, 255),
             30,
             0,
         )
@@ -303,7 +308,17 @@ class Game:
 
         while self.run:
 
-            self.screen.fill((50, 200, 50))
+            # backImage_num = self.config['window']['default']
+            # if backImage_num == '1':
+            #     new_backImage = pygame.transform.scale(self.backImage, (800, 600))
+            # elif backImage_num == '2':
+            #     new_backImage = pygame.transform.scale(self.backImage, (1000, 750))
+            # elif backImage_num == '3':
+            #     new_backImage = pygame.transform.scale(self.backImage, (1280, 960))
+            # self.screen.blit(new_backImage, (0, 0))
+            # self.screen.fill((57, 157, 220))
+            self.screen.blit(self.backImage2, (0, 0))
+            
             self.make_screen()
             # event loop
 
@@ -448,9 +463,9 @@ class Game:
             if (
                 self.now_select and self.me.turn == self.turn_index
             ) or self.now_select == self.uno_button:
-                pygame.draw.rect(screen, (0, 0, 0), self.now_select, 3)
-
-            pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
+                pygame.draw.rect(screen, (255, 255, 255), self.now_select, 3)
+                
+            pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
             for i in range(0, self.player_number):
                 self.info_list[i].draw(screen, self.game_active, self.game_type)
 
@@ -477,7 +492,7 @@ class Game:
             self.turn_button.text = f"turn index : {self.turn_index}"
             self.turn_button.draw(screen)
         else:
-            screen.fill("green")
+            screen.blit(self.backImage3, (0, 0))
             # 게임이 종료되었을 때 덱 초기화
             for player in self.turn_list:
                 player.hand.clear()
@@ -491,7 +506,7 @@ class Game:
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
                 self.start_button.draw(screen)
-                pygame.draw.rect(screen, (47, 101, 177), self.lobby_background)
+                pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
                 for i in range(0, len(self.info_list)):
                     self.info_list[i].draw(screen, self.game_active, self.game_type)
 
@@ -548,8 +563,8 @@ class Game:
                 and len(self.turn_list[self.turn_index].hand)
                 and self.now_card.skill is not None):
                 self.remain.append(self.turn_list[self.turn_index].hand.pop())
-
             self.remain.append(self.now_card)
+            self.turn_list[self.turn_index].hand.remove(self.now_card)   
 
             self.animation_list.append(Animation(
                 self.info_list[self.turn_index].rect.center,
@@ -574,11 +589,12 @@ class Game:
             win_condition = True
             ## test
             for hand in self.turn_list[self.turn_index].hand:
-                if self.check_condition(hand):
+                if self.check_condition(hand) and self.turn_list[self.turn_index].type != "Human":
                     win_condition = False
+                    print("AI available")
                     break
 
-            if win_condition:
+            if win_condition or self.is_win:
                 less_point = self.calculation_point(self.me.hand)
                 for player in self.turn_list:
                     if less_point >= self.calculation_point(player.hand):
@@ -626,13 +642,21 @@ class Game:
 
 
     def draw_card(self, input_deck):
-        if len(input_deck) == 0 and input_deck == self.deck:
-            return
+        #if len(input_deck) == 0 and input_deck == self.deck:
+        #    return
         if len(self.deck) != 0:
             pop_card = self.deck.pop()
             input_deck.append(pop_card)
+        else:
+            canRefill = self.refillCard()
+            if canRefill:
+                pop_card = self.deck.pop()
+                input_deck.append(pop_card)
+            else:
+                print("Lack of Remain - plus")
+                self.is_win = True
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
-            self.achieve.accomplish(10)
+            self.achieve.accomplish(10)  
 
 
     def plus(self, input_deck, count):  # deck : list / first, second : card
@@ -640,6 +664,15 @@ class Game:
             if len(self.deck) != 0:
                 pop_card = self.deck.pop()
                 input_deck.append(pop_card)
+            else:
+                canRefill = self.refillCard()
+                if canRefill:
+                    pop_card = self.deck.pop()
+                    input_deck.append(pop_card)
+                else:
+                    print("Lack of Remain - plus")
+                    self.is_win = True
+
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)
 
@@ -662,7 +695,7 @@ class Game:
 
         # all, all4 카드 추가
         for _ in range(4):
-            temp_card = Card(None, None, "all4", True, self.config)
+            temp_card = Card(None, None, "all", True, self.config)
             self.deck.append(temp_card)
             self.card_list.append(temp_card)
 
@@ -673,7 +706,7 @@ class Game:
         random.shuffle(self.deck)
         pop_card = self.deck.pop()
 
-        self.remain.append(pop_card)  # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
+        # self.remain.append(pop_card)  # 낸 카드 리스트에 pop_card 추가(바닥에 있는 카드)
         self.turn_index = 0
         self.now_card = pop_card  # pop_card(바닥에 있는 카드)가 현재 카드임
         self.now_card_surf = pop_card.image  # 현재 카드 객체화
@@ -976,3 +1009,19 @@ class Game:
             self.achieve.accomplish(7)
         if self.otherUno and self.config["Achievement"]["otherplayerunowin"] == "0":
             self.achieve.accomplish(9)
+    
+    def refillCard(self):
+        print("refill Card called")
+        if len(self.remain) == 0: return False
+        random.shuffle(self.remain)
+        while len(self.remain) != 0:
+            card = self.remain.pop()
+            self.deck.append(card)
+        
+        self.animation_list.append(Animation(
+            self.now_card_rect.center,
+            self.deck_rect.center,
+            pygame.time.get_ticks(),
+            4
+        ))
+        return True
