@@ -217,31 +217,31 @@ class StoryModes:
                                 print(f"{self.stages[self.current_stage]} start!")
                                 if self.current_stage == 0:             # 스테이지 A 선택 + Play
                                     print("임의로 게임 clear")
-                                    # stage = stageA.stage_A(self.screen, 2, self.key, self.config, self.soundFX)
-                                    # win = stage.start_single_play()
-                                    # if win != 0:
-                                    #     return
+                                    stage = stageA.stage_A(self.screen, self.key, self.config, self.soundFX)
+                                    win = stage.start_single_play()
+                                    if win != 0:
+                                        return
                                     
                                 elif self.current_stage == 1:          # 스테이지 B 선택 + Play
                                     print("임의로 게임 clear")
-                                    # stage = stageB.stage_B(self.screen, 4, self.key, self.config, self.soundFX)
-                                    # win = stage.start_single_play()
-                                    # if win != 0:
-                                    #     return
+                                    stage = stageB.stage_B(self.screen, self.key, self.config, self.soundFX)
+                                    win = stage.start_single_play()
+                                    if win != 0:
+                                        return
 
                                 elif self.current_stage == 2:          # 스테이지 C 선택 + Play
                                     print("임의로 게임 clear")
-                                    # stage = stageC.stage_C(self.screen, 3, self.key, self.config, self.soundFX)
-                                    # win = stage.start_single_play()
-                                    # if win != 0:
-                                    #     return
+                                    stage = stageC.stage_C(self.screen, self.key, self.config, self.soundFX)
+                                    win = stage.start_single_play()
+                                    if win != 0:
+                                        return
 
                                 elif self.current_stage == 3:          # 스테이지 D 선택 + Play
                                     print("임의로 게임 clear")
-                                    # stage = stageD.stage_D(self.screen, 2, self.key, self.config, self.soundFX)
-                                    # win = stage.start_single_play()
-                                    # if win != 0:
-                                    #     return
+                                    stage = stageD.stage_D(self.screen, self.key, self.config, self.soundFX)
+                                    win = stage.start_single_play()
+                                    if win != 0:
+                                        return
                                 
                                 self.config['clear'][f'stage{self.current_stage + 1}'] = '1'
                                 self.config['open'][f'stage{self.current_stage + 2}'] = '1'
