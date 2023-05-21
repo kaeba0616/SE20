@@ -23,7 +23,7 @@ class Game:
     font = pygame.font.Font("./resources/fonts/Pixeltype.ttf", 36)
     clock = pygame.time.Clock()
 
-    def __init__(self, screen, player_number, keys, config, soundFX):
+    def __init__(self, screen, keys, config, soundFX):
         # lms
         self.achieve = achievement(config)
         # lms
@@ -32,7 +32,7 @@ class Game:
 
         self.screen_width = screen.get_width()
         self.screen_height = screen.get_height()
-        self.player_number = player_number
+        self.player_number = 1
 
         self.soundFX = soundFX
         self.screen = screen
@@ -47,9 +47,12 @@ class Game:
         self.is_get = False  # 자기 턴에 카드 뽑음
         self.run = True
         self.is_color_change = False
+        self.is_AI_B = False
+        self.is_AI_C = False
         self.edit_name = False
         self.edit_text = "__________"
-
+        self.turn_counter = 0
+        self.game_type = "single"
         # for achievement
         self.turnCount = 1
         self.numNeverUsed = True
@@ -146,8 +149,8 @@ class Game:
         self.ok_button = Button(
             self.screen_width // 2,
             self.screen_height // 2 + 100,
+            50,
             40,
-            30,
             (255, 255, 255),
             "ok",
             (64, 64, 64),
@@ -304,6 +307,7 @@ class Game:
         #screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         while self.run:
+
             # backImage_num = self.config['window']['default']
             # if backImage_num == '1':
             #     new_backImage = pygame.transform.scale(self.backImage, (800, 600))
@@ -315,14 +319,13 @@ class Game:
             # self.screen.fill((57, 157, 220))
             self.screen.blit(self.backImage2, (0, 0))
             
-
             self.make_screen()
             # event loop
 
             if self.game_active:
                 self.time_button.text = f"TIME : {self.current_time}"
                 self.time_button.draw(self.screen)
-    
+
             for event in pygame.event.get():
                 #print(event)
                 if self.event.event_loop(event, self) == "out":
@@ -464,7 +467,7 @@ class Game:
                 
             pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
             for i in range(0, self.player_number):
-                self.info_list[i].draw(screen, self.game_active)
+                self.info_list[i].draw(screen, self.game_active, self.game_type)
 
             if self.now_card.color is not None:
                 pixel = self.now_card_surf.get_at(
@@ -505,7 +508,7 @@ class Game:
                 self.start_button.draw(screen)
                 pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
                 for i in range(0, len(self.info_list)):
-                    self.info_list[i].draw(screen, self.game_active)
+                    self.info_list[i].draw(screen, self.game_active, self.game_type)
 
             if self.edit_name:
                 screen.blit(self.alpha_surface, (0, 0))
@@ -555,6 +558,11 @@ class Game:
         else:
             self.now_card = self.com_card[0]
             self.now_card_surf = self.now_card.image
+            self.turn_list[self.turn_index].hand.remove(self.now_card)
+            if (self.turn_list[self.turn_index].stage == "A"
+                and len(self.turn_list[self.turn_index].hand)
+                and self.now_card.skill is not None):
+                self.remain.append(self.turn_list[self.turn_index].hand.pop())
             self.remain.append(self.now_card)
             self.turn_list[self.turn_index].hand.remove(self.now_card)   
 
@@ -567,8 +575,6 @@ class Game:
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
 
             if self.now_card.skill is not None:
-                # edit by sth
-                # self.skill_active(self.now_card.skill)
                 self.skill_active(self.com_card[0])
             if self.now_card.skill not in [
                 # "change",
@@ -634,11 +640,6 @@ class Game:
             if player.type == "Human":
                 self.me = player
 
-    def change_color(self):
-        if self.is_color_change:
-            self.is_color_change = False
-            return 0
-        self.is_color_change = True
 
     def draw_card(self, input_deck):
         #if len(input_deck) == 0 and input_deck == self.deck:
@@ -716,6 +717,9 @@ class Game:
         for i in range(0,len(self.info_list)):
             if self.info_list[i].is_empty:
                 empty_list.append(self.info_list[i])
+        # print test
+        # print(f"player number : {self.player_number}")
+        # print(f"info_list length : {len(self.info_list)}")
         for i in range(0,len(empty_list)):
             self.info_list.remove(empty_list[i])
         for i in range(1, len(self.info_list)):
@@ -736,10 +740,56 @@ class Game:
         self.is_get = True
         self.turn_list[self.turn_index].uno = "unactive"
 
-    def player_card_setting(self, player):
-        for i in range(25):
-            self.draw_card(player.hand)
-
+    def player_card_setting(self):
+        sorted_list = []
+        stage_list = ["A", "C", "D", "NORMAL", "Human", "B"]
+        b_list = []
+        b_count = 0
+        for stage in stage_list:
+            for player in self.turn_list:
+                if player.stage == stage:
+                    if stage == "B":
+                        b_count += 1
+                    sorted_list.append(player)
+        for player in sorted_list:
+            if player.stage == "Human":
+                print("Human loop")
+                for i in range(7):
+                    self.draw_card(player.hand)
+            elif player.stage == "A":
+                prob = 60
+                for i in range(7):
+                    if random.randrange(0, 100) < prob:
+                        while True:
+                            random_card = random.choice(self.deck)
+                            if random_card.skill is not None:
+                                player.hand.append(random_card)
+                                self.deck.remove(random_card)
+                                break
+                    else:
+                        while True:
+                            random_card = random.choice(self.deck)
+                            if random_card.skill is None:
+                                player.hand.append(random_card)
+                                self.deck.remove(random_card)
+                                break
+            elif player.stage == "B":
+                self.is_AI_B = True
+                b_list.append(player)
+            elif player.stage == "C":
+                self.is_AI_C = True
+                for i in range(7):
+                    self.draw_card(player.hand)
+            elif player.stage == "D":
+                for i in range(3):
+                    self.draw_card(player.hand)
+            elif player.stage == "NORMAL":
+                for i in range(7):
+                    self.draw_card(player.hand)
+        if self.is_AI_B:
+            while len(self.deck):
+                for b in b_list:
+                    self.draw_card(b.hand)
     def check_condition(self, input_card):
         now = self.now_card
 
@@ -761,32 +811,36 @@ class Game:
         else:
             return False
 
+    def set_skill_text(self, text):
+        self.skill_active_button.text = text
+        self.is_skill_active = True
+
     def skill_active(self, pop_card):
         next_player = self.turn_index + 1
         if next_player == len(self.turn_list):
             next_player = 0
 
         if pop_card.skill == "reverse":
-            self.skill_active_button.text = "reverse active : turn reversed"
+            self.set_skill_text("reverse active : turn reversed")
             self.reverse_turn()
         elif pop_card.skill == "block":
-            self.skill_active_button.text = f"block active"
+            self.set_skill_text("block active")
             self.info_list[next_player].is_block = True
             pygame.time.set_timer(self.block_timer, 1000)
             self.block_turn()
         elif pop_card.skill == "change" or pop_card.skill == "all":
-            self.skill_active_button.text = (
-                f"color is changed {self.now_card.color} > {pop_card.color}"
-            )
             if self.turn_list[self.turn_index].type == "Human":
-                self.change_color()
+                if self.is_color_change:
+                    self.is_color_change = False
+                    return 0
+                self.is_color_change = True
             elif self.turn_list[self.turn_index].type == "AI":
                 self.change_color_ai()
             else:
                 pass
 
         elif pop_card.skill == "plus2":
-            self.skill_active_button.text = "plus2 attack active"
+            self.set_skill_text("plus2 attack active")
             self.plus(self.turn_list[next_player].hand, 2)
 
             self.animation_list.append(Animation(
@@ -798,7 +852,7 @@ class Game:
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
 
         elif pop_card.skill == "plus4" or pop_card.skill == "all4":
-            self.skill_active_button.text = "plus4 attack active"
+            self.set_skill_text("plus4 attack active")
             self.plus(self.turn_list[next_player].hand, 4)
 
             self.animation_list.append(Animation(
@@ -809,7 +863,6 @@ class Game:
             ))
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
 
-        self.is_skill_active = True
 
     def change_color_ai(self):
         color_list = {"red": 0, "blue": 0, "green": 0, "yellow": 0}
@@ -821,9 +874,11 @@ class Game:
                     continue
                 if color != None:
                     color_list[color] += 1
+        self.change_color(max(color_list, key=color_list.get))
 
-        self.now_card.color = max(color_list, key=color_list.get)
-
+    def change_color(self, after_color):
+        self.set_skill_text(f"color is changed {self.now_card.color} > {after_color}")
+        self.now_card.color = after_color
         # lsj: 색약모드 change card
         if self.config["color"]["default"] == str(2):
             self.now_card_surf = pygame.image.load(
@@ -837,14 +892,33 @@ class Game:
             self.now_card_surf = pygame.image.load(
                 f"resources/images/card/RG/change/{self.now_card.color}_change.png"
             ).convert_alpha()
-
         self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
-        self.now_card_rect = self.now_card_surf.get_rect(
-            center=(self.screen_width / 3 + 100, self.screen_height / 3)
-        )
+
+# stageC 수정
+    def random_change_color(self, after_color):
+        self.set_skill_text(f"color is changed {self.now_card.color} > {after_color}")
+        
+        # lsj: 색약모드 change card
+        if self.config["color"]["default"] == str(2):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/normalMode/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+            ).convert_alpha()
+        elif self.config["color"]["default"] == str(1):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/YB/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+            ).convert_alpha()
+        elif self.config["color"]["default"] == str(0):
+            self.now_card_surf = pygame.image.load(
+                f"resources/images/card/RG/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+            ).convert_alpha()
+        self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
 
     def pass_turn(self):
         self.turn_index += 1
+        self.turn_counter += 1
+        if self.turn_counter % 5 == 0 and self.is_AI_C:
+            self.random_change_color(self.change_color_list[random.randint(0,3)][3])
+            print("COLOR CHANGE")
         if self.turn_index == len(self.turn_list):
             self.turn_index = 0
         self.is_get = False
@@ -858,7 +932,8 @@ class Game:
             self.turn_list[self.turn_index].uno = "unactive"
 
         # 일반카드를 냈을 때도 텍스트가 뜨는 코드 > 바꿔야함
-        pygame.time.set_timer(self.skill_active_timer, 2000)
+        if self.is_skill_active:
+            pygame.time.set_timer(self.skill_active_timer, 2000)
 
     def check_collide(self, pos):
         # print("check_collide")

@@ -8,6 +8,10 @@ from pause import PauseClass
 
 from models.animation import Animation
 from models.AI import AI
+
+from unogame.models.button import Component
+
+
 class Event:
     pygame.init()
 
@@ -79,24 +83,7 @@ class Event:
                 if game.is_color_change:
                     game.is_color_change = False
                     var = random.randint(0, 3)
-                    if game.config["color"]["default"] == str(2):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/normalMode/change/{game.change_color_list[var][3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(1):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/YB/change/{game.change_color_list[var][3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(0):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/RG/change/{game.change_color_list[var][3]}_change.png"
-                        ).convert_alpha()
-
-                    game.now_card_surf = pygame.transform.scale(
-                        game.now_card_surf, (50, 70)
-                    )
-                    game.now_card.color = game.change_color_list[var][3]
-                    game.is_color_change = False
+                    game.change_color(game.change_color_list[var][3])
                 game.pass_turn()
             game.current_time -= 1
 
@@ -106,13 +93,39 @@ class Event:
             and not game.is_win
         ):
             game.is_skill_active = False
+            game.skill_active_button.text = ""
         elif event.type == game.block_timer and game.game_active and not game.is_win:
             for component in game.info_list:
                 component.is_block = False
-        elif (event.type == pygame.MOUSEBUTTONUP
+
+        if (event.type == pygame.MOUSEBUTTONUP
             and game.start_button.rect.collidepoint(event.pos)
             and not game.edit_name
         ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name):
+            # 수정중
+            if game.game_type == "stageA":
+                game.info_list[1].is_empty = False
+                game.info_list[1].player = AI(1, [], 1)
+                game.info_list[1].player.stage = "A"
+            elif game.game_type == "stageB":
+                for i in range(1,4):
+                    game.info_list[i].is_empty = False
+                    game.info_list[i].player = AI(i, [], i)
+                    game.info_list[i].player.stage = "B"
+                    game.player_number += 1
+                game.info_list[0].player.stage = "B"
+            elif game.game_type == "stageC":
+                for i in range(1,3):
+                    game.info_list[i].is_empty = False
+                    game.info_list[i].player = AI(i, [], i)
+                    game.info_list[i].player.stage = "C"
+                    game.player_number += 1
+
+            elif game.game_type == "stageD":
+                    game.info_list[1].is_empty = False
+                    game.info_list[1].player = AI(1, [], 1)
+                    game.info_list[1].player.stage = "D"
+
             if not game.game_active:
                 if game.player_number == 1:
                     game.player_number += 1
@@ -120,56 +133,40 @@ class Event:
                 game.game_active = True
                 game.is_win = False
                 game.generate_deck()
-                for player in game.turn_list:
-                    game.player_card_setting(player)
-                    game.turn_index += 1
-                game.turn_index = 0
-        elif event.type == pygame.MOUSEBUTTONDOWN and not game.game_active:
-            for i in range(1, len(game.info_list)):
-                if (
-                    game.info_list[i].ban_player(event.pos)
-                    and not game.info_list[i].is_empty
-                ):
-                    if game.player_number > 1:
-                        game.player_number -= 1
-                        game.info_list[i].is_empty = True
-                elif (
-                    game.info_list[i].is_clicked(event.pos)
-                    and game.info_list[i].is_empty
-                ):
-                    if game.player_number <= 5:
-                        game.player_number += 1
-                        game.info_list[i].is_empty = False
-                        game.info_list[i].is_choose = True
-                elif not game.info_list[i].is_empty and game.info_list[i].is_choose and game.info_list[i].change_clicked(event.pos):
-                    game.info_list[i].is_choose = False
-                    print(game.info_list[i].choose_AI_type(event.pos, i))
-
-            if game.info_list[0].is_clicked(event.pos):
-                game.edit_name = True
-
+                game.player_card_setting()
+                game.skill_active(game.now_card)
         elif event.type == pygame.KEYDOWN and game.edit_name:
+
             if game.edit_text == "__________":
                 game.edit_text = ""
 
             if event.key == pygame.K_BACKSPACE:
                 game.edit_text = game.edit_text[:-1]
             elif event.key == pygame.K_RETURN:
-                game.info_list[0].text = game.edit_text
                 if game.edit_text == "__________" or game.edit_text == "":
-                    game.info_list[0].text = "PLAYER 1(ME)"
+                    Component.now_component.is_edit = False
+                else:
+                    Component.now_component.text = game.edit_text
+                    Component.now_component.is_edit = True
                 game.edit_name = False
             else:
                 if len(game.edit_text) < 8:
                     game.edit_text += pygame.key.name(event.key)
 
-        elif event.type == pygame.MOUSEBUTTONDOWN and game.edit_name:
-            if game.ok_button.is_clicked(event.pos):
-                game.info_list[0].text = game.edit_text
-                if game.edit_text == "__________" or game.edit_text == "":
-                    game.info_list[0].text = "PLAYER 1(ME)"
-                    game.edit_text = "__________"
-                game.edit_name = False
+        elif (
+                event.type == pygame.MOUSEBUTTONDOWN
+                and game.edit_name
+                and game.ok_button.is_clicked(event.pos)
+            ):
+            Component.now_component.text = game.edit_text
+            Component.now_component.is_edit = True
+
+            if game.edit_text == "__________" or game.edit_text == "":
+                Component.now_component.is_edit = False
+            else:
+                game.edit_text = "__________"
+            game.edit_name = False
+            Component.now_component = None
 
         elif event.type == pygame.KEYDOWN and game.edit_name and not game.game_active:
             if event.key == game.keys["RETURN"]:
@@ -178,6 +175,32 @@ class Event:
                     game.info_list[0].text = "PLAYER 1(ME)"
                     game.edit_text = "__________"
                 game.edit_name = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN and not game.game_active and game.game_type[0:5] != "stage":
+            for i in range(1, len(game.info_list)):
+                if (
+                        game.info_list[i].close_button.is_clicked(event.pos)
+                        and not game.info_list[i].is_empty
+                ):
+                    if game.player_number > 1:
+                        game.player_number -= 1
+                        game.info_list[i].ban_player()
+                elif (
+                        game.info_list[i].is_clicked(event.pos)
+                        and game.info_list[i].is_empty
+                ):
+                    if game.player_number <= 5:
+                        game.player_number += 1
+                        game.info_list[i].is_empty = False
+                        game.info_list[i].is_choose = True
+                elif not game.info_list[i].is_empty and game.info_list[i].is_choose and game.info_list[
+                    i].change_clicked(event.pos):
+                    game.info_list[i].is_choose = False
+                    print(game.info_list[i].choose_AI_type(event.pos, i))
+
+            if game.info_list[0].is_clicked(event.pos):
+                game.edit_name = True
+                Component.now_component = game.info_list[0]
 
         # 매 턴 UNO를 할 수 있는지 없는지 체크하는 부분
         for player in game.turn_list:
@@ -312,23 +335,8 @@ class Event:
             for color_list in game.change_color_list:
                 if color_list[1].collidepoint(event.pos):
                     # lsj: 색약모드 change card
-                    if game.config["color"]["default"] == str(2):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/normalMode/change/{color_list[3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(1):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/YB/change/{color_list[3]}_change.png"
-                        ).convert_alpha()
-                    elif game.config["color"]["default"] == str(0):
-                        game.now_card_surf = pygame.image.load(
-                            f"resources/images/card/RG/change/{color_list[3]}_change.png"
-                        ).convert_alpha()
-
-                    game.now_card_surf = pygame.transform.scale(
-                        game.now_card_surf, (50, 70)
-                    )
-                    game.now_card.color = color_list[3]
+                    game.change_color(color_list[3])
+                    game.is_skill_active = True
                     game.is_color_change = False
                     game.pass_turn()
 

@@ -54,7 +54,7 @@ while True:
         # Start single player game
         print("Start Game")  # Replace with your game code
         soundFX.soundPlay(1)
-        game = Game(screen, 1, key_list, config, soundFX)
+        game = Game(screen, key_list, config, soundFX)
         selected = game.start_single_play()
 
     elif selected == 1:
