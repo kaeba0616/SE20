@@ -26,9 +26,15 @@ class Button:
 
 
 class Component:
+
+    now_component = None
+    WHITE = (255, 255, 255)
+    GRAY = (64, 64, 64)
     def __init__(
         self, x, y, width, height, color, player_name, text_color, font_size, player
     ):
+        white = Component.WHITE
+        gray = Component.GRAY
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
         self.text = player_name
@@ -38,29 +44,42 @@ class Component:
         self.is_block = False
         self.is_choose = False
         self.is_empty = True
+        self.is_edit = False
         self.surf = pygame.image.load(
             "resources/images/card/normalMode/backcard.png"
         ).convert_alpha()
         self.surf = pygame.transform.scale(self.surf, (15, 20))
-        self.close_button = Button(x+width-20,y,20,20,(255,255,255),"X",(64,64,64),20,0)
+        self.close_button = Button(x+width-20,y,20,20,white,"X",gray,20,0)
 
-        self.a_button = Button(x,y,width/2,height/2,(255,255,255),"A",(64,64,64),20,0)
-        self.b_button = Button(x+(width/2),y,width/2,height/2,(255,255,255),"B",(64,64,64),20,0)
-        self.c_button = Button(x,y+(height/2),width/2,height/2,(255,255,255),"C",(64,64,64),20,0)
-        self.d_button = Button(x+(width/2),y+(height/2),width/2,height/2,(255,255,255),"D",(64,64,64),20,0)
+        self.a_button = Button(x,y,width/2,height/2,white,"A",gray,20,0)
+        self.b_button = Button(x+(width/2),y,width/2,height/2,white,"B",gray,20,0)
+        self.c_button = Button(x,y+(height/2),width/3,height/2,white,"C",gray,20,0)
+        self.d_button = Button(x+(width/3),y+(height/2),width/3,height/2,white,"D",gray,20,0)
+        self.normal_button = Button(x+(width/3*2),y+(height/2),width/3,height/2,white,"normal",gray,15,0)
 
-    def draw(self, screen, game_active):
-
+    def draw(self, screen, game_active, game_type):
+        # game_type = ["single", "story"] / 추가할 수도 있음
+        white = Component.WHITE
+        gray = Component.GRAY
         if not self.is_empty and self.player is not None:
-            self.text = f"PLAYER {self.player.number + 1}"
-            self.color = (255, 255, 255)
-            self.text_color = (64, 64, 64)
+            if self.is_edit:
+                pass
+            elif self.player.type == "Human":
+                self.text = f"PLAYER {self.player.number + 1} ({self.player.type})"
+                if game_type == "story":
+                    self.text = "ME"
+            elif self.player.type == "AI":
+                self.text = f"PLAYER {self.player.number + 1} ({self.player.type})"
+                if self.player.stage is not None:
+                    self.text = f"PLAYER {self.player.number + 1} ({self.player.type}_{self.player.stage})"
+            self.color = white
+            self.text_color = gray
         elif self.is_choose:
-            self.color = (255,255,255)
+            self.color = white
         else:
             self.text = "EMPTY"
-            self.color = (64, 64, 64)
-            self.text_color = (255, 255, 255)
+            self.color = gray
+            self.text_color = white
 
         pygame.draw.rect(screen, self.color, self.rect)
         text_surface = self.font.render(self.text, True, self.text_color)
@@ -73,9 +92,7 @@ class Component:
                     midleft=(self.rect.x + 5 + 10 * i, self.rect.y + 50)
                 )
                 screen.blit(self.surf, rect)
-            if self.player.type == "AI":
-                self.text += f"({self.player.stage}) "
-                print(self.player.stage)
+
             text_surface = self.font.render(
                 self.text + f" : {len(self.player.hand)}",
                 False,
@@ -86,6 +103,7 @@ class Component:
             self.b_button.draw(screen)
             self.c_button.draw(screen)
             self.d_button.draw(screen)
+            self.normal_button.draw(screen)
         elif not self.is_empty and not game_active:
             self.close_button.draw(screen)
         if not self.is_choose:
@@ -94,15 +112,23 @@ class Component:
             pygame.draw.line(screen, (255, 0, 0), self.rect.topleft, self.rect.bottomright, 5)
             pygame.draw.line(screen, (255, 0, 0), self.rect.bottomleft, self.rect.topright, 5)
 
+    def story_mode_draw(self, screen, game_active):
+        game_type = "story"
+        self.draw(screen, game_active, game_type)
+
+    def single_mode_draw(self, screen, game_active):
+        game_type = "single"
+        self.draw(screen, game_active, game_type)
+
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-    def ban_player(self, pos):
+    def ban_player(self):
+        self.is_empty = True
         self.player = None
-        return self.close_button.rect.collidepoint(pos)
 
     def change_clicked(self, pos):
-        if self.a_button.is_clicked(pos) or self.b_button.is_clicked(pos) or self.c_button.is_clicked(pos) or self.d_button.is_clicked(pos):
+        if self.a_button.is_clicked(pos) or self.b_button.is_clicked(pos) or self.c_button.is_clicked(pos) or self.d_button.is_clicked(pos) or self.normal_button.is_clicked(pos):
             return True
         else:
             return False
@@ -123,3 +149,7 @@ class Component:
             self.player = AI(index, [], index)
             self.player.stage = "D"
             return "D"
+        elif self.normal_button.is_clicked(pos):
+            self.player = AI(index, [], index)
+            self.player.stage = None
+            return "normal"
