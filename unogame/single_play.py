@@ -12,7 +12,7 @@ from models.AI import AI
 from models.button import Button, Component
 from pause import PauseClass
 import time
-
+from models.animation import Animation, AnimationWin
 from models.event import *
 
 from utils.achievement import achievement
@@ -109,7 +109,7 @@ class Game:
             "click to return to main", False, (64, 64, 64)
         )
         self.retry_rect = self.retry_surf.get_rect(
-            center=(self.screen_width / 2, self.screen_height / 2 + 50)
+            center=(self.screen_width / 2, 70)
         )
 
         self.start_button = Button(
@@ -127,7 +127,20 @@ class Game:
         self.backImage = pygame.image.load('./resources/images/play/play.png')
         self.backImage2 = pygame.image.load('./resources/images/play/play2.png')
         self.backImage3 = pygame.image.load('./resources/images/play/before.png')
-
+        self.player_list = []
+        for i in range(0,6):
+            button = Button(
+            self.screen_width // 8,
+            self.screen_height/5 + 90 * i,
+            100,
+            60,
+            (255, 0, 0),
+            f"player {i + 1}",
+            (255, 255, 255),
+            28,
+            0,
+        )
+            self.player_list.append(button)
 
         # 로비를 생성하는데 필요한 변수
         self.lobby_background = pygame.Rect(
@@ -225,6 +238,7 @@ class Game:
             )
 
         self.animation_list = []
+        self.animation_list_2 = []
         self.card_list = []
         self.change_color_list = []
         self.CENTER_X_POS = self.screen_width // 10
@@ -266,7 +280,7 @@ class Game:
 
         self.win_button = Button(
             self.screen_width / 2 - 50,
-            self.screen_height / 2 - 20,
+            20,
             100,
             40,
             (255, 255, 255),
@@ -338,17 +352,17 @@ class Game:
         self.deck_rect.centerx = self.screen_width / 3
         self.deck_rect.centery = self.screen_height / 3
 
-        self.uno_button.rect.x = self.deck_rect.centerx + 150
-        self.uno_button.rect.y = self.deck_rect.centery + 30
+        # self.uno_button.rect.x = self.deck_rect.centerx + 150
+        # self.uno_button.rect.y = self.deck_rect.centery + 30
 
         self.uno_active_button.rect.x = self.deck_rect.centerx + 150
         self.uno_active_button.rect.y = self.deck_rect.centery + 70
 
         self.retry_rect.centerx = self.screen_width / 2
-        self.retry_rect.centery = self.screen_height / 2 + 50
+        self.retry_rect.centery = 70
 
-        self.start_button.rect.x = self.screen_width // 2 - 100
-        self.start_button.rect.y = self.screen_height // 2 - 30
+        # self.start_button.rect.x = self.screen_width // 2 - 100
+        # self.start_button.rect.y = self.screen_height // 2 - 30
 
         self.lobby_background.x = self.screen_width - 150
         self.lobby_background.y = 0
@@ -363,8 +377,8 @@ class Game:
         self.ok_button.rect.y = self.screen_height // 2 + 100
 
         self.win_button.rect.center = (
-            self.screen_width / 2 - 50,
-            self.screen_height / 2 - 20,
+            self.screen_width / 2,
+            40,
         )
         self.now_turn_button.center = (
             self.screen_width // 8,
@@ -409,6 +423,9 @@ class Game:
 
         if self.me is not None:
             self.me.update_hand(self.screen)
+
+        for i in range(0, self.player_number):
+            self.player_list[i].rect.center = (self.screen_width // 8, self.screen_height // 4 + 100 * i)
     def next_screen(self, screen):
         if self.game_active:
             # 누구의 턴인지 보여주는 부분
@@ -478,16 +495,39 @@ class Game:
 
         else:
             screen.blit(self.backImage3, (0, 0))
-            # 게임이 종료되었을 때 덱 초기화
-            for player in self.turn_list:
-                player.hand.clear()
-            self.deck.clear()
-            self.remain.clear()
+            # # 게임이 종료되었을 때 덱 초기화
+            # for player in self.turn_list:
+            #     player.hand.clear()
+            # self.deck.clear()
+            # self.remain.clear()
 
             if self.is_win:
                 # hy
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
+
+                for i in range(0, self.player_number):
+                    self.player_list[i].text = self.info_list[i].text
+                    if self.info_list[i].player == self.me:
+                        self.player_list[i].text = "YOU"
+                    self.player_list[i].draw(self.screen)
+                if not len(self.animation_list_2):
+                    for j in range(0, self.player_number):
+                        for i in range(0, len(self.info_list[j].player.hand)):
+                            self.animation_list_2.append(AnimationWin(
+                                (self.player_list[j].rect.midright[0] + 120, self.player_list[j].rect.midright[1]),
+                                (self.player_list[j].rect.midright[0] + 120 + 30 * i,
+                                 self.player_list[j].rect.midright[1]),
+                                pygame.time.get_ticks(),
+                                1,
+                                self.info_list[j].player.hand[i]
+                            ))
+
+                c_time = pygame.time.get_ticks()
+                for ani in self.animation_list_2:
+                    for count in range(ani.count):
+                        ani.card_move(ani.move_list[count], c_time + (100 * count), 2000)
+                        screen.blit(ani.move_list[count].surf, ani.move_list[count].rect)
             else:
                 self.start_button.draw(screen)
                 pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
@@ -536,6 +576,8 @@ class Game:
                 pygame.time.get_ticks(),
                 1
             ))
+            self.soundFX.soundPlay(4)
+
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
 
             self.pass_turn()
@@ -556,6 +598,7 @@ class Game:
                 1
             ))
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+            self.soundFX.soundPlay(4)
 
             if self.now_card.skill is not None:
                 self.skill_active(self.com_card[0])
@@ -836,6 +879,7 @@ class Game:
                 2
             ))
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+            self.soundFX.soundPlay(4)
 
         elif pop_card.skill == "plus4" or pop_card.skill == "all4":
             self.set_skill_text("plus4 attack active")
@@ -848,6 +892,7 @@ class Game:
                 4
             ))
             pygame.time.set_timer(self.animation_list[-1].timer, 2000)
+            self.soundFX.soundPlay(4)
 
 
     def change_color_ai(self):
@@ -1010,4 +1055,5 @@ class Game:
             pygame.time.get_ticks(),
             4
         ))
+        self.soundFX.soundPlay(4)
         return True
