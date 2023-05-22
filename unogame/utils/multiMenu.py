@@ -25,6 +25,8 @@ class multiPlayMenu:
         self.text = ''
         self.cursorAct = False
         self.x, self.y, self.z = 48, 80, 60             # 글씨 크기 모음
+
+        self.existPassword = False
         
 
         # Clear the screen
@@ -61,8 +63,9 @@ class multiPlayMenu:
                 self.screen.blit(
                     text, (screenW // 6, screenH // 3 + 150 + i * (self.z + 10))
                 )
-        elif self.option == 'client':
+        elif self.option == 'client' or 'password':
             input_box = pygame.Rect(0, 0, self.screen.get_width() // 1.5, self.screen.get_height() // 10)
+            if self.option == 'password': input_box.width = self.screen.get_width() // 5
             input_box.center = (self.screen.get_width() // 2, self.screen.get_height() // 2.5)
             optionFont = pygame.font.SysFont(None, screenW // 10)
             pygame.draw.rect(self.screen, (0, 0, 0), input_box, 2)
@@ -70,6 +73,13 @@ class multiPlayMenu:
             self.screen.blit(text_surface, (input_box.x + 5, input_box.y + 5))
 
             # Draw the menu items
+            if self.option == 'client':
+                input_name = optionFont.render("IP Address", True, (0,0,0))
+            elif self.option == 'password':
+                input_name = optionFont.render("Password", True, (0,0,0))
+            self.screen.blit(
+                input_name, (self.screen.get_width() // 2 - input_name.get_width() // 2, self.screen.get_height() // 4.5)
+            )
             for i, item in enumerate(self.items2):
                 text = self.key_font.render(
                     item, True, (255, 255, 255) if i != self.selected else (255, 0, 0)
@@ -77,6 +87,7 @@ class multiPlayMenu:
                 self.screen.blit(
                     text, (screenW // 3 * (i + 1) - text.get_width() // 2, screenH * 0.6)
                 )
+            
         
 
     def run(self):
@@ -110,7 +121,7 @@ class multiPlayMenu:
                         sys.exit()
 
 
-                elif event.type == KEYDOWN and self.option == 'client':
+                elif event.type == KEYDOWN and (self.option == 'client' or 'password'):
                     if event.key == self.keys["LEFT"]:
                         self.selected = (self.selected - 1) % len(self.items2)
                     elif event.key == self.keys["RIGHT"]:
@@ -119,6 +130,8 @@ class multiPlayMenu:
                         if self.selected == 0:
                             print(self.text)                                    # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
                             self.text = ''                                      # Todo: 비밀번호가 있으면 입력
+                            if self.option == 'client' and self.existPassword:
+                                self.option = 'password'
                         elif self.selected == 1:
                             self.text = ''
                             self.option = 'menu'
@@ -130,6 +143,8 @@ class multiPlayMenu:
                     else:
                         if event.unicode.isnumeric() or event.unicode == '.':
                             self.text += event.unicode
+                        if (len(self.text) > 4 or event.unicode == '.') and self.option == 'password':
+                            self.text = self.text[:-1]
 
 
                 elif (event.type == MOUSEMOTION or MOUSEBUTTONUP) and self.option == 'menu':
@@ -154,8 +169,9 @@ class multiPlayMenu:
                                     self.option = 'menu'
                                     return i
                                 
-                elif (event.type == MOUSEMOTION or MOUSEBUTTONUP) and self.option == 'client':
+                elif (event.type == MOUSEMOTION or MOUSEBUTTONUP) and (self.option == 'client' or 'password'):
                     input_box = pygame.Rect(0, 0, self.screen.get_width() // 1.5, self.screen.get_height() // 10)
+                    if self.option == 'password': input_box.width = self.screen.get_width() // 5
                     input_box.center = (self.screen.get_width() // 2, self.screen.get_height() // 2.5)
                     pos = pygame.mouse.get_pos()
 
@@ -172,6 +188,8 @@ class multiPlayMenu:
                                 if i == 0:
                                     print(self.text)                            # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
                                     self.text = ''
+                                    if self.option == 'client' and self.existPassword:
+                                        self.option = 'password'
                                 elif i == 1:
                                     self.text = ''
                                     self.option = 'menu'

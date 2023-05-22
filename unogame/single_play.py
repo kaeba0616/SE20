@@ -302,6 +302,10 @@ class Game:
 
         self.event = Event(self)
 
+        self.isMulti = False
+        self.settingPassword = True
+        self.password = ""
+
     def start_single_play(self):
         pygame.init()
         #screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -319,7 +323,8 @@ class Game:
             # self.screen.fill((57, 157, 220))
             self.screen.blit(self.backImage2, (0, 0))
             
-            self.make_screen()
+            # hy - only execute after pausing
+            #self.make_screen()
             # event loop
 
             if self.game_active:
@@ -505,37 +510,91 @@ class Game:
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
-                self.start_button.draw(screen)
-                pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
-                for i in range(0, len(self.info_list)):
-                    self.info_list[i].draw(screen, self.game_active, self.game_type)
+                if not self.settingPassword: self.start_button.draw(screen)
+                self.drawLobby(screen)
+                # hy - seperate lobby
+                # pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
+                # for i in range(0, len(self.info_list)):
+                #     self.info_list[i].draw(screen, self.game_active, self.game_type)
 
-            if self.edit_name:
-                screen.blit(self.alpha_surface, (0, 0))
-                rect = pygame.Rect(
-                    self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
-                )
-                pygame.draw.rect(screen, (255, 255, 255), rect)
-                name_surf = Game.font.render(
-                    "Enter Name(maximum 8)", False, (64, 64, 64)
-                )
-                name_rect = name_surf.get_rect(
-                    center=(self.screen_width // 2, self.screen_height // 2 - 20)
-                )
-                input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
-                input_rect = input_surf.get_rect(
-                    center=(self.screen_width // 2, self.screen_height // 2 + 50)
-                )
-                self.ok_button.rect.center = (
-                    self.screen_width // 2,
-                    self.screen_height // 2 + 100,
-                )
-                screen.blit(name_surf, name_rect)
-                screen.blit(input_surf, input_rect)
-                self.ok_button.draw(screen)
+            # if self.edit_name:
+            #     screen.blit(self.alpha_surface, (0, 0))
+            #     rect = pygame.Rect(
+            #         self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
+            #     )
+            #     pygame.draw.rect(screen, (255, 255, 255), rect)
+            #     name_surf = Game.font.render(
+            #         "Enter Name(maximum 8)", False, (64, 64, 64)
+            #     )
+            #     name_rect = name_surf.get_rect(
+            #         center=(self.screen_width // 2, self.screen_height // 2 - 20)
+            #     )
+            #     input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
+            #     input_rect = input_surf.get_rect(
+            #         center=(self.screen_width // 2, self.screen_height // 2 + 50)
+            #     )
+            #     self.ok_button.rect.center = (
+            #         self.screen_width // 2,
+            #         self.screen_height // 2 + 100,
+            #     )
+            #     screen.blit(name_surf, name_rect)
+            #     screen.blit(input_surf, input_rect)
+            #     self.ok_button.draw(screen)
 
             pygame.display.update()
         self.achieve.update(screen)  # achievement
+    
+    def drawLobby(self, screen):
+        pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
+        for i in range(0, len(self.info_list)):
+            self.info_list[i].draw(screen, self.game_active, self.game_type)
+        
+        if self.isMulti and self.settingPassword:
+            screen.blit(self.alpha_surface, (0, 0))
+            back_rect = pygame.Rect(
+                self.screen_width // 2 - 325, self.screen_height - 200, 500, 200
+            )
+            pygame.draw.rect(screen, (255, 255, 255), back_rect)
+            phrase_surf = Game.font.render(
+                "Enter Password(maximum 4)", False, (64, 64, 64)
+            )
+            phrase_rect = phrase_surf.get_rect(
+                center=(back_rect.centerx, back_rect.centery - 50)
+            )
+            input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
+            input_rect = input_surf.get_rect(
+                center=(back_rect.centerx, back_rect.centery)
+            )
+            self.ok_button.rect.center = (
+                back_rect.centerx, back_rect.centery + 50
+            )
+            screen.blit(phrase_surf, phrase_rect)
+            screen.blit(input_surf, input_rect)
+            self.ok_button.draw(screen)
+
+        if self.edit_name:
+            screen.blit(self.alpha_surface, (0, 0))
+            rect = pygame.Rect(
+                self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
+            )
+            pygame.draw.rect(screen, (255, 255, 255), rect)
+            name_surf = Game.font.render(
+                "Enter Name(maximum 8)", False, (64, 64, 64)
+            )
+            name_rect = name_surf.get_rect(
+                center=(self.screen_width // 2, self.screen_height // 2 - 20)
+            )
+            input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
+            input_rect = input_surf.get_rect(
+                center=(self.screen_width // 2, self.screen_height // 2 + 50)
+            )
+            self.ok_button.rect.center = (
+                self.screen_width // 2,
+                self.screen_height // 2 + 100,
+            )
+            screen.blit(name_surf, name_rect)
+            screen.blit(input_surf, input_rect)
+            self.ok_button.draw(screen)
 
     def computer_turn(self):
         self.com_card = []
@@ -564,7 +623,6 @@ class Game:
                 and self.now_card.skill is not None):
                 self.remain.append(self.turn_list[self.turn_index].hand.pop())
             self.remain.append(self.now_card)
-            self.turn_list[self.turn_index].hand.remove(self.now_card)   
 
             self.animation_list.append(Animation(
                 self.info_list[self.turn_index].rect.center,
