@@ -31,6 +31,8 @@ class Event:
             )
             value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
             for card in game.card_list:
+                print(f"path : {card.file_path}")
+                print(f"config : {game.config['color']['default']}")
                 card.change_path(game.config)
             if game.game_active:
                 game.me.update_hand(game.screen)

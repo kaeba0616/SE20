@@ -192,17 +192,7 @@ class Game:
             35,
             0,
         )
-        self.turn_button = Button(
-            30,
-            20,
-            50,
-            30,
-            (255, 255, 255),
-            f"turn index : {self.turn_index}",
-            (255, 255, 255),
-            35,
-            0,
-        )
+
         self.info_list = []
         self.info_list.append(
             Component(
@@ -421,9 +411,6 @@ class Game:
             self.me.update_hand(self.screen)
     def next_screen(self, screen):
         if self.game_active:
-            ##
-
-
             # 누구의 턴인지 보여주는 부분
             if self.turn_list[self.turn_index] == self.me:
                 self.now_turn_button.text = f"my turn"
@@ -488,9 +475,7 @@ class Game:
 
             if self.uno_pressed:
                 self.uno_active_button.draw(screen)
-            # test
-            self.turn_button.text = f"turn index : {self.turn_index}"
-            self.turn_button.draw(screen)
+
         else:
             screen.blit(self.backImage3, (0, 0))
             # 게임이 종료되었을 때 덱 초기화
@@ -501,7 +486,6 @@ class Game:
 
             if self.is_win:
                 # hy
-                #time.sleep(1)
                 self.win_button.draw(screen)
                 screen.blit(self.retry_surf, self.retry_rect)
             else:
@@ -564,7 +548,6 @@ class Game:
                 and self.now_card.skill is not None):
                 self.remain.append(self.turn_list[self.turn_index].hand.pop())
             self.remain.append(self.now_card)
-            self.turn_list[self.turn_index].hand.remove(self.now_card)   
 
             self.animation_list.append(Animation(
                 self.info_list[self.turn_index].rect.center,
@@ -593,13 +576,11 @@ class Game:
                     win_condition = False
                     print("AI available")
                     break
-
             if win_condition or self.is_win:
                 less_point = self.calculation_point(self.me.hand)
                 for player in self.turn_list:
                     if less_point >= self.calculation_point(player.hand):
                         less_point = self.calculation_point(player.hand)
-
                         # self.win_button.text = f"Player {player.number + 1} win !!"
                     self.who = player
                 # lms
@@ -607,7 +588,7 @@ class Game:
                     self.win_button.text = f"You win !!"
                     self.checkAchieve()  # achievement
                 else:
-                    self.win_button.text = f"Player {self.who.number + 1} win !!"
+                    self.win_button.text = f"You Loose. . ."
                 # lms
 
                 self.game_active = False
@@ -710,6 +691,7 @@ class Game:
         self.turn_index = 0
         self.now_card = pop_card  # pop_card(바닥에 있는 카드)가 현재 카드임
         self.now_card_surf = pop_card.image  # 현재 카드 객체화
+        self.remain.append(pop_card)
         self.now_card_rect = self.now_card_surf.get_rect(
             center=(self.screen_width / 3 + 100, self.screen_height / 3)
         )
@@ -787,8 +769,12 @@ class Game:
                 for i in range(7):
                     self.draw_card(player.hand)
         if self.is_AI_B:
-            while len(self.deck):
+            draw = True
+            while draw:
                 for b in b_list:
+                    if len(b.hand) > 30:
+                        draw = False
+                        break
                     self.draw_card(b.hand)
     def check_condition(self, input_card):
         now = self.now_card
