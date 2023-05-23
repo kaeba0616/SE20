@@ -327,7 +327,7 @@ class Game:
             self.screen.blit(self.backImage2, (0, 0))
             
             # hy - only execute after pausing
-            #self.make_screen()
+            self.make_screen()
             # event loop
 
             if self.game_active:
@@ -440,7 +440,6 @@ class Game:
                 )
             self.now_turn_button.draw(screen)
 
-
             c_time = pygame.time.get_ticks()
             for ani in self.animation_list:
                 for count in range(ani.count):
@@ -532,36 +531,35 @@ class Game:
                         ani.card_move(ani.move_list[count], c_time + (100 * count), 2000)
                         screen.blit(ani.move_list[count].surf, ani.move_list[count].rect)
             else:
-                if not self.settingPassword: self.start_button.draw(screen)
-                self.drawLobby(screen)
+                self.start_button.draw(screen)
                 # hy - seperate lobby
-                # pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
-                # for i in range(0, len(self.info_list)):
-                #     self.info_list[i].draw(screen, self.game_active, self.game_type)
+                pygame.draw.rect(screen, (16, 24, 30), self.lobby_background)
+                for i in range(0, len(self.info_list)):
+                    self.info_list[i].draw(screen, self.game_active, self.game_type)
 
-            # if self.edit_name:
-            #     screen.blit(self.alpha_surface, (0, 0))
-            #     rect = pygame.Rect(
-            #         self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
-            #     )
-            #     pygame.draw.rect(screen, (255, 255, 255), rect)
-            #     name_surf = Game.font.render(
-            #         "Enter Name(maximum 8)", False, (64, 64, 64)
-            #     )
-            #     name_rect = name_surf.get_rect(
-            #         center=(self.screen_width // 2, self.screen_height // 2 - 20)
-            #     )
-            #     input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
-            #     input_rect = input_surf.get_rect(
-            #         center=(self.screen_width // 2, self.screen_height // 2 + 50)
-            #     )
-            #     self.ok_button.rect.center = (
-            #         self.screen_width // 2,
-            #         self.screen_height // 2 + 100,
-            #     )
-            #     screen.blit(name_surf, name_rect)
-            #     screen.blit(input_surf, input_rect)
-            #     self.ok_button.draw(screen)
+            if self.edit_name:
+                screen.blit(self.alpha_surface, (0, 0))
+                rect = pygame.Rect(
+                    self.screen_width // 2 - 150, self.screen_height // 2 - 50, 300, 180
+                )
+                pygame.draw.rect(screen, (255, 255, 255), rect)
+                name_surf = Game.font.render(
+                    "Enter Name(maximum 8)", False, (64, 64, 64)
+                )
+                name_rect = name_surf.get_rect(
+                    center=(self.screen_width // 2, self.screen_height // 2 - 20)
+                )
+                input_surf = Game.font.render(self.edit_text, False, (64, 64, 64))
+                input_rect = input_surf.get_rect(
+                    center=(self.screen_width // 2, self.screen_height // 2 + 50)
+                )
+                self.ok_button.rect.center = (
+                    self.screen_width // 2,
+                    self.screen_height // 2 + 100,
+                )
+                screen.blit(name_surf, name_rect)
+                screen.blit(input_surf, input_rect)
+                self.ok_button.draw(screen)
 
             pygame.display.update()
         self.achieve.update(screen)  # achievement
@@ -666,12 +664,12 @@ class Game:
                 self.pass_turn()
 
     def deck_none(self):
-        if len(self.deck) == 0:
+        if len(self.deck) == 0 :
             print("덱이 없어서 계산을 합니다")
             win_condition = True
             ## test
             for hand in self.turn_list[self.turn_index].hand:
-                if self.check_condition(hand) and self.turn_list[self.turn_index].type != "Human":
+                if self.check_condition(hand):
                     win_condition = False
                     print("AI available")
                     break
@@ -734,7 +732,6 @@ class Game:
                 input_deck.append(pop_card)
             else:
                 print("Lack of Remain - plus")
-                self.is_win = True
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)  
 
@@ -1130,12 +1127,6 @@ class Game:
         while len(self.remain) != 0:
             card = self.remain.pop()
             self.deck.append(card)
-        
-        self.animation_list.append(Animation(
-            self.now_card_rect.center,
-            self.deck_rect.center,
-            pygame.time.get_ticks(),
-            4
-        ))
+            
         self.soundFX.soundPlay(4)
         return True
