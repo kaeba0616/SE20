@@ -327,7 +327,7 @@ class Game:
             self.screen.blit(self.backImage2, (0, 0))
             
             # hy - only execute after pausing
-            #self.make_screen()
+            self.make_screen()
             # event loop
 
             if self.game_active:
@@ -439,7 +439,6 @@ class Game:
                     f"PLAYER {self.turn_list[self.turn_index].number + 1}'s turn"
                 )
             self.now_turn_button.draw(screen)
-
 
             c_time = pygame.time.get_ticks()
             for ani in self.animation_list:
@@ -665,12 +664,12 @@ class Game:
                 self.pass_turn()
 
     def deck_none(self):
-        if len(self.deck) == 0:
+        if len(self.deck) == 0 :
             print("덱이 없어서 계산을 합니다")
             win_condition = True
             ## test
             for hand in self.turn_list[self.turn_index].hand:
-                if self.check_condition(hand) and self.turn_list[self.turn_index].type != "Human":
+                if self.check_condition(hand):
                     win_condition = False
                     print("AI available")
                     break
@@ -733,7 +732,6 @@ class Game:
                 input_deck.append(pop_card)
             else:
                 print("Lack of Remain - plus")
-                self.is_win = True
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)  
 
@@ -1129,12 +1127,6 @@ class Game:
         while len(self.remain) != 0:
             card = self.remain.pop()
             self.deck.append(card)
-        
-        self.animation_list.append(Animation(
-            self.now_card_rect.center,
-            self.deck_rect.center,
-            pygame.time.get_ticks(),
-            4
-        ))
+            
         self.soundFX.soundPlay(4)
         return True
