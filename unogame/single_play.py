@@ -192,6 +192,7 @@ class Game:
             35,
             0,
         )
+        
         self.turn_button = Button(
             30,
             20,
@@ -419,11 +420,10 @@ class Game:
 
         if self.me is not None:
             self.me.update_hand(self.screen)
+            
     def next_screen(self, screen):
         if self.game_active:
             ##
-
-
             # 누구의 턴인지 보여주는 부분
             if self.turn_list[self.turn_index] == self.me:
                 self.now_turn_button.text = f"my turn"
@@ -564,7 +564,7 @@ class Game:
                 and self.now_card.skill is not None):
                 self.remain.append(self.turn_list[self.turn_index].hand.pop())
             self.remain.append(self.now_card)
-            self.turn_list[self.turn_index].hand.remove(self.now_card)   
+            # self.turn_list[self.turn_index].hand.remove(self.now_card)   
 
             self.animation_list.append(Animation(
                 self.info_list[self.turn_index].rect.center,
@@ -895,30 +895,56 @@ class Game:
         self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
 
 # stageC 수정
-    def random_change_color(self, after_color):
+    def random_change_color(self, now_card, after_color):
         self.set_skill_text(f"color is changed {self.now_card.color} > {after_color}")
+        now_card.color = after_color
+        if now_card.is_wild:
+            return
+        if now_card.number != None:
+            self.colorBlind(now_card.number, after_color)
+        if now_card.skill != None:
+            self.colorBlind(now_card.skill, after_color)    
         
-        # lsj: 색약모드 change card
+    def colorBlind(self, type, after_color):
         if self.config["color"]["default"] == str(2):
             self.now_card_surf = pygame.image.load(
-                f"resources/images/card/normalMode/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+                f"resources/images/card/normalMode/{type}/{after_color}_{type}.png"
             ).convert_alpha()
         elif self.config["color"]["default"] == str(1):
             self.now_card_surf = pygame.image.load(
-                f"resources/images/card/YB/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+                f"resources/images/card/YB/{type}/{after_color}_{type}.png"
             ).convert_alpha()
         elif self.config["color"]["default"] == str(0):
             self.now_card_surf = pygame.image.load(
-                f"resources/images/card/RG/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+                f"resources/images/card/RG/{type}/{after_color}_{type}.png"
             ).convert_alpha()
-        self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))
+        self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))        
+
+
+    # def colorBlind(self, type):
+    #     if self.config["color"]["default"] == str(2):
+    #         self.now_card_surf = pygame.image.load(
+    #             f"resources/images/card/normalMode/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+    #         ).convert_alpha()
+    #     elif self.config["color"]["default"] == str(1):
+    #         self.now_card_surf = pygame.image.load(
+    #             f"resources/images/card/YB/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+    #         ).convert_alpha()
+    #     elif self.config["color"]["default"] == str(0):
+    #         self.now_card_surf = pygame.image.load(
+    #             f"resources/images/card/RG/{self.now_card.number}/{self.now_card.color}_{self.now_card.number}.png"
+    #         ).convert_alpha()
+    #     self.now_card_surf = pygame.transform.scale(self.now_card_surf, (50, 70))        
 
     def pass_turn(self):
         self.turn_index += 1
         self.turn_counter += 1
         if self.turn_counter % 5 == 0 and self.is_AI_C:
-            self.random_change_color(self.change_color_list[random.randint(0,3)][3])
+            print(self.now_card.color)
+            self.random_change_color(self.now_card, self.change_color_list[random.randint(0,3)][3])
             print("COLOR CHANGE")
+            print(self.now_card.color)
+            
         if self.turn_index == len(self.turn_list):
             self.turn_index = 0
         self.is_get = False

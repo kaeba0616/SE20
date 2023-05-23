@@ -9,7 +9,7 @@ from pause import PauseClass
 from models.animation import Animation
 from models.AI import AI
 
-from unogame.models.button import Component
+from models.button import Component
 
 
 class Event:
