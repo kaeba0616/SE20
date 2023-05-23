@@ -3,6 +3,7 @@ from pygame.locals import *
 import sys
 import socket, requests, re
 from multi_play import Game
+from network import server, client
 
 class multiPlayMenu:
     def __init__(self, keys, font, screen, config, soundFX):
@@ -109,8 +110,14 @@ class multiPlayMenu:
                     elif event.key == self.keys["RETURN"]:
                         if self.selected == 0:
                             self.option = 'menu'
-                            game = Game(self.screen, 1, self.keys, self.config, self.soundFX)           # 멀프 방만들기 삽입
-                            game.start_multi_play()
+                            
+                            # game = Game(self.screen, 1, self.keys, self.config, self.soundFX)           # 멀프 방만들기 삽입
+                            
+                            ## server open
+                            self.server = server.server(False,self.screen, self.keys, self.config, self.soundFX)
+                            self.server.main()
+                            
+                            # game.start_multi_play()
                         elif self.selected == 1:
                             self.option = 'client'
                         elif self.selected == 2:
@@ -128,8 +135,13 @@ class multiPlayMenu:
                         self.selected = (self.selected + 1) % len(self.items2)
                     elif event.key == self.keys["RETURN"]:
                         if self.selected == 0:
-                            print(self.text)                                    # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
-                            self.text = ''                                      # Todo: 비밀번호가 있으면 입력
+                            self.client = client.client(self.text, self.screen, self.keys, self.config, self.soundFX)
+                            self.client.main()
+                            print(self.text)    
+                            # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
+                            self.text = ''    
+                            # Todo: 비밀번호가 있으면 입력
+
                             if self.option == 'client' and self.existPassword:
                                 self.option = 'password'
                         elif self.selected == 1:
@@ -161,10 +173,18 @@ class multiPlayMenu:
                             elif event.type == MOUSEBUTTONUP:
                                 if i == 0:
                                     self.option = 'menu'
-                                    game = Game(self.screen, 1, self.keys, self.config, self.soundFX)
-                                    game.start_multi_play()                                     # 멀프 방만들기 삽입
+                                    
+                                    ## server open
+                                    self.server = server.server(False, self.screen, self.keys, self.config, self.soundFX)
+                                    self.server.main()
+                                    
+                                    # game = Game(self.screen, 1, self.keys, self.config, self.soundFX)
+                                    # game.start_multi_play()                                     # 멀프 방만들기 삽입
                                 elif i == 1:
                                     self.option = 'client'
+                                    ## client open
+                                    # self.client = client.client(self.text, self.screen, self.keys, self.config, self.soundFX)
+                                    # self.client.main()
                                 elif i == 2:
                                     self.option = 'menu'
                                     return i
@@ -186,6 +206,10 @@ class multiPlayMenu:
                                 self.selected = i
                             elif event.type == MOUSEBUTTONUP:
                                 if i == 0:
+                                    ## client open
+                            
+                                    self.client = client.client(self.text, self.screen, self.keys, self.config, self.soundFX)
+                                    self.client.main()
                                     print(self.text)                            # Todo: self.text(입력한 주소)의 방으로 연결시켜야함
                                     self.text = ''
                                     if self.option == 'client' and self.existPassword:

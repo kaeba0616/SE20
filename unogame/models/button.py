@@ -101,6 +101,7 @@ class Component:
                 False,
                 self.text_color,
             )
+            
         if self.is_choose and not game_active:
             self.a_button.draw(screen)
             self.b_button.draw(screen)
