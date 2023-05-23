@@ -31,20 +31,28 @@ class Event:
             )
             value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
             for card in game.card_list:
+                print(f"path : {card.file_path}")
+                print(f"config : {game.config['color']['default']}")
                 card.change_path(game.config)
             if game.game_active:
                 game.me.update_hand(game.screen)
                 game.now_card_surf = game.now_card.image
             if value == "out":
                 return value
+            game.make_screen()
 
             # # 치트키
-        elif event.type == pygame.KEYDOWN and event.key in [pygame.K_q, pygame.K_w]:
+        elif event.type == pygame.KEYDOWN and event.key in [pygame.K_q, pygame.K_w, pygame.K_t]:
             if event.key == pygame.K_q and game.game_active:
-                game.turn_list[game.turn_index].hand = game.turn_list[game.turn_index].hand[:1]
+                game.turn_list[game.turn_index].hand.clear()
 
             if event.key == pygame.K_w and game.game_active:
                 game.turn_list[1].hand = game.turn_list[1].hand[:1]
+
+            if event.key == pygame.K_t and game.game_active:
+                game.game_active = False
+                game.is_win = True
+                print("Key pressed")
             # # 치트키
 
         elif game.is_win and not game.game_active:
@@ -78,6 +86,7 @@ class Event:
                         pygame.time.get_ticks(),
                         1
                     ))
+                    game.soundFX.soundPlay(4)
                     pygame.time.set_timer(game.animation_list[-1].timer, 2000)
 
                 if game.is_color_change:
@@ -101,7 +110,8 @@ class Event:
         if (event.type == pygame.MOUSEBUTTONUP
             and game.start_button.rect.collidepoint(event.pos)
             and not game.edit_name
-        ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name):
+            and not game.settingPassword
+        ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name and not game.settingPassword):
             # 수정중
             if game.game_type == "stageA":
                 game.info_list[1].is_empty = False
@@ -175,6 +185,37 @@ class Event:
                     game.info_list[0].text = "PLAYER 1(ME)"
                     game.edit_text = "__________"
                 game.edit_name = False
+
+        elif event.type == pygame.KEYDOWN and game.settingPassword:
+
+            if game.edit_text == "__________":
+                game.edit_text = ""
+
+            if event.key == pygame.K_BACKSPACE:
+                game.edit_text = game.edit_text[:-1]
+            elif event.key == pygame.K_RETURN:
+                if game.edit_text == "__________" or game.edit_text == "":
+                    game.password = ""
+                    game.edit_text = "__________"
+                game.settingPassword = False
+                game.ok_button.rect.x = game.screen_width // 2
+                game.ok_button.rect.y = game.screen_height // 2 + 100
+            elif event.unicode.isnumeric():
+                if len(game.edit_text) < 4:
+                    game.edit_text += event.unicode
+
+        elif (
+                event.type == pygame.MOUSEBUTTONDOWN
+                and game.settingPassword
+                and game.ok_button.is_clicked(event.pos)
+            ):
+            game.password = game.edit_text
+            if game.edit_text == "__________" or game.edit_text == "":
+                game.password = ""
+                game.edit_text = "__________"
+            game.settingPassword = False
+            game.ok_button.rect.x = game.screen_width // 2
+            game.ok_button.rect.y = game.screen_height // 2 + 100
 
         if event.type == pygame.MOUSEBUTTONDOWN and not game.game_active and game.game_type[0:5] != "stage":
             for i in range(1, len(game.info_list)):
@@ -377,6 +418,7 @@ class Event:
                                     pygame.time.get_ticks(),
                                     1
                                 ))
+                                game.soundFX.soundPlay(4)
                                 pop_card = game.now_select
                                 game.turn_list[game.turn_index].hand.remove(pop_card)
                                 game.now_select = None
@@ -419,6 +461,7 @@ class Event:
                                 pygame.time.get_ticks(),
                                 1
                             ))
+                            game.soundFX.soundPlay(4)
                             pygame.time.set_timer(game.animation_list[-1].timer, 2000)
 
                             game.now_select = None

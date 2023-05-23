@@ -40,7 +40,9 @@ class SoundFX:
         self.soundEffects = [
             pygame.mixer.Sound("short_blip.mp3"),
             pygame.mixer.Sound("coin.mp3"),
-            pygame.mixer.Sound("bleep.mp3")
+            pygame.mixer.Sound("bleep.mp3"),
+            pygame.mixer.Sound("flipcard.mp3"),
+            pygame.mixer.Sound("winsquare.mp3")
         ]
 
         os.chdir(path) # 경로 원위치
