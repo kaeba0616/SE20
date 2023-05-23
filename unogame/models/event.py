@@ -110,8 +110,8 @@ class Event:
         if (event.type == pygame.MOUSEBUTTONUP
             and game.start_button.rect.collidepoint(event.pos)
             and not game.edit_name
-            and not game.settingPassword
-        ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name and not game.settingPassword):
+            # and not game.settingPassword
+        ) or (event.type == pygame.KEYDOWN and event.key == game.keys["RETURN"] and not game.edit_name): #and not game.settingPassword):
             # 수정중
             if game.game_type == "stageA":
                 game.info_list[1].is_empty = False
