@@ -379,6 +379,8 @@ class Event:
                     game.change_color(color_list[3])
                     game.is_skill_active = True
                     game.is_color_change = False
+                    if game.turnCounter == 1:
+                        break
                     game.pass_turn()
 
         # 클릭 및 엔터 이벤트

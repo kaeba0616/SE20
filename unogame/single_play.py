@@ -748,7 +748,6 @@ class Game:
                     input_deck.append(pop_card)
                 else:
                     print("Lack of Remain - plus")
-                    self.is_win = True
 
         if len(self.me.hand) >= 15 and self.config["Achievement"]["grabover15card"] == "0":   # achievement
             self.achieve.accomplish(10)
