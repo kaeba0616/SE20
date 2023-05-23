@@ -21,6 +21,16 @@ class Animation:
         move_rect.rect.centery = self.start[1] + (self.end[1] - self.start[1]) * eased_progress
 
 
+class AnimationWin(Animation):
+
+    def __init__(self, start, end, start_time, count, card):
+        super().__init__(start, end, start_time, count)
+        self.card = card
+        self.move_list.clear()
+        move_object = MoveRect()
+        move_object.surf = self.card.image
+        move_object.rect = self.card.rect
+        self.move_list.append(move_object)
 class MoveRect:
 
     def __init__(self):

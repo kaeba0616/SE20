@@ -31,6 +31,8 @@ class Event:
             )
             value = pause.run()  # Todo: 일시정지 후 게임 내부 크기 조절 기능 필요..
             for card in game.card_list:
+                print(f"path : {card.file_path}")
+                print(f"config : {game.config['color']['default']}")
                 card.change_path(game.config)
             if game.game_active:
                 game.me.update_hand(game.screen)
@@ -40,12 +42,17 @@ class Event:
             game.make_screen()
 
             # # 치트키
-        elif event.type == pygame.KEYDOWN and event.key in [pygame.K_q, pygame.K_w]:
+        elif event.type == pygame.KEYDOWN and event.key in [pygame.K_q, pygame.K_w, pygame.K_t]:
             if event.key == pygame.K_q and game.game_active:
-                game.turn_list[game.turn_index].hand = game.turn_list[game.turn_index].hand[:1]
+                game.turn_list[game.turn_index].hand.clear()
 
             if event.key == pygame.K_w and game.game_active:
                 game.turn_list[1].hand = game.turn_list[1].hand[:1]
+
+            if event.key == pygame.K_t and game.game_active:
+                game.game_active = False
+                game.is_win = True
+                print("Key pressed")
             # # 치트키
 
         elif game.is_win and not game.game_active:
@@ -79,6 +86,7 @@ class Event:
                         pygame.time.get_ticks(),
                         1
                     ))
+                    game.soundFX.soundPlay(4)
                     pygame.time.set_timer(game.animation_list[-1].timer, 2000)
 
                 if game.is_color_change:
@@ -410,6 +418,7 @@ class Event:
                                     pygame.time.get_ticks(),
                                     1
                                 ))
+                                game.soundFX.soundPlay(4)
                                 pop_card = game.now_select
                                 game.turn_list[game.turn_index].hand.remove(pop_card)
                                 game.now_select = None
@@ -452,6 +461,7 @@ class Event:
                                 pygame.time.get_ticks(),
                                 1
                             ))
+                            game.soundFX.soundPlay(4)
                             pygame.time.set_timer(game.animation_list[-1].timer, 2000)
 
                             game.now_select = None
